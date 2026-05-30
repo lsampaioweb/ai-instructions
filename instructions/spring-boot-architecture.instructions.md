@@ -1,5 +1,5 @@
 ---
-description: "Feature-based packaging, dependency flow, visibility, domain object rules, interface conventions, and code style for all Java files."
+description: "Feature-based packaging, dependency flow, visibility, domain object rules, interface conventions, and code style for all Java and Spring Boot files."
 applyTo: "**/*.java"
 ---
 

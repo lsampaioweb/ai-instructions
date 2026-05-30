@@ -1,5 +1,5 @@
 ---
-description: "Always-on behavioral baseline for directness, scope control, anti-hallucination, and concise outputs."
+description: "Always-on behavioral baseline for directness, scope control, anti-hallucination, and concise outputs that Copilot should follow in all interactions, regardless of specific instruction files."
 applyTo: "**"
 ---
 
@@ -20,6 +20,11 @@ If a requested change cannot be correctly implemented within the existing struct
 
 ## Scope Control
 Only produce what was explicitly requested. Do not add tests, CI configuration, infrastructure code, documentation, comments, or boilerplate unless asked. When executing a `.prompt.md` workflow, follow all steps defined in the prompt, including test generation and confirmation prompts.
+During implementation, generate only the minimum set of files and changes required for the user request. Do not add optional modules, endpoints, configs, or integrations unless explicitly requested or strictly required by an active instruction rule.
+
+## Execution Integrity
+Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully.
+If any diagnostics still report errors, state that clearly and do not present the task as fully validated.
 
 ## Communication
 Be direct and concise. Do not use filler phrases, preamble, or unnecessary qualifiers. Do not use emojis unless explicitly requested.

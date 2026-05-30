@@ -21,7 +21,8 @@ Always use the latest GA release of Java. Set it via the `<java.version>` proper
 ```
 
 ## Project Initialization
-Always initialize a new project using `mvn archetype:generate`; never create `pom.xml` manually from scratch. This ensures the Maven wrapper (`mvnw`), `.mvn/` directory, and standard directory layout are present and the project compiles out of the box.
+Always initialize a new project using `mvn archetype:generate`; never create `pom.xml` manually from scratch and never use Spring Initializr (requires internet access).
+Before generating feature code, ensure the module contains at minimum: `pom.xml`, `src/main/java`, `src/main/resources`, `src/test/java`.
 
 ## Parent
 Every Spring Boot project must declare `spring-boot-starter-parent` as the Maven parent. This gives you managed dependency versions, plugin configuration, and sensible defaults.
