@@ -7,5 +7,5 @@ tools: [vscode, execute, read, search, web]
 $input
 
 - Explain what is causing this problem.
-- Use the web and/or run commands to investigate.
+- Run commands and/or use the web to investigate.
 - Provide the correct, permanent fix — not a workaround.
