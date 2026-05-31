@@ -12,6 +12,7 @@ applyTo: "**/*Controller.java"
 - Do not call mapper classes or integration clients directly
 - Accept input via `@RequestBody` or `@PathVariable`; always annotate request body objects with `@Valid`
 - Return DTOs only; never return domain objects directly; exception: when the response is raw opaque content (e.g. file bytes, TOML passthrough), return `ResponseEntity<String>` or `ResponseEntity<byte[]>` — see the Raw Passthrough Exception rule in `spring-boot-dto-mapper.instructions.md`
+- Never return `Map<String, Object>` or `Object`; every JSON response must be a strictly typed Java record
 - When returning a non-JSON response, set the `produces` attribute explicitly on the mapping annotation (e.g. `@PostMapping(value = "/", produces = "application/toml")`)
 - Use specific mapping annotations: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`
 - HTTP status discipline: 200 for successful reads, 201 for creation via `ResponseEntity`, 204 for no-content, 400 for validation errors, 404 for not found, 500 for unexpected errors
