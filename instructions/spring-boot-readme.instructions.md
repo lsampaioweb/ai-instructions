@@ -21,9 +21,10 @@ Rules:
 
 ## Documentation Standards
 - Use `1.` for ALL numbered lists (let Markdown auto-increment)
+- Always sort lists, tables, and enumerations in alphabetical order by the primary column or key
 - ONE command per code block with a description above it
 - Always include `<!-- filepath: ... -->` at the top of every Markdown file
-- End each documentation file with navigation and author signature:
+- End each documentation file with navigation (if applicable) and author signature:
 
 ```markdown
 [Go Back](../README.md)
