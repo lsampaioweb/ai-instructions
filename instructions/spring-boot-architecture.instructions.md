@@ -21,8 +21,7 @@ project-root/
 ├── pom.xml
 ├── README.md
 ├── logs/
-│   └── container/
-│       └── .keep
+│   └── .keep
 ├── ssl/
 │   └── .keep
 └── src/
@@ -42,6 +41,8 @@ project-root/
 ```
 
 ## Code Style
+- **Never trust user input.** Treat all data crossing API boundaries or originating from external sources (files, network, user input) as untrusted. Validate format, length, and content explicitly; reject or sanitize by default.
+- All Java identifiers (classes, methods, fields, constants) must follow standard Java naming conventions: `camelCase` for variables and methods, `UPPER_SNAKE_CASE` for constants, `PascalCase` for class and interface names. Do not use underscores, hyphens, or other separators in Java identifiers; map external formats (e.g., JSON snake_case) via framework annotations (Jackson `@JsonProperty` or `@JsonNaming`) instead.
 - 2 spaces for indentation; never use tabs
 - Use modern Java features where the project's Java version supports them: records, pattern matching, sealed classes, text blocks
 - Keep method and constructor signatures on one line when reasonably readable
@@ -148,6 +149,9 @@ Never claim a file was formatted unless formatting actually ran successfully.
 
 ## Project Blueprint
 
+### Scope Control
+Only generate files for the specific feature or change requested. Do not add optional infrastructure, endpoints, event handlers, or configuration blocks unless explicitly requested. When starting a brand-new project, initialize mandatory shared infrastructure first; when adding a feature to an existing project, skip already-present infrastructure files.
+
 ### Required inputs before generating any file
 
 Confirm all of the following before creating any file. If any item is missing or ambiguous, stop and ask — do not infer or auto-fill:
@@ -160,9 +164,7 @@ Confirm all of the following before creating any file. If any item is missing or
 
 ### Generation order
 
-Generate each file fully before moving to the next.
-
-When planning a brand-new Spring Boot application, enumerate the mandatory shared infrastructure files from the "Shared infrastructure — create once per project" section explicitly in the plan. Do not collapse them into vague phrases such as "minimum config files" or "basic setup".
+Generate each file fully before moving to the next. List all files to be created explicitly before starting; do not use vague placeholders like "config files" or "setup files" — name each file by its actual path and name.
 
 #### Shared infrastructure — create once per project, skip if already present
 

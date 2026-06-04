@@ -30,8 +30,7 @@ Never implement custom cryptography. Use approved Spring Security password encod
 
 ## SSL/TLS
 - Enable HTTPS in production via `server.ssl.*` in `application-production.yml`
-- Store the `.p12` certificate file under `src/main/resources/ssl/`
-- Reference the keystore path and credentials from environment variables; never hardcode them in YAML
+- **Never commit certificate files to the repository.** Store the keystore file outside the codebase (e.g., on the runtime host, in a secrets vault, or mounted as a volume). Reference the keystore path and credentials exclusively from environment variables; do not embed paths or filenames in YAML
 - Use `TLSv1.3` exclusively; do not permit older TLS versions
 - Enable HTTP/2 alongside HTTPS: `server.http2.enabled: true`
 - Do not configure SSL in `application-development.yml` unless specifically required for local testing

@@ -31,7 +31,12 @@ Use when the feature has no database and data is stored as files on disk identif
 
 - Define a plain Java interface (no `@Mapper`, no Spring Data annotations)
 - Implement the interface as a package-private class; inject the base directory as a `Path` from a `@ConfigurationProperties` class — never hardcode the path
-- Normalize the lookup key before constructing the file path (e.g., MAC addresses to lowercase with colon separators, usernames to lowercase) to ensure consistent filesystem resolution across case-sensitive and case-insensitive systems
+- **Security: Validate and normalize the lookup key** — treat all keys as untrusted input:
+  1. Validate the key format against an allowlist (e.g., regex pattern for MAC addresses: `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$`); reject invalid formats immediately with a domain bad-request exception
+  2. Normalize to a canonical form (e.g., lowercase, colon-separated)
+  3. Construct the file path by resolving the normalized key against the base directory
+  4. Enforce that the resolved path is within the base directory (path traversal check): `filePath.normalize().startsWith(baseDir.normalize())`
+  5. If the check fails, throw a domain bad-request exception; do not attempt access
 - Use `Files.readString(path, StandardCharsets.UTF_8)` to read file contents; catch `NoSuchFileException` and rethrow as the domain `NotFoundException`
 - No business logic; I/O only
 - Keep the implementation class package-private when used only within the same feature package
