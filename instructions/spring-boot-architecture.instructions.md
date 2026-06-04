@@ -51,6 +51,18 @@ project-root/
 - Do not add a blank line after every single statement; use spacing to group related lines, not to isolate them
 - In constructors and methods, keep assignment order consistent with field declaration order and parameter order whenever possible
 
+## Member and Method Ordering
+Order members within every class to reflect the logical flow a reader would follow:
+
+1. Static constants (`private static final`) — i18n key constants first, then other constants
+2. Instance fields — in the order they are used; dependencies injected via constructor come first
+3. Constructor(s)
+4. Public API methods — in the order a caller would logically invoke them (e.g. the main operation before its supporting overloads)
+5. Package-private or protected methods — same flow principle
+6. Private helper methods — in the order they are called from the methods above, not alphabetically
+
+Never let IDE auto-sort or alphabetical ordering decide method placement. The order must communicate intent and make the class readable without jumping around.
+
 ## Packaging
 Organize code by feature or domain. Use packages like `user`, `product`, `order`, `config`, `integration`. Do not create generic root packages named `controller`, `service`, or `repository`.
 

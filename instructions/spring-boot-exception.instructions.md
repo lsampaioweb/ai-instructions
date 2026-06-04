@@ -8,8 +8,8 @@ applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.ja
 ## @RestControllerAdvice
 - One single `@RestControllerAdvice` class handles all exceptions for the entire application
 - Always include a catch-all `@ExceptionHandler(Exception.class)` handler mapped to HTTP 500
-- Handle `MethodArgumentNotValidException` separately; return a list of `{field, message}` records — one per validation failure — not a single `ErrorResponse`
 - Handle `NoResourceFoundException` (from `org.springframework.web.servlet.resource`) explicitly, mapped to HTTP 404 and returning a standard `ErrorResponse`; without this, Spring MVC routes it to the catch-all and every missing path becomes a 500
+- Handle `MethodArgumentNotValidException` separately; return a list of `{field, message}` records — one per validation failure — not a single `ErrorResponse`
 - Never expose stack traces by default; set `server.error.include-stacktrace: "never"` in `application.yml` and `server.error.include-stacktrace: "always"` in `application-development.yml`
 
 ## Domain Exceptions
