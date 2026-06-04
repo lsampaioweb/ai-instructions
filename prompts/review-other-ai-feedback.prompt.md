@@ -1,6 +1,7 @@
 ---
 description: "Detailed critical review of external AI feedback: assess reasoning quality, identify gaps, and suggest improvements or fixes."
 argument-hint: "Paste feedback from another AI tool or analysis."
+tools: [vscode, execute, read, search, web]
 ---
 
 I asked another AI about the work I've been doing, and here's the feedback they provided:
