@@ -25,3 +25,12 @@ Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend
 - Keep repository and mapper classes package-private when used only within the same feature package
 - Place schema and seed SQL files under `src/main/resources/sql/`; do not place them in the root of `src/main/resources/`
 - Never add Flyway or Liquibase dependencies unless explicitly requested; assume SQL files are executed manually or via `spring.sql.init` properties
+
+## Filesystem Repositories
+Use when the feature has no database and data is stored as files on disk identified by a key.
+
+- Define a plain Java interface (no `@Mapper`, no Spring Data annotations)
+- Implement the interface as a package-private class; inject the base directory as a `Path` from a `@ConfigurationProperties` class — never hardcode the path
+- Use `Files.readString(path, StandardCharsets.UTF_8)` to read file contents; catch `NoSuchFileException` and rethrow as the domain `NotFoundException`
+- No business logic; I/O only
+- Keep the implementation class package-private when used only within the same feature package

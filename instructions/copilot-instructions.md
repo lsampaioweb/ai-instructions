@@ -6,7 +6,7 @@ applyTo: "**"
 # Copilot Behavior Baseline
 
 ## Language
-Default output language for all generated code, comments, identifiers, and files must be in English.
+All output — including chat responses, explanations, and generated code, comments, identifiers, and files — must be in English.
 
 ## Communication
 Be direct and concise. Do not use filler phrases, preamble, or unnecessary qualifiers. Do not use emojis unless explicitly requested.

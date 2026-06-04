@@ -179,6 +179,7 @@ Generate each file fully before moving to the next.
 | `Create{Domain}Request.java`, `Update{Domain}Request.java`, `{Domain}Response.java`, `{Domain}Mapper.java` | [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md) |
 | `{Domain}NotFoundException.java` | [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) |
 | `{Domain}Repository.java`, `src/main/resources/mapper/{Domain}Mapper.xml`, `src/main/resources/sql/schema.sql` *(all database only; append SQL, never overwrite)* | [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) |
+| `{Domain}Repository.java` (interface) + `{Domain}RepositoryImpl.java` *(filesystem only; no database)* | [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) |
 | `{Domain}Service.java`, `{Domain}ServiceImpl.java` | [spring-boot-service.instructions.md](./spring-boot-service.instructions.md) |
 | `{Domain}Controller.java` | [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) |
 | `{Domain}ControllerTest.java`, `{Domain}ServiceTest.java` | [spring-boot-test.instructions.md](./spring-boot-test.instructions.md) |

@@ -12,6 +12,7 @@ applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configurati
 
 ## Binding
 - Bind groups of related settings to a `@ConfigurationProperties` class
+- Any domain-specific configurable path, directory, or URL is always a grouped config block; bind it with `@ConfigurationProperties`, never `@Value`
 - Use `@Value` only for a single isolated property that does not belong to a larger config group
 
 ## Secrets
