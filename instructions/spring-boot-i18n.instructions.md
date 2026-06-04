@@ -28,3 +28,39 @@ spring:
 ## Locale Resolution
 - Register `LocaleResolver` as a `@Bean` inside a dedicated `@Configuration` class configured to read the `Accept-Language` header
 - Do not support `?lang=` query parameter; the header mechanism is sufficient for all environments including testing
+
+## Template
+
+Custom locale resolver and configuration. These two classes are the same in every project — no substitutions needed.
+
+```java
+class I18nAcceptHeaderLocaleResolver extends AcceptHeaderLocaleResolver {
+
+  @Override
+  public Locale resolveLocale(HttpServletRequest request) {
+    String acceptLanguage = request.getHeader("Accept-Language");
+
+    if (!StringUtils.hasText(acceptLanguage)) {
+      return Locale.ENGLISH;
+    }
+
+    return super.resolveLocale(request);
+  }
+}
+```
+
+```java
+@Configuration
+class I18nLocaleResolverConfig implements WebMvcConfigurer {
+
+  @Bean
+  LocaleResolver localeResolver() {
+    AcceptHeaderLocaleResolver resolver = new I18nAcceptHeaderLocaleResolver();
+
+    resolver.setDefaultLocale(Locale.ENGLISH);
+    resolver.setSupportedLocales(List.of(Locale.ENGLISH, Locale.forLanguageTag("pt-BR")));
+
+    return resolver;
+  }
+}
+```

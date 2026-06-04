@@ -60,3 +60,33 @@ spring:
 ```
 
 Standard environment variable names: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+
+## Template
+
+`@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a `@Configuration` class.
+
+```java
+@ConfigurationProperties(prefix = "app.{feature}")
+public record {Feature}ConfigurationProperties(String baseUrl, Duration timeout, int maxRetries) {}
+```
+
+Corresponding YAML block (in `application.yml` or the appropriate profile file):
+
+```yaml
+# Replace feature, property names, and env var names with actual values.
+app:
+  {feature}:
+    base-url: "${FEATURE_BASE_URL}"
+    timeout: "5s"
+    max-retries: 3
+```
+
+Enable the properties class:
+
+```java
+@Configuration
+@EnableConfigurationProperties({Feature}ConfigurationProperties.class)
+class {Feature}Configuration {
+    // @Bean definitions that depend on {Feature}ConfigurationProperties go here
+}
+```

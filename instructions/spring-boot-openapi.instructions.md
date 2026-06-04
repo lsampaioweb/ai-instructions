@@ -29,3 +29,36 @@ springdoc:
 ```
 
 - Enable it in the development profile; it does not need to be accessible in production or test environments
+
+## Templates
+
+**OpenAPI bean.** Replace project title, version, description, team name, email, and URL with actual values.
+
+```java
+@Configuration
+class OpenApiConfig {
+
+  @Bean
+  OpenAPI openAPI() {
+    return new OpenAPI()
+      .info(new Info()
+        .title("{Project} API")
+        .version("1.0.0")
+        .description("REST API for managing {project resources}")
+        .contact(new Contact()
+          .name("{Team Name}")
+          .email("{team@example.com}")
+          .url("https://{team-url}")));
+  }
+}
+```
+
+**Controller method annotations.** Add `@Operation` and `@ApiResponse` to every handler method. Replace `{resource}` and status descriptions with actual values.
+
+```java
+@Operation(summary = "Find a {resource} by id")
+@ApiResponse(responseCode = "200", description = "{Resource} found")
+@ApiResponse(responseCode = "404", description = "{Resource} not found")
+@GetMapping("/{id}")
+public ResponseEntity<{Resource}Response> findById(@PathVariable Long id) { ... }
+```

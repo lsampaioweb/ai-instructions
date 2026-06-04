@@ -31,3 +31,63 @@ When the endpoint URL is mandated by an external protocol, hardware system, or v
 
 ## Raw Passthrough Exception
 When the response body is raw opaque content passed through unchanged (e.g. a file read as text or bytes, with a non-JSON content type such as `application/toml`, `text/plain`, or `application/octet-stream`), skip the response DTO and mapper entirely. The service returns the raw content (`String` or `byte[]`) directly; the controller returns `ResponseEntity<String>` or `ResponseEntity<byte[]>` with an explicit `Content-Type`. Do not create a wrapper DTO with a single `content` field just to satisfy the DTO rule.
+
+## Template
+
+CRUD controller skeleton. Replace `{Resource}`, `{resource}`, `{resources}`, and all DTO names with actual project values.
+
+```java
+@Slf4j
+@RestController
+@RequestMapping("/api/v1/{resources}")
+@Tag(name = "{Resource}s", description = "Manage {resources}")
+class {Resource}Controller {
+
+  private final {Resource}Service {resource}Service;
+
+  {Resource}Controller({Resource}Service {resource}Service) {
+    this.{resource}Service = {resource}Service;
+  }
+
+  @GetMapping("/")
+  @Operation(summary = "List all {resources}")
+  public PagedModel<EntityModel<{Resource}Response>> findAll(
+      Pageable pageable, PagedResourcesAssembler<{Resource}Response> assembler) {
+
+    return assembler.toModel({resource}Service.findAll(pageable));
+  }
+
+  @GetMapping("/{id}")
+  @Operation(summary = "Find a {resource} by id")
+  public ResponseEntity<{Resource}Response> findById(@PathVariable Long id) {
+    return ResponseEntity.ok({resource}Service.findById(id));
+  }
+
+  @PostMapping("/")
+  @Operation(summary = "Create a new {resource}")
+  public ResponseEntity<{Resource}Response> create(
+      @Valid @RequestBody Create{Resource}Request request, UriComponentsBuilder uriBuilder) {
+
+    {Resource}Response response = {resource}Service.create(request);
+    URI location = uriBuilder.path("/api/v1/{resources}/{id}").buildAndExpand(response.id()).toUri();
+
+    return ResponseEntity.created(location).body(response);
+  }
+
+  @PutMapping("/{id}")
+  @Operation(summary = "Update a {resource}")
+  public ResponseEntity<{Resource}Response> update(
+      @PathVariable Long id, @Valid @RequestBody Update{Resource}Request request) {
+
+    return ResponseEntity.ok({resource}Service.update(id, request));
+  }
+
+  @DeleteMapping("/{id}")
+  @Operation(summary = "Delete a {resource}")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    {resource}Service.delete(id);
+
+    return ResponseEntity.noContent().build();
+  }
+}
+```

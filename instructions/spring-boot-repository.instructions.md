@@ -40,3 +40,101 @@ Use when the feature has no database and data is stored as files on disk identif
 - Use `Files.readString(path, StandardCharsets.UTF_8)` to read file contents; catch `NoSuchFileException` and rethrow as the domain `NotFoundException`
 - No business logic; I/O only
 - Keep the implementation class package-private when used only within the same feature package
+
+## Templates
+
+**MyBatis — mapper interface.** Replace `{Resource}`, `{resource}`, and `{feature}` with actual names.
+
+```java
+@Mapper
+interface {Resource}Mapper {
+  List<{Resource}> findAll();
+  Optional<{Resource}> findById(Long id);
+  int insert({Resource} entity);
+  int update({Resource} entity);
+  int deleteById(Long id);
+  boolean existsById(Long id);
+}
+```
+
+**MyBatis — XML mapper file** (`src/main/resources/mapper/{Resource}Mapper.xml`). Replace namespace, table, and column names with actual values.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.{feature}.{Resource}Mapper">
+
+    <resultMap id="{resource}Map" type="com.example.{feature}.{Resource}">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="{resource}Map">
+        SELECT id, name, description FROM {resources}
+    </select>
+
+    <select id="findById" parameterType="long" resultMap="{resource}Map">
+        SELECT id, name, description FROM {resources} WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO {resources} (name, description) VALUES (#{name}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE {resources} SET name = #{name}, description = #{description} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM {resources} WHERE id = #{id}
+    </delete>
+
+</mapper>
+```
+
+**JdbcClient repository.** Replace `{Resource}`, `{resource}`, `{resources}`, and column names with actual values. SQL strings must be stored in external XML files and loaded by key — never hardcoded inline.
+
+```java
+@Slf4j
+@Repository
+class {Resource}Repository {
+
+  private final JdbcClient jdbcClient;
+
+  {Resource}Repository(JdbcClient jdbcClient) {
+    this.jdbcClient = jdbcClient;
+  }
+
+  @Transactional(readOnly = true)
+  public List<{Resource}> findAll() {
+    return jdbcClient.sql(SQL_FIND_ALL)
+      .query({Resource}.class)
+      .list();
+  }
+
+  @Transactional(readOnly = true)
+  public Optional<{Resource}> findById(Long id) {
+    return jdbcClient.sql(SQL_FIND_BY_ID)
+      .param("id", id)
+      .query({Resource}.class)
+      .optional();
+  }
+
+  @Transactional
+  public void save({Resource} entity) {
+    jdbcClient.sql(SQL_INSERT)
+      .param("name", entity.getName())
+      .param("description", entity.getDescription())
+      .update();
+  }
+
+  @Transactional
+  public void deleteById(Long id) {
+    jdbcClient.sql(SQL_DELETE_BY_ID)
+      .param("id", id)
+      .update();
+  }
+}
+```

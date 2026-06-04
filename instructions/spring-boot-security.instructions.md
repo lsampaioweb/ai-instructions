@@ -34,3 +34,51 @@ Never implement custom cryptography. Use approved Spring Security password encod
 - Use `TLSv1.3` exclusively; do not permit older TLS versions
 - Enable HTTP/2 alongside HTTPS: `server.http2.enabled: true`
 - Do not configure SSL in `application-development.yml` unless specifically required for local testing
+
+## Templates
+
+**SecurityFilterChain using Lambda DSL.** Replace public paths, CORS origins, and the auth mechanism with actual project values.
+
+```java
+@Configuration
+@EnableMethodSecurity
+class SecurityConfig {
+
+  @Bean
+  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+      .authorizeHttpRequests(auth -> auth
+        // Public endpoints — keep this list minimal; document each entry
+        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+        .anyRequest().authenticated()
+      )
+      .sessionManagement(session -> session
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      )
+      .csrf(AbstractHttpConfigurer::disable) // stateless API — no session cookie, no CSRF needed
+      .httpBasic(Customizer.withDefaults());
+
+    return http.build();
+  }
+
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(List.of("https://{allowed-origin}")); // replace with actual origin
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept-Language"));
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+
+    return source;
+  }
+}
+```
+
+**Method-level authorization.** Apply `@PreAuthorize` on service methods that require role or permission checks.
+
+```java
+@PreAuthorize("hasRole('ADMIN')")
+public void delete(Long id) { ... }
+```

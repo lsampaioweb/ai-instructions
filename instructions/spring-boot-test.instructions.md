@@ -25,3 +25,63 @@ Example: `findById_whenUserNotFound_shouldReturn404`
 ## Focus
 - Assert on response status, body, and headers; do not assert on internal implementation details
 - Keep each test focused on a single behavior
+
+## Template
+
+`@WebMvcTest` controller test skeleton. Replace `{Resource}`, `{resource}`, `{resources}`, and field names with actual project values.
+
+```java
+@WebMvcTest({Resource}Controller.class)
+@ActiveProfiles("test")
+class {Resource}ControllerTest {
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @MockitoBean
+  private {Resource}Service {resource}Service;
+
+  private {Resource}Response sample{Resource};
+
+  @BeforeEach
+  void setUp() {
+    sample{Resource} = new {Resource}Response(1L, "Sample Name", "Sample Description");
+  }
+
+  @Test
+  void findById_when{Resource}Exists_shouldReturn200() throws Exception {
+    given({resource}Service.findById(1L)).willReturn(sample{Resource});
+
+    mockMvc.perform(get("/api/v1/{resources}/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id").value(1L))
+      .andExpect(jsonPath("$.name").value("Sample Name"));
+  }
+
+  @Test
+  void findById_when{Resource}NotFound_shouldReturn404() throws Exception {
+    given({resource}Service.findById(99L)).willThrow(new {Resource}NotFoundException(99L));
+
+    mockMvc.perform(get("/api/v1/{resources}/99"))
+      .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void create_whenValidRequest_shouldReturn201() throws Exception {
+    given({resource}Service.create(any())).willReturn(sample{Resource});
+
+    mockMvc.perform(post("/api/v1/{resources}/")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"name\":\"Sample Name\",\"description\":\"Sample Description\"}"))
+      .andExpect(status().isCreated());
+  }
+
+  @Test
+  void create_whenInvalidRequest_shouldReturn400() throws Exception {
+    mockMvc.perform(post("/api/v1/{resources}/")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{}"))
+      .andExpect(status().isBadRequest());
+  }
+}
+```

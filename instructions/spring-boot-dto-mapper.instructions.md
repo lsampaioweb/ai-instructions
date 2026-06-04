@@ -19,3 +19,34 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*Mapper.java, **/*Request.java, **/*Res
 
 ## Raw Passthrough Exception
 See [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) for the Raw Passthrough Exception rule. When the response body is raw opaque content (e.g. TOML, binary files), skip the response DTO and mapper entirely.
+
+## Templates
+
+**Request DTO record.** Replace `{Resource}` with the domain concept name. Add or remove fields and validation annotations as needed.
+
+```java
+public record Create{Resource}Request(
+  @NotBlank String name,
+  @NotBlank @Size(max = 255) String description) {}
+```
+
+**Response DTO record.** Replace `{Resource}` with the domain concept name. Add or remove fields as needed.
+
+```java
+public record {Resource}Response(
+  Long id,
+  String name,
+  String description) {}
+```
+
+**MapStruct mapper interface.** Replace `{Resource}` with the domain concept name. Add `@Mapping` annotations when source and target field names differ.
+
+```java
+@Mapper(componentModel = "spring")
+interface {Resource}Mapper {
+  {Resource} toEntity(Create{Resource}Request request);
+  {Resource}Response toResponse({Resource} entity);
+  void updateEntity(Update{Resource}Request request, @MappingTarget {Resource} entity);
+  // @Mapping(source = "entityField", target = "responseField")
+}
+```

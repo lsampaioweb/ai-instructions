@@ -32,3 +32,37 @@ management:
 - Implement a `HealthIndicator` for each external dependency (database, message broker, external API)
 - Return `Health.down()` with a descriptive detail key (from `messages.properties`) when the dependency is unavailable
 - Keep health indicator classes package-private; register them as `@Component`
+
+## Template
+
+Custom `HealthIndicator`. Replace `{Dependency}` with the external system name (e.g. `PaymentGateway`, `Cache`, `MessagingBroker`).
+
+```java
+@Slf4j
+@Component
+class {Dependency}HealthIndicator implements HealthIndicator {
+
+  private static final String LOG_HEALTH_{DEPENDENCY}_DOWN = "health.{dependency}.down";
+
+  private final {Dependency}Client {dependency}Client;
+
+  {Dependency}HealthIndicator({Dependency}Client {dependency}Client) {
+    this.{dependency}Client = {dependency}Client;
+  }
+
+  @Override
+  public Health health() {
+    try {
+      {dependency}Client.ping();
+
+      return Health.up().build();
+    } catch (Exception ex) {
+      log.warn(LogMessages.get(LOG_HEALTH_{DEPENDENCY}_DOWN), ex.getMessage());
+
+      return Health.down()
+        .withDetail("reason", ex.getMessage())
+        .build();
+    }
+  }
+}
+```
