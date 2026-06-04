@@ -43,12 +43,31 @@ See `spring-boot-architecture.instructions.md` for the constant naming rule.
 - Inside tight loops or high-throughput paths without a level guard: `if (log.isDebugEnabled())`
 
 ## Logback Configuration
-Place `logback-spring.xml` under `src/main/resources/log/`. Configure profile-based appenders:
+- Place `logback-spring.xml` under `src/main/resources/log/`.
+- Add all profile-based appenders:
 
 - `development` profile: console appender + async file appender at `DEBUG` level
 - `production` and default profiles: async file appender only at `INFO` level
 
 File rotation settings:
-- `maxFileSize`: 100MB
+- `maxFileSize`: 10MB
 - `totalSizeCap`: 1GB
-- `maxHistory`: 1 (days to retain)
+- `maxHistory`: 7 (days to retain)
+
+### Working Directory & Path Resolution
+Relative paths in `logback-spring.xml` resolve from the JVM's working directory. To ensure consistent log placement across Maven and IDE launches:
+
+1. **POM configuration**: Set `<workingDirectory>${project.basedir}</workingDirectory>` in `spring-boot-maven-plugin` (required; ensures Maven always uses the project folder, even when run from a parent folder)
+2. **IDE configuration**: Create `.vscode/launch.json` (or IntelliJ Run Configuration) with `cwd` pointing to the project folder:
+   - **VSCode**: `"cwd": "${workspaceFolder}/<project-folder>"`
+3. **Logback configuration**: Use `<springProperty>` to make the log path configurable:
+   ```xml
+   <springProperty name="LOG_PATH" source="app.logging.path" defaultValue="logs" />
+   ```
+   Define the property in `application.yml`:
+   ```yaml
+   app:
+     logging:
+       path: logs
+   ```
+   This allows overriding via environment variables if needed, but provides a sensible default that resolves relative to the working directory.

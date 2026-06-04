@@ -41,8 +41,8 @@ Every Spring Boot project must declare `spring-boot-starter-parent` as the Maven
 - Declare `spring-boot-starter-test` and `mockito-core` with `<scope>test</scope>`
 
 ## Plugins
-- Do not add `spring-boot-maven-plugin` configuration unless you need to change a specific default
-- Keep plugin configuration minimal and documented when present
+- **CRITICAL**: Always configure `spring-boot-maven-plugin` with `<workingDirectory>${project.basedir}</workingDirectory>`; without this, the JVM working directory varies depending on the launch method (IDE vs. `mvn spring-boot:run` from a parent folder), causing relative log paths and other file references to resolve inconsistently. This setting alone is not sufficient for IDE launch buttons (e.g., VSCode); IDEs must also be configured with a `.vscode/launch.json` that sets `cwd` to the project folder for consistency
+- Keep plugin configuration minimal beyond the required working directory setting
 - When using Java 23 or later, explicitly declare Lombok in `<annotationProcessorPaths>` inside `maven-compiler-plugin`; Java 23+ removed implicit annotation processor discovery, so without this `@Slf4j`, `@Data`, and all other Lombok annotations will fail to compile:
 
 ```xml
