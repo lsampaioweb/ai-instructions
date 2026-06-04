@@ -1,10 +1,10 @@
 ---
 name: spring-boot
-description: "Generate a complete Spring Boot application or feature following project conventions. Use when: creating a new Spring Boot endpoint, controller, service, repository, domain object, DTO, request, response, exception class, MapStruct mapper, MyBatis mapper, XML mapper, i18n messages, or a complete application or feature from scratch. Covers packaging, layer structure, MyBatis, i18n, error handling, logging, and code style."
-argument-hint: "Name of the application or feature to scaffold (e.g. 'User', 'Product')"
+description: "Generate or code review a Spring Boot application or feature following project conventions. Use when: creating a new app, adding or reviewing an endpoint, controller, service, repository, DTO, mapper, exception, or any other Spring Boot component."
+argument-hint: "Name of the application or feature to scaffold or review (e.g. 'User', 'Product')"
 ---
 
-# Spring Boot Feature Scaffolding
+# Spring Boot Feature Scaffolding and Code Review
 
 Read [spring-boot-architecture.instructions.md](../../instructions/spring-boot-architecture.instructions.md) for the complete project blueprint: required input confirmations, generation order, and per-file instruction references.
 

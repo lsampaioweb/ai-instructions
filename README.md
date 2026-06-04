@@ -19,7 +19,7 @@ skills/         — SKILL.md files; domain knowledge loaded on demand
 |---|---|---|
 | [copilot-instructions.md](instructions/copilot-instructions.md) | `**` | Always-on behavioral baseline: directness, scope control, anti-hallucination, concise output |
 | [spring-boot-actuator.instructions.md](instructions/spring-boot-actuator.instructions.md) | `**/*ActuatorConfig*.java`, `**/*HealthIndicator.java`, `**/management/**/*.java` | Actuator and health check rules: dependency setup, endpoint exposure, security, and custom health indicators |
-| [spring-boot-architecture.instructions.md](instructions/spring-boot-architecture.instructions.md) | `**/*.java`, `**/pom.xml`, `**/application*.yml` | Feature-based packaging, dependency flow, visibility, domain object rules, interface conventions, and code style |
+| [spring-boot-architecture.instructions.md](instructions/spring-boot-architecture.instructions.md) | `**` (all files) | Feature-based packaging, dependency flow, visibility, domain object rules, interface conventions, and code style |
 | [spring-boot-async-events.instructions.md](instructions/spring-boot-async-events.instructions.md) | `**/*Event.java`, `**/*Listener.java`, `**/*Publisher.java` | Async processing and internal event rules: Spring Application Events for cross-feature communication and `@Async` for heavy I/O listeners |
 | [spring-boot-config.instructions.md](instructions/spring-boot-config.instructions.md) | `**/application*.yml`, `**/*ConfigurationProperties.java`, `**/*Configuration.java` | Configuration rules: mandatory profile files, `@ConfigurationProperties`, `@Value` policy, secrets pointer, and `@Bean` organization |
 | [spring-boot-controller.instructions.md](instructions/spring-boot-controller.instructions.md) | `**/*Controller.java` | REST controller rules: no business logic, `@Valid` inputs, DTO responses, API versioning, and HTTP status conventions |
@@ -43,8 +43,8 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 | File | Invoke with | Purpose |
 |---|---|---|
 | [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain what is causing a problem, research the root cause, and provide the correct permanent fix — never a workaround |
-| [spring-boot-crud.prompt.md](prompts/spring-boot-crud.prompt.md) | `/spring-boot-crud` | Generate a complete Spring Boot feature following all project conventions |
-| [spring-boot-review.prompt.md](prompts/spring-boot-review.prompt.md) | `/spring-boot-review` | Code review for Spring Boot projects: verify all instruction file rules are followed |
+| [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
+| [sync-readme-with-project.prompt.md](prompts/sync-readme-with-project.prompt.md) | `/sync-readme-with-project` | Update the main README.md with meaningful project changes from code, config, and docs |
 
 ## Skill files
 
@@ -52,7 +52,7 @@ Loaded automatically by Copilot when the prompt topic matches the skill descript
 
 | Folder | Invoke with | Purpose |
 |---|---|---|
-| [skills/spring-boot/](skills/spring-boot/SKILL.md) | `/spring-boot` | Scaffold and generate Spring Boot features: controller, service, repository, domain, DTOs, exceptions, MyBatis XML, i18n entries, health indicators, async events, configuration properties, and OpenAPI/Swagger config |
+| [skills/spring-boot/](skills/spring-boot/SKILL.md) | `/spring-boot` | Generate or code review a Spring Boot app or feature: controller, service, repository, DTO, mapper, exception, and any other Spring Boot component |
 
 ## License
 
