@@ -125,10 +125,6 @@ private static final String LOG_USER_FIND_ALL = "log.user.find.all";
 log.debug(logMessages.get(LOG_USER_FIND_ALL));
 ```
 
-## Scope Control
-Only produce what was explicitly requested. Do not add tests, CI configuration, infrastructure code, documentation, comments, or boilerplate unless asked.
-During implementation, generate only the minimum set of files and changes required for the user request. Do not add optional modules, endpoints, configs, or integrations unless explicitly requested or strictly required by an active instruction rule.
-
 ## Architectural Preservation
 Do not introduce new layers, patterns, dependencies, abstractions, or frameworks unless explicitly requested. When changes are needed, work within the existing structure.
 If a requested change cannot be correctly implemented within the existing structure without introducing new dependencies or patterns, explicitly state that limitation and describe the minimum structural change required before proceeding, rather than producing a broken or partial implementation.
@@ -139,6 +135,9 @@ If any diagnostics still report errors, state that clearly and do not present th
 
 ## Anti-Hallucination
 Do not invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation. When uncertain, say so explicitly rather than proceeding with a guess.
+
+## Convention Conflicts
+When a user requirement or external protocol constraint directly conflicts with a style convention (e.g., the user specifies an exact endpoint path that does not match API versioning rules), the user requirement wins. Do not silently override it. Flag the conflict explicitly and ask a clarifying question before proceeding. State which convention would apply by default and why the user requirement overrides it.
 
 ## Formatting
 After creating or editing a file, format it using the project's configured formatter or language tooling when available.
@@ -179,12 +178,12 @@ Generate each file fully before moving to the next. List all files to be created
 | `LocaleConfig.java`, `messages.properties`, `messages_pt_BR.properties` | [spring-boot-i18n.instructions.md](./spring-boot-i18n.instructions.md) |
 | `ssl/` folder with `.keep` | SSL certificates folder (create empty, populate later if needed) |
 | `README.md` | [spring-boot-readme.instructions.md](./spring-boot-readme.instructions.md) |
+| `OpenApiConfig.java` | [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md) |
 
 #### Shared infrastructure — optional, include only when needed
 
 | File | When | Instruction |
 |------|------|-------------|
-| `OpenApiConfig.java` | OpenAPI documentation needed | [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md) |
 | `SwaggerConfig.java` | Swagger config not in `OpenApiConfig` | [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md) |
 | `SecurityConfig.java` | Spring Security needed | [spring-boot-security.instructions.md](./spring-boot-security.instructions.md) |
 | `HealthIndicator.java` | Custom health check needed | [spring-boot-actuator.instructions.md](./spring-boot-actuator.instructions.md) |
