@@ -31,6 +31,7 @@ Use when the feature has no database and data is stored as files on disk identif
 
 - Define a plain Java interface (no `@Mapper`, no Spring Data annotations)
 - Implement the interface as a package-private class; inject the base directory as a `Path` from a `@ConfigurationProperties` class — never hardcode the path
+- Normalize the lookup key before constructing the file path (e.g., MAC addresses to lowercase with colon separators, usernames to lowercase) to ensure consistent filesystem resolution across case-sensitive and case-insensitive systems
 - Use `Files.readString(path, StandardCharsets.UTF_8)` to read file contents; catch `NoSuchFileException` and rethrow as the domain `NotFoundException`
 - No business logic; I/O only
 - Keep the implementation class package-private when used only within the same feature package
