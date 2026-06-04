@@ -147,6 +147,8 @@ Confirm all of the following before creating any file. If any item is missing or
 
 Generate each file fully before moving to the next.
 
+When planning a brand-new Spring Boot application, enumerate the mandatory shared infrastructure files from the "Shared infrastructure — create once per project" section explicitly in the plan. Do not collapse them into vague phrases such as "minimum config files" or "basic setup".
+
 #### Shared infrastructure — create once per project, skip if already present
 
 | File | Instruction |
