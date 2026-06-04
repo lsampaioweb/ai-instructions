@@ -21,7 +21,9 @@ Always use the latest GA release of Java. Set it via the `<java.version>` proper
 ```
 
 ## Project Initialization
-Always initialize a new project using `mvn archetype:generate`; never create `pom.xml` manually from scratch and never use Spring Initializr (requires internet access).
+Initialize new Spring Boot modules directly with the final target structure and files; avoid scaffolding throwaway boilerplate that will be immediately replaced.
+Do not run Maven Wrapper generation and do not commit a `.mvn` folder.
+If a command auto-creates `.mvn`, remove the auto-generated `.mvn` folder before finalizing the step.
 Before generating feature code, ensure the module contains at minimum: `pom.xml`, `src/main/java`, `src/main/resources`, `src/test/java`.
 
 ## Parent
