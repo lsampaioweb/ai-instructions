@@ -44,9 +44,12 @@ project-root/
 ## Code Style
 - 2 spaces for indentation; never use tabs
 - Use modern Java features where the project's Java version supports them: records, pattern matching, sealed classes, text blocks
+- Keep method and constructor signatures on one line when reasonably readable
+- Wrap parameters onto multiple lines only when line length exceeds 120 characters or readability clearly improves
 - Add a blank line before every `return` statement unless the method body is a single expression
 - Separate logically distinct blocks within a method body with a blank line (e.g. between validation, data retrieval, transformation, and return)
 - Do not add a blank line after every single statement; use spacing to group related lines, not to isolate them
+- In constructors and methods, keep assignment order consistent with field declaration order and parameter order whenever possible
 
 ## Packaging
 Organize code by feature or domain. Use packages like `user`, `product`, `order`, `config`, `integration`. Do not create generic root packages named `controller`, `service`, or `repository`.
