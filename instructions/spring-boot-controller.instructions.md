@@ -5,6 +5,8 @@ applyTo: "**/*Controller.java"
 
 # Controller Rules
 
+## Rules
+
 - Annotate with `@RestController`
 - Declare the full versioned base path at class level: `@RequestMapping("/api/v1/resource-name")` using lowercase plural resource names
 - Method annotations use only the path suffix relative to the class mapping: `@GetMapping("/")`, `@GetMapping("/{id}")`, `@PostMapping("/")` — never repeat the base path in method annotations
@@ -32,7 +34,7 @@ When the endpoint URL is mandated by an external protocol, hardware system, or v
 ## Raw Passthrough Exception
 When the response body is raw opaque content passed through unchanged (e.g. a file read as text or bytes, with a non-JSON content type such as `application/toml`, `text/plain`, or `application/octet-stream`), skip the response DTO and mapper entirely. The service returns the raw content (`String` or `byte[]`) directly; the controller returns `ResponseEntity<String>` or `ResponseEntity<byte[]>` with an explicit `Content-Type`. Do not create a wrapper DTO with a single `content` field just to satisfy the DTO rule.
 
-## Template
+## Templates
 
 CRUD controller skeleton. Replace `{Resource}`, `{resource}`, `{resources}`, and all DTO names with actual project values.
 

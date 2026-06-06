@@ -5,6 +5,8 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 
 # Service Rules
 
+## Rules
+
 - All business logic lives in the service layer; never in controllers, repositories, or entities
 - Define a service interface; provide a single implementation class suffixed with `Impl`
 - Apply `@Transactional` at the method level, not on the class; read-only methods use `@Transactional(readOnly = true)`
@@ -18,7 +20,7 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 - Do not wrap every method body in a `try/catch` as boilerplate; let unchecked exceptions propagate to `@RestControllerAdvice`
 - When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
 
-## Template
+## Templates
 
 Service interface and implementation skeleton. Replace `{Resource}`, `{resource}`, and all DTO names with actual project values.
 

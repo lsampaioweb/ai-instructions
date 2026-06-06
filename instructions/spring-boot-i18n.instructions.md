@@ -29,7 +29,7 @@ spring:
 - Register `LocaleResolver` as a `@Bean` inside a dedicated `@Configuration` class configured to read the `Accept-Language` header
 - Do not support `?lang=` query parameter; the header mechanism is sufficient for all environments including testing
 
-## Template
+## Templates
 
 Custom locale resolver and configuration. These two classes are the same in every project — no substitutions needed.
 

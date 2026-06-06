@@ -5,6 +5,10 @@ applyTo: "**/*Controller.java, **/templates/**/*.html"
 
 # Thymeleaf Rules
 
+## Dependency
+
+- Add `spring-boot-starter-thymeleaf` alongside `spring-boot-starter-web`; Spring Boot auto-configures the Thymeleaf view resolver with no additional configuration required
+
 ## Controller
 - Annotate Thymeleaf controllers with `@Controller`, not `@RestController`
 - Return view name strings from handler methods; never return `ResponseEntity` or JSON from a Thymeleaf controller
@@ -14,7 +18,7 @@ applyTo: "**/*Controller.java, **/templates/**/*.html"
 - On form GET handlers, always seed an empty domain object into the model so the template can bind against it
 - On form POST handlers, accept the form-backing object via `@ModelAttribute("key")`; the key must match the one used in the template's `th:object`
 
-## Templates
+## Template Files
 - Store all templates under `src/main/resources/templates/`; group feature templates in sub-directories (e.g. `templates/ops/form.html`)
 - Always declare the Thymeleaf XML namespace: `<html xmlns:th="http://www.thymeleaf.org" lang="en_US">`
 - Reference static resources (CSS, JS, images) exclusively through Thymeleaf URL expressions (`@{/css/style.css}`, `@{/js/script.js}`) — never use plain relative paths; URL expressions are context-path-safe
@@ -36,9 +40,6 @@ applyTo: "**/*Controller.java, **/templates/**/*.html"
 - Bind individual fields with `th:field="*{fieldName}"` on `<input>`, `<select>`, or `<textarea>` elements
 - The form-backing object must be a mutable class (not a record); use Lombok `@Data` for brevity
 - Use `method="POST"` on the form element; Spring MVC maps it to the `@PostMapping` handler
-
-## Dependency
-Add `spring-boot-starter-thymeleaf` alongside `spring-boot-starter-web`; no additional configuration is required — Spring Boot auto-configures the Thymeleaf view resolver with templates under `src/main/resources/templates/`.
 
 ## Templates
 

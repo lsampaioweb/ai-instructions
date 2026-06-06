@@ -26,7 +26,7 @@ Example: `findById_whenUserNotFound_shouldReturn404`
 - Assert on response status, body, and headers; do not assert on internal implementation details
 - Keep each test focused on a single behavior
 
-## Template
+## Templates
 
 `@WebMvcTest` controller test skeleton. Replace `{Resource}`, `{resource}`, `{resources}`, and field names with actual project values.
 

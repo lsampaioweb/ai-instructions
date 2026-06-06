@@ -61,7 +61,7 @@ spring:
 
 Standard environment variable names: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
 
-## Template
+## Templates
 
 `@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a `@Configuration` class.
 

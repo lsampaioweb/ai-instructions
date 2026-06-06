@@ -33,7 +33,7 @@ management:
 - Return `Health.down()` with a descriptive detail key (from `messages.properties`) when the dependency is unavailable
 - Keep health indicator classes package-private; register them as `@Component`
 
-## Template
+## Templates
 
 Custom `HealthIndicator`. Replace `{Dependency}` with the external system name (e.g. `PaymentGateway`, `Cache`, `MessagingBroker`).
 

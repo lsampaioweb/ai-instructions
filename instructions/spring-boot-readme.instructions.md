@@ -5,16 +5,18 @@ applyTo: "**/README.md"
 
 # Spring Boot README Guidelines
 
-These sections are recommended for Spring Boot project READMEs. Include the ones that are relevant; omit sections that do not apply to the project.
+## Recommended Sections
 
-Recommended sections (in suggested order):
+Include the sections that are relevant; omit sections that do not apply to the project. Suggested order:
+
 1. **Overview** — what the service does and its role in the system
 1. **Prerequisites** — required tools, Java version, and environment setup
 1. **Running locally** — steps to start the application
 1. **Environment variables** — table of required and optional variables with descriptions
 1. **API summary** — endpoints, HTTP method, brief description, and required auth
 
-Rules:
+## Rules
+
 - No filler prose, marketing language, or section padding
 - Document every required environment variable when the Environment variables section is present
 - The API summary is a quick reference; it is not a replacement for full API documentation
