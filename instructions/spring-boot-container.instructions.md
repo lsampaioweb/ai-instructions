@@ -22,6 +22,55 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 - Use `ENTRYPOINT ["java", "-jar", "app.jar"]` — not `CMD`; allows passing extra JVM flags at runtime
 - Do not bake a Spring profile into the image; inject it at runtime via `SPRING_PROFILES_ACTIVE`
 
+## Dockerfile-multi-stage
+- Use a multi-stage build to avoid shipping build tools into the production image; the builder stage compiles the JAR, the runtime stage copies only the artifact
+- Mount the Maven local repository as a build cache (`--mount=type=cache,target=/root/.m2`) to avoid re-downloading dependencies on every build
+- Use `--chown` and `${APP_HOME}` (defined in the base image) when copying from the builder stage
+
+## Profile and Port Strategy
+- `application-development.yml`: `server.port: ${SERVER_PORT:8080}`
+- `application-production.yml`: `server.port: ${SERVER_PORT:9443}` with full SSL configuration
+- Use `${SERVER_PORT:8080}` syntax (colon, no dash) for Spring property placeholders with defaults
+- Never hardcode a port in the image or `ENTRYPOINT`; resolve it entirely from the active profile and env vars
+
+## Log Directory Ownership
+- The container runs as the `app` user with UID 1654; when using rootless Podman, use `podman unshare` to apply correct host-side ownership — never `sudo chown` with a bare UID
+- See `## Templates` for the ownership and permission setup commands
+
+## docker-compose.yml
+- Declare the network as `external: true`; create it once with `podman network create {app}-network` before first run
+- Apply runtime security hardening on every service: `read_only: true`, `cap_drop: ["ALL"]`, `security_opt: no-new-privileges:true`
+- Add a `tmpfs` mount for `/tmp` with `noexec,nosuid` to allow the JVM to write temporary files in a read-only container filesystem
+- Mount logs to `./logs/container` (subdirectory, not `./logs` directly) and ssl read-only
+- Use `logging.driver: k8s-file` for structured log capture
+- Pass `JAVA_TOOL_OPTIONS` to set JVM heap bounds at runtime; do not hardcode memory settings in the image
+- Set `SPRING_PROFILES_ACTIVE` directly (no shell default needed when using Compose); comment out the alternative profile
+- Healthcheck endpoint is `/actuator/health/ping` — not `/actuator/health`
+
+## Build and Run Commands
+- Build the JAR first with `mvn clean package -DskipTests`, then build the image with `podman build`
+- For multi-stage builds, no local Maven is required; pass `--network=host` and `-f Dockerfile-multi-stage`
+- Manage services with `podman compose`; create the external network once per host before first run
+- See `## Templates` for all build and run commands
+
+## Required Project Files
+
+Every containerized project must include these files at the root:
+
+| File | Purpose |
+|------|---------|
+| `Dockerfile` | Single-stage image build |
+| `Dockerfile-multi-stage` | Multi-stage image build (no local Maven required) |
+| `docker-compose.yml` | Service orchestration |
+| `.dockerignore` | Excludes non-essential files from build context |
+| `.env` | Local env var overrides (never commit secrets; commit with placeholder comments only) |
+| `logs/container/.keep` | Placeholder so the log subdirectory is tracked by git |
+| `ssl/.keep` | Placeholder so the `ssl/` directory is tracked by git |
+
+## Templates
+
+**Dockerfile (single-stage).** Replace `{jdk}`, `{alpine}`, and `{date}` with pinned versions.
+
 ```dockerfile
 FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-{date} AS image
 # FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-latest AS image
@@ -37,11 +86,7 @@ EXPOSE 8080 9443
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-## Dockerfile-multi-stage
-Use a multi-stage build to avoid shipping build tools into the production image. The builder stage compiles the JAR; the runtime stage copies only the artifact.
-
-- Mount the Maven local repository as a build cache (`--mount=type=cache,target=/root/.m2`) to avoid re-downloading dependencies on every build
-- Use `--chown` and `${APP_HOME}` (defined in the base image) when copying from the builder stage
+**Dockerfile-multi-stage.** Replace `{jdk}`, `{alpine}`, and `{date}` with pinned versions.
 
 ```dockerfile
 FROM docker.io/lsampaioweb/java-build:{jdk}-maven-alpine.{alpine}-{date} AS builder
@@ -69,34 +114,7 @@ EXPOSE 8080 9443
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-## Profile and Port Strategy
-- `application-development.yml`: `server.port: ${SERVER_PORT:8080}`
-- `application-production.yml`: `server.port: ${SERVER_PORT:9443}` with full SSL configuration
-- Use `${SERVER_PORT:8080}` syntax (colon, no dash) for Spring property placeholders with defaults
-- Never hardcode a port in the image or `ENTRYPOINT`; resolve it entirely from the active profile and env vars
-
-## Log Directory Ownership
-The container runs as the `app` user with **UID 1654**. When using rootless Podman, use `podman unshare` to apply correct host-side ownership — do not use `sudo chown` with a bare UID.
-
-```bash
-# Map the logs and ssl directories to the container's app user (UID/GID 1654).
-podman unshare chown -R :1654 ./logs/container/
-podman unshare chown -R :1654 ./ssl/
-
-# Grant group read/write/traverse on logs; read/traverse on ssl.
-chmod -R g+rwX,g+s ./logs/container/
-chmod -R g+rX ./ssl/
-```
-
-## docker-compose.yml
-- Declare the network as `external: true`; create it once with `podman network create {app}-network` before first run
-- Apply runtime security hardening on every service: `read_only: true`, `cap_drop: ["ALL"]`, `security_opt: no-new-privileges:true`
-- Add a `tmpfs` mount for `/tmp` with `noexec,nosuid` to allow the JVM to write temporary files in a read-only container filesystem
-- Mount logs to `./logs/container` (subdirectory, not `./logs` directly) and ssl read-only
-- Use `logging.driver: k8s-file` for structured log capture
-- Pass `JAVA_TOOL_OPTIONS` to set JVM heap bounds at runtime; do not hardcode memory settings in the image
-- Set `SPRING_PROFILES_ACTIVE` directly (no shell default needed when using Compose); comment out the alternative profile
-- Healthcheck endpoint is `/actuator/health/ping` — not `/actuator/health`
+**docker-compose.yml.** Replace `{app}`, `{registry}`, and `{version}` with actual values.
 
 ```yaml
 ---
@@ -142,18 +160,26 @@ services:
       retries: 2
 ```
 
-## Build and Run Commands
-
-Build the JAR, then build the image:
+**Log directory ownership (rootless Podman).** Run once per host before first `podman compose up`.
 
 ```bash
-mvn clean package -DskipTests
-podman build --tag=docker.io/{registry}/{app}:{version} .
+# Map the logs and ssl directories to the container's app user (UID/GID 1654).
+podman unshare chown -R :1654 ./logs/container/
+podman unshare chown -R :1654 ./ssl/
+
+# Grant group read/write/traverse on logs; read/traverse on ssl.
+chmod -R g+rwX,g+s ./logs/container/
+chmod -R g+rX ./ssl/
 ```
 
-Multi-stage build (no local Maven required):
+**Build and run commands.** Replace `{registry}`, `{app}`, and `{version}` with actual values.
 
 ```bash
+# Build JAR and single-stage image
+mvn clean package -DskipTests
+podman build --tag=docker.io/{registry}/{app}:{version} .
+
+# Multi-stage build (no local Maven required)
 podman build \
   --tag=docker.io/{registry}/{app}:{version} \
   --network=host \
@@ -161,11 +187,7 @@ podman build \
   --isolation chroot \
   --pull=missing \
   -f Dockerfile-multi-stage .
-```
 
-Run with Podman Compose:
-
-```bash
 # Create the external network (once per host)
 podman network create {app}-network
 
@@ -181,16 +203,3 @@ podman exec -it {app} sh
 # Stop and remove containers
 podman compose down
 ```
-
-## Required Project Files
-Every containerized project must include these files at the root:
-
-| File | Purpose |
-|------|---------|
-| `Dockerfile` | Single-stage image build |
-| `Dockerfile-multi-stage` | Multi-stage image build (no local Maven required) |
-| `docker-compose.yml` | Service orchestration |
-| `.dockerignore` | Excludes non-essential files from build context |
-| `.env` | Local env var overrides (never commit secrets; commit with placeholder comments only) |
-| `logs/container/.keep` | Placeholder so the log subdirectory is tracked by git |
-| `ssl/.keep` | Placeholder so the `ssl/` directory is tracked by git |

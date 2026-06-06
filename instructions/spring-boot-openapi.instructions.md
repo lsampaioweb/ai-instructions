@@ -5,10 +5,9 @@ applyTo: "**/*OpenApiConfig*.java, **/*SwaggerConfig*.java, **/*Controller.java"
 
 # OpenAPI Rules
 
-OpenAPI documentation is mandatory for every project that exposes at least one HTTP endpoint.
-
 ## Dependency
-Use `springdoc-openapi-starter-webmvc-ui` for API documentation. Do not use springfox.
+- Include `springdoc-openapi-starter-webmvc-ui` in every project that exposes at least one HTTP endpoint; OpenAPI documentation is mandatory
+- Never use springfox
 
 ## OpenAPI Bean
 Define a single `OpenAPI` bean in a dedicated `@Configuration` class with project title, version, description, and contact information.
