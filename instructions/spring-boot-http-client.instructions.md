@@ -9,8 +9,9 @@ applyTo: "**/*Client.java, **/*ApiClient.java, **/*HttpClient.java"
 - Use `RestClient` (Spring 6.1+) as the HTTP client for all outbound API calls; never use `RestTemplate` or third-party HTTP clients unless `RestClient` cannot provide a required capability
 
 ## Configuration
-- Declare external API base URLs in `application.yml` under a dedicated key group (e.g. `external.api.*`) and bind them with `@ConfigurationProperties` or `@Value`
+- Declare external API base URLs in `application.yml` under a dedicated key group (e.g. `external.api.*`) and bind them with `@ConfigurationProperties`
 - Inject `RestClient.Builder` via constructor; do not instantiate `RestClient` directly
+- Inject a typed `@ConfigurationProperties` class via constructor (e.g. `{Feature}ApiProperties`) and read `baseUrl` from it; never use `@Value` for domain-specific URL settings
 - Initialize the `RestClient` instance in a `@PostConstruct` method using `restClientBuilder.baseUrl(url).build()`; see `## Templates` for the full setup
 
 ## Usage
@@ -24,25 +25,29 @@ applyTo: "**/*Client.java, **/*ApiClient.java, **/*HttpClient.java"
 
 ## Templates
 
-**API client setup.** Replace `{Feature}`, `{feature}`, and the config key with actual values.
+**API client setup.** Replace `{Feature}` and the properties type with actual values.
 
 ```java
 @Service
 class {Feature}ApiClient {
 
   private final RestClient.Builder restClientBuilder;
+  private final {Feature}ApiProperties apiProperties;
   private RestClient restClient;
 
-  @Value("${external.api.{feature}}")
-  private String baseUrl;
-
-  {Feature}ApiClient(RestClient.Builder restClientBuilder) {
+  {Feature}ApiClient(RestClient.Builder restClientBuilder, {Feature}ApiProperties apiProperties) {
     this.restClientBuilder = restClientBuilder;
+    this.apiProperties = apiProperties;
   }
 
   @PostConstruct
   private void init() {
-    this.restClient = restClientBuilder.baseUrl(baseUrl).build();
+    this.restClient = restClientBuilder.baseUrl(apiProperties.baseUrl()).build();
   }
 }
+```
+
+```java
+@ConfigurationProperties(prefix = "external.api.{feature}")
+public record {Feature}ApiProperties(String baseUrl) {}
 ```

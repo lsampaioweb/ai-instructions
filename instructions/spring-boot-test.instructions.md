@@ -10,6 +10,10 @@ applyTo: "**/*Test.java, **/*IT.java, **/test/**/*.java"
 - Use `@SpringBootTest` only for integration tests that require the full application context; prefer slice tests otherwise
 - Use `@MockitoBean` to override beans in slice tests; use `@Mock` / `@InjectMocks` in pure unit tests (`@MockitoBean` requires Spring Boot 3.4+)
 - Use `@MockBean` only as a compatibility fallback for projects on Spring Boot < 3.4
+- For MyBatis mapper tests, use `@MybatisTest` when `mybatis-spring-boot-starter-test` is present on the classpath
+- For repositories using `NamedParameterJdbcTemplate`, use `@JdbcTest`
+- Never use `@DataJpaTest`; ORM-based repository testing is out of scope for this architecture
+- Do not use `@DataJdbcTest` for `NamedParameterJdbcTemplate` repositories; prefer `@JdbcTest`
 
 ## Naming
 Name test methods using the pattern: `{method}_when{Condition}_should{Outcome}`

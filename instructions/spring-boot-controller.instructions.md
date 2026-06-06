@@ -95,3 +95,20 @@ class {Resource}Controller {
   }
 }
 ```
+
+**Validation examples.** Use `@Valid` for Record payloads. For scalar constraints, use class-level `@Validated` plus parameter-level constraint annotations.
+
+```java
+// DO: @Valid on Record payloads
+@PostMapping("/")
+public ResponseEntity<{Resource}Response> create(@Valid @RequestBody Create{Resource}Request request) {
+  // ...
+}
+
+// DO NOT: @Valid on scalar parameters
+// If scalar validation is needed, annotate the controller with @Validated and use constraints on the scalar parameter.
+@GetMapping("/{id}")
+public ResponseEntity<{Resource}Response> findById(@PathVariable @Min(1) Long id) {
+  // ...
+}
+```

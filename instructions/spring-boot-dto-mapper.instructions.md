@@ -41,14 +41,15 @@ public record {Resource}Response(
   String description) {}
 ```
 
-**MapStruct mapper interface.** Replace `{Resource}` with the domain concept name. Add `@Mapping` annotations when source and target field names differ.
+**MapStruct mapper interface.** Replace `{Resource}` with the domain concept name. Use `ReportingPolicy.ERROR` by default. Add `@Mapping` annotations when source and target field names differ.
 
 ```java
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 interface {Resource}Mapper {
   {Resource} toEntity(Create{Resource}Request request);
   {Resource}Response toResponse({Resource} entity);
   void updateEntity(Update{Resource}Request request, @MappingTarget {Resource} entity);
+  // If partial mapping is intentional, switch to WARN/IGNORE and add a one-line reason comment.
   // @Mapping(source = "entityField", target = "responseField")
 }
 ```
