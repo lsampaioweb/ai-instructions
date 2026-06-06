@@ -76,9 +76,23 @@ class SecurityConfig {
 }
 ```
 
-**Method-level authorization.** Apply `@PreAuthorize` on service methods that require role or permission checks.
+**Method-level authorization.** Apply `@PreAuthorize` on service methods that require role or permission checks. Use `ROLE_USER` for read operations and `ROLE_ADMIN` for write operations as the baseline; adjust roles to actual project requirements.
 
 ```java
+// Read — accessible by any authenticated user
+@PreAuthorize("hasRole('USER')")
+List<UserResponse> findAll() { ... }
+
+@PreAuthorize("hasRole('USER')")
+UserResponse findById(Long id) { ... }
+
+// Write — restricted to admins
 @PreAuthorize("hasRole('ADMIN')")
-public void delete(Long id) { ... }
+UserResponse create(CreateUserRequest request) { ... }
+
+@PreAuthorize("hasRole('ADMIN')")
+UserResponse update(Long id, UpdateUserRequest request) { ... }
+
+@PreAuthorize("hasRole('ADMIN')")
+void delete(Long id) { ... }
 ```

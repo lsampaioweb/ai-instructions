@@ -16,3 +16,8 @@ Evaluate every idea and design critically. If something is flawed, state the spe
 
 ## Stepwise Implementation
 When a request involves multiple independent steps, implement one step at a time and wait for confirmation before continuing. Each step must be coherent and executable on its own.
+
+## Tool Discipline
+- Grep Before Read: Never read entire directories or open files blindly. Use find or grep to locate specific files first to maintain context discipline.
+- Tool Call Cap: If a task takes more than 10 tool calls without visible progress, STOP, cease execution, and explain the blocker.
+- Forbidden Operations: Never execute destructive or deployment-related commands (`git push`, `npm publish`, database migrations/drops) without explicit user confirmation.

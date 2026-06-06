@@ -43,6 +43,8 @@ project-root/
 ## Code Style
 - **Never trust user input.** Treat all data crossing API boundaries or originating from external sources (files, network, user input) as untrusted. Validate format, length, and content explicitly; reject or sanitize by default.
 - All Java identifiers (classes, methods, fields, constants) must follow standard Java naming conventions: `camelCase` for variables and methods, `UPPER_SNAKE_CASE` for constants, `PascalCase` for class and interface names. Do not use underscores, hyphens, or other separators in Java identifiers; map external formats (e.g., JSON snake_case) via framework annotations (Jackson `@JsonProperty` or `@JsonNaming`) instead.
+- Import order: `java.*` → `jakarta.*` → third-party (`org.*`, `com.*`) → project-internal; separate each group with a blank line; never use wildcard imports
+- Stack annotations one per line; never place two annotations on the same line; apply class-level annotations before method-level and field-level annotations
 - 2 spaces for indentation; never use tabs
 - Use modern Java features where the project's Java version supports them: records, pattern matching, sealed classes, text blocks
 - Keep method and constructor signatures on one line when reasonably readable
@@ -53,21 +55,18 @@ project-root/
 - In constructors and methods, keep assignment order consistent with field declaration order and parameter order whenever possible
 
 ## Member and Method Ordering
-Order members within every class to reflect the logical flow a reader would follow:
-
-1. Static constants (`private static final`) — i18n key constants first, then other constants
-2. Instance fields — in the order they are used; dependencies injected via constructor come first
-3. Constructor(s)
-4. Public API methods — in the order a caller would logically invoke them (e.g. the main operation before its supporting overloads)
-5. Package-private or protected methods — same flow principle
-6. Private helper methods — in the order they are called from the methods above, not alphabetically
-
-Never let IDE auto-sort or alphabetical ordering decide method placement. The order must communicate intent and make the class readable without jumping around.
+- Order members to reflect the logical flow a reader would follow; never let IDE auto-sort or alphabetical ordering decide placement
+- Static constants (`private static final`) — i18n key constants first, then other constants
+- Instance fields — in the order they are used; dependencies injected via constructor come first
+- Constructor(s)
+- Public API methods — in the order a caller would logically invoke them (e.g. the main operation before its supporting overloads)
+- Package-private or protected methods — same flow principle
+- Private helper methods — in the order they are called from the methods above, not alphabetically
 
 ## Packaging
-Organize code by feature or domain. Use packages like `user`, `product`, `order`, `config`, `integration`. Do not create generic root packages named `controller`, `service`, or `repository`.
-
-Keep all classes for a feature together in one package. Example: `UserController`, `UserService`, `UserMapper`, `User`, `CreateUserRequest`, and `UserNotFoundException` all belong in `com.example.user`.
+- Organize code by feature or domain; use packages like `user`, `product`, `order`, `config`, `integration`
+- Never create generic root packages named `controller`, `service`, or `repository`
+- Keep all classes for a feature in one package (e.g. `UserController`, `UserService`, `UserMapper`, `User`, `CreateUserRequest`, and `UserNotFoundException` all belong in `com.example.user`)
 
 ## Visibility
 Use the narrowest visibility that works:
@@ -76,19 +75,20 @@ Use the narrowest visibility that works:
 - `public` only for types and methods that must be accessible from outside the package
 
 ## Interfaces
-Define interfaces for services and any component that may have multiple implementations or needs to be mocked in tests. A dedicated interface is not required for one-off utilities or configuration classes that are never tested in isolation.
+- Define interfaces for services and any component that may have multiple implementations or needs to be mocked in tests
+- A dedicated interface is not required for one-off utilities or configuration classes that are never tested in isolation
 
 ## Dependency Flow
-One-way only: `controller → service → repository` or `service → integration client`. Skip-layer calls are not allowed.
-
-Specific rules:
+- Enforce one-way dependency: `controller → service → repository` or `service → integration client`; skip-layer calls are not allowed
 - `UserController` calls `UserService`; it does not call `UserMapper` or integration clients directly
 - `UserService` calls `UserMapper`, repositories, and integration clients
 - `UserMapper` has no knowledge of web concerns; it does not use `ResponseEntity` or any web-layer class
 - Integration clients do not call controllers and do not depend on web-layer classes
+- The service calls `mapper.toResponse(domain)` before returning data to the controller; the controller never receives a domain object
+- When an entity is not found, the service throws the domain-specific exception (e.g. `UserNotFoundException`); never throw a generic `RuntimeException` or Spring exception directly
 
 ## Dependency Injection
-Use constructor injection for all Spring-managed dependencies. Never use `@Autowired` on fields.
+- Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
 
 ## Domain Objects and API Boundaries
 - Domain objects are plain Java records or classes with no persistence annotations
@@ -97,63 +97,55 @@ Use constructor injection for all Spring-managed dependencies. Never use `@Autow
 - Never expose domain objects in controller responses or request parameters; pass DTOs across all API boundaries
 
 ## No ORM
-Never use JPA, Hibernate, or any ORM framework. Do not annotate domain objects with `@Entity`, `@Table`, `@Column`, or any ORM annotation. Do not add ORM dependencies to the project. Use MyBatis or Spring JDBC Templates for all data access. See [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) for data access rules.
+- Never use JPA, Hibernate, or any ORM framework; never annotate domain objects with `@Entity`, `@Table`, or `@Column`
+- Never add ORM dependencies to the project; use MyBatis or Spring JDBC Templates for all data access
+- See [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) for data access rules
 
 ## Object Mapping
-Use MapStruct for all object mapping between layers. See [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md) for mapper conventions.
+- Use MapStruct for all object mapping between layers; see [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md) for mapper conventions
 
 ## Exception Handling
-Centralize all exception handling in a single `@RestControllerAdvice` class. See [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) for the full pattern.
+- Centralize all exception handling in a single `@RestControllerAdvice` class; see [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) for the full pattern
 
 ## Logging
-Use `@Slf4j` (Lombok) for all logging. See [spring-boot-logging.instructions.md](./spring-boot-logging.instructions.md) for level and content rules.
+- Use `@Slf4j` (Lombok) for all logging; see [spring-boot-logging.instructions.md](./spring-boot-logging.instructions.md) for level and content rules
 
 ## i18n Text and Constants
-- Never hardcode human-readable text (messages, labels, error descriptions) as string literals in Java code. All text must be defined in `messages.properties` and referenced by its i18n key. See [spring-boot-i18n.instructions.md](./spring-boot-i18n.instructions.md) for message file rules.
-- Declare i18n key strings as `private static final String` constants at the top of the class; never pass key literals inline
+- Never hardcode human-readable text (messages, labels, error descriptions) as string literals; define all text in `messages.properties` and reference by key; see [spring-boot-i18n.instructions.md](./spring-boot-i18n.instructions.md) for message file rules
+- Declare i18n key strings as `private static final String` constants at the top of the class; never pass key literals inline (e.g. `logMessages.get(LOG_USER_FIND_ALL)`, not `logMessages.get("log.user.find.all")`)
 - Name constants in `UPPER_SNAKE_CASE` that describes the message, not the key string value
 
-Bad:
-```java
-log.debug(logMessages.get("log.user.find.all"));
-```
-
-Good:
-```java
-private static final String LOG_USER_FIND_ALL = "log.user.find.all";
-
-log.debug(logMessages.get(LOG_USER_FIND_ALL));
-```
-
 ## Architectural Preservation
-Do not introduce new layers, patterns, dependencies, abstractions, or frameworks unless explicitly requested. When changes are needed, work within the existing structure.
-If a requested change cannot be correctly implemented within the existing structure without introducing new dependencies or patterns, explicitly state that limitation and describe the minimum structural change required before proceeding, rather than producing a broken or partial implementation.
+- Do not introduce new layers, patterns, dependencies, abstractions, or frameworks unless explicitly requested; work within the existing structure
+- If a requested change cannot be correctly implemented within the existing structure, explicitly state that limitation and describe the minimum structural change required before proceeding
 
 ## Execution Integrity
-Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully.
-If any diagnostics still report errors, state that clearly and do not present the task as fully validated.
+- Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully
+- If any diagnostics still report errors, state that clearly and do not present the task as fully validated
 
 ## Anti-Hallucination
-Do not invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation. When uncertain, say so explicitly rather than proceeding with a guess.
+- Never invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation; when uncertain, say so explicitly
 
 ## Convention Conflicts
-When a user requirement or external protocol constraint directly conflicts with a style convention (e.g., the user specifies an exact endpoint path that does not match API versioning rules), the user requirement wins. Do not silently override it. Flag the conflict explicitly and ask a clarifying question before proceeding. State which convention would apply by default and why the user requirement overrides it.
+- When a user requirement or external protocol constraint conflicts with a style convention, the user requirement wins; never silently override it
+- Flag the conflict explicitly, state which convention would apply by default, and ask a clarifying question before proceeding
 
 ## Formatting
-After creating or editing a file, format it using the project's configured formatter or language tooling when available.
-If no formatter is configured or accessible in the current environment, preserve the existing style and keep formatting changes limited to the touched code.
-Never claim a file was formatted unless formatting actually ran successfully.
+- After creating or editing a file, format it using the project's configured formatter or language tooling when available
+- If no formatter is configured, preserve the existing style and limit formatting changes to touched code
+- Never claim a file was formatted unless formatting actually ran successfully
 
 ---
 
 ## Project Blueprint
 
 ### Scope Control
-Only generate files for the specific feature or change requested. Do not add optional infrastructure, endpoints, event handlers, or configuration blocks unless explicitly requested. When starting a brand-new project, initialize mandatory shared infrastructure first; when adding a feature to an existing project, skip already-present infrastructure files.
+- Only generate files for the specific feature or change requested; never add optional infrastructure, endpoints, or configuration blocks unless explicitly requested
+- When starting a new project, initialize mandatory shared infrastructure first; when adding a feature, skip already-present infrastructure files
 
 ### Required inputs before generating any file
 
-Confirm all of the following before creating any file. If any item is missing or ambiguous, stop and ask — do not infer or auto-fill:
+Stop and ask before creating any file if any of the following is missing or ambiguous — do not infer or auto-fill:
 
 - **Project initialized?** — if not, initialize first; see [spring-boot-pom.instructions.md](./spring-boot-pom.instructions.md)
 - **Domain object name** (e.g. `User`)
@@ -162,8 +154,8 @@ Confirm all of the following before creating any file. If any item is missing or
 - **Database?** — yes or no; drives repository, XML mapper, and schema SQL generation
 
 ### Generation order
-
-Generate each file fully before moving to the next. List all files to be created explicitly before starting; do not use vague placeholders like "config files" or "setup files" — name each file by its actual path and name.
+- Generate each file fully before moving to the next
+- List all files to be created explicitly before starting; never use vague placeholders like "config files" — name each file by its actual path and name
 
 #### Shared infrastructure — create once per project, skip if already present
 
