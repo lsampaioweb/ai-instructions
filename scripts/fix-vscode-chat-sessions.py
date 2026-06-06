@@ -5,16 +5,16 @@ A session is considered malformed when the first JSONL entry does not have kind 
 Default mode is dry-run. Use --apply to make changes.
 
 How to use:
-  # Safe scan only
+  # Safe scan only.
   python3 scripts/fix-vscode-chat-sessions.py
 
-  # Apply fixes with backups
+  # Apply fixes with backups.
   python3 scripts/fix-vscode-chat-sessions.py --apply
 
-  # Apply only one workspace hash
+  # Apply only one workspace hash.
   python3 scripts/fix-vscode-chat-sessions.py --apply --workspace <workspace_hash>
 
-
+  # Apply fixes for a specific VS Code data root.
   python3 scripts/fix-vscode-chat-sessions.py --apply --root ~/.config/Code
 """
 
