@@ -11,23 +11,26 @@ applyTo: "**/pom.xml"
 - `version`: start at `0.0.1-SNAPSHOT` for new projects
 - `name`: human-readable title in title case (e.g. `Proxmox Installer Endpoint`)
 
-## Java Version
-- For new projects, use the latest LTS release; for existing projects, detect and preserve the current version from `pom.xml` unless explicitly requested to upgrade
-- Set via the `<java.version>` property managed by `spring-boot-starter-parent`; see `## Templates` for the snippet
-
 ## Project Initialization
 - Always initialize a new project using `mvn archetype:generate` directly in the final target path
-- never create `pom.xml` manually from scratch and never use Spring Initializr (requires internet access)
+- Never create `pom.xml` manually from scratch and never use Spring Initializr (requires internet access)
 - If a command auto-creates `.mvn`, remove the auto-generated `.mvn` folder before finalizing the step
 - Before generating feature code, ensure the module contains at minimum: `pom.xml`, `src/main/java`, `src/main/resources`, `src/test/java`
 
-## Parent
+## Parent and Versions
 - Every Spring Boot project must declare `spring-boot-starter-parent` as the Maven parent; it provides managed dependency versions, plugin configuration, and sensible defaults
-
-## Versions
+- Never rely on model memory for framework or Java versions; always read the current `pom.xml` and repository docs first
+- For existing projects, preserve both the Spring Boot parent version and `java.version` unless the user explicitly requests an upgrade
+- For new projects, use the version the user requests; if no version is given, use the latest stable release available at project generation time — do not hardcode a version from model memory
+- Set the Java baseline via the `<java.version>` property; see `## Templates` for the snippet
 - Do not hardcode versions for any dependency managed by `spring-boot-starter-parent` or a BOM already imported
 - Declare versions in a `<properties>` block when a version must be explicit (third-party libraries not managed by the parent)
 - Declare BOM imports via `<dependencyManagement>` using `import` scope; never copy-paste version numbers from a BOM into individual `<dependency>` entries
+
+## Upgrading
+- `mvn release:update-versions` bumps the project/module `<version>` tag only — it does not touch the Spring Boot parent
+- Use `versions:update-parent` with `-DskipResolution=true` to pin the Spring Boot parent to an exact version without Maven resolving to a newer one
+- For full upgrade procedures (bulk parent pin, Java property update, build verification) follow the project's own documentation in `documentation/maven/upgrade.md`
 
 ## Dependencies
 - Add starters rather than individual Spring Framework or Spring Boot jars
