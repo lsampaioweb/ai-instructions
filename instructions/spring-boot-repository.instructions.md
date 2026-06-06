@@ -57,7 +57,7 @@ interface {Resource}Mapper {
 }
 ```
 
-**MyBatis — XML mapper file** (`src/main/resources/mapper/{Resource}Mapper.xml`). Replace namespace, table, and column names with actual values.
+**MyBatis — XML mapper file** (`src/main/resources/mapper/{Resource}Mapper.xml`). Replace namespace, table, and column names with actual values. The `namespace` attribute must exactly match the fully qualified name of the Java mapper interface. Example: if the mapper interface is `com.example.user.UserMapper`, the namespace must be `com.example.user.UserMapper`.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
