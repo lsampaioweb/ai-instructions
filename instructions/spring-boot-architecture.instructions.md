@@ -134,6 +134,13 @@ The user requirement always wins; never silently override it.
 - After creating or editing a file, format it using the project's configured formatter or language tooling when available
 - If no formatter is configured, preserve the existing style and limit formatting changes to touched code
 - Never claim a file was formatted unless formatting actually ran successfully
+- Ensure every edited file ends with one newline character
+
+## Comments
+- Prefer clear names over comments
+- Add comments for intent, trade-offs, invariants, and non-obvious behavior
+- Do not comment obvious assignments or control flow
+- Add short Javadoc to public methods only when behavior is not obvious
 
 ---
 
