@@ -22,4 +22,4 @@ For each file, output:
 2. Proposed changes: minimal edits, same meaning.
 3. Optional improvements: only if high value.
 4. Decision checkpoint: wait for approval before editing.
-5. If approved, apply edits and show final content.
+5. If approved, apply edits and show patch summary.
