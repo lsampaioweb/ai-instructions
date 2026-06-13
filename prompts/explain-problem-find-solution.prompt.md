@@ -1,11 +1,10 @@
 ---
-description: "Explain what is causing a problem (code, system, config, tool, etc.), research the root cause using the web and/or terminal commands, and provide the correct permanent fix — never a workaround."
+description: "Identify root cause through investigation and provide a permanent fix."
 argument-hint: "Describe the problem or paste the error output."
 tools: [vscode, execute, read, search, web]
 ---
 
-$input
-
-- Explain what is causing this problem.
-- Run commands and/or use the web to investigate.
+- Explain what is causing the problem.
+- Investigate via terminal commands and web research.
+- State the verified root cause before proposing the fix.
 - Provide the correct, permanent fix — not a workaround.

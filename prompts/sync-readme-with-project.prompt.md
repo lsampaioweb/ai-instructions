@@ -1,21 +1,19 @@
 ---
 description: "Update the main README.md with important project changes from code, config, and docs."
-argument-hint: "Optional scope, for example: only last 5 commits, only backend changes, or include breaking changes section"
+argument-hint: "Optional scope (e.g., last 5 commits, backend only, include breaking changes)."
 tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 ---
 
-Update the main README.md in the workspace root so it reflects the current project state.
-
 Requirements:
-- Inspect the current README.md first.
+- Inspect the current README.md in the workspace root first.
 - Inspect uncommitted changes and recent commits to identify important additions or behavior changes.
-- Include only meaningful changes for users and maintainers, not internal refactors with no external impact.
+- Include only user/maintainer-impacting changes; skip internal-only refactors.
 - Keep existing README structure and writing style unless there is a clear documentation gap.
 - Add missing sections only when needed.
-- If an existing section is outdated, update it instead of duplicating content.
+- Update outdated sections instead of duplicating content.
 - Keep the text concise, factual, and actionable.
 
-Verification checklist before finishing:
+Verification:
 - Commands and paths are accurate.
 - New environment variables, flags, endpoints, and setup steps are documented.
 - Removed or deprecated behavior is no longer documented as active.
