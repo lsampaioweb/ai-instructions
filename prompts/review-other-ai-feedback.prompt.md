@@ -13,3 +13,4 @@ Review the provided AI feedback. For each point:
 5. Flag risks: What could create regressions or new problems?
 
 Focus on concrete improvements. Be direct about weak or incomplete feedback.
+Output format: per-point critique, actionable recommendations, risk notes.

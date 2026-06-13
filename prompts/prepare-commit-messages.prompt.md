@@ -6,7 +6,7 @@ tools: [vscode, execute, read, search]
 
 Steps:
 1. Inspect changes: Run `git status` and `git diff`.
-2. Group logically: Split files into coherent commits by concern.
+2. Group logically: Split files into coherent commits by concern area.
 3. Draft messages: Use Conventional Commits.
    - Subject: `type(scope): description`, imperative, with period, max 50 chars.
    - Body only when needed: explain *why*.
@@ -17,6 +17,7 @@ Steps:
 6. Execute: Run commits in sequence after approval.
 
 Output format:
+- Order commits by dependency/risk (foundational changes first).
 - Commit N: subject
 - Files: list
 - Message: full commit message

@@ -19,7 +19,7 @@ Verification:
 - Removed or deprecated behavior is no longer documented as active.
 - README content is consistent with the current codebase.
 
-At the end, provide:
+Output format:
 1. A short summary of what was updated.
-2. A list of assumptions or uncertain points that need user confirmation.
+2. A list of assumptions or uncertain points that need user confirmation, if any.
 3. Suggested follow-up edits, if any.

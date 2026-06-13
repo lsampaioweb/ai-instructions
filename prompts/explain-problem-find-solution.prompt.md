@@ -8,3 +8,4 @@ tools: [vscode, execute, read, search, web]
 - Investigate via terminal commands and web research.
 - State the verified root cause before proposing the fix.
 - Provide the correct, permanent fix — not a workaround.
+- Output format: root cause, evidence, permanent fix.
