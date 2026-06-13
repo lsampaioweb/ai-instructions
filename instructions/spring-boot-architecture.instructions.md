@@ -47,8 +47,7 @@ project-root/
 - Stack annotations one per line; never place two annotations on the same line; apply class-level annotations before method-level and field-level annotations
 - 2 spaces for indentation; never use tabs
 - Use modern Java features where the project's Java version supports them: records, pattern matching, sealed classes, text blocks
-- Keep method and constructor signatures on one line when reasonably readable
-- Wrap parameters onto multiple lines only when line length exceeds 160 characters or readability clearly improves
+- Keep method and constructor signatures on one line when reasonably readable; wrap parameters only when line length exceeds 160 characters or readability clearly improves
 - Add a blank line before every `return` statement unless the method body is a single expression
 - Separate logically distinct blocks within a method body with a blank line (e.g. between validation, data retrieval, transformation, and return)
 - Do not add a blank line after every single statement; use spacing to group related lines, not to isolate them
@@ -68,26 +67,23 @@ project-root/
 - Never create generic root packages named `controller`, `service`, or `repository`
 - Keep all classes for a feature in one package (e.g. `UserController`, `UserService`, `UserMapper`, `User`, `CreateUserRequest`, and `UserNotFoundException` all belong in `com.example.user`)
 
-## Visibility
+## Visibility **(Required)**
 Use the narrowest visibility that works:
 - `private` for helpers not used outside the class
 - Package-private (no modifier) for classes and methods used only within the same feature package
 - `public` only for types and methods that must be accessible from outside the package
 
-## Interfaces
+## Interfaces **(Required)**
 - Define interfaces for services and any component that may have multiple implementations or needs to be mocked in tests
 - A dedicated interface is not required for one-off utilities or configuration classes that are never tested in isolation
 
-## Dependency Flow
+## Dependency Flow **(Required)**
 - Enforce one-way dependency: `controller → service → repository` or `service → integration client`; skip-layer calls are not allowed
-- `UserController` calls `UserService`; it does not call `UserMapper` or integration clients directly
-- `UserService` calls `UserMapper`, repositories, and integration clients
-- `UserMapper` has no knowledge of web concerns; it does not use `ResponseEntity` or any web-layer class
-- Integration clients do not call controllers and do not depend on web-layer classes
-- The service calls `mapper.toResponse(domain)` before returning data to the controller; the controller never receives a domain object
+- Controllers call only services; services call mappers, repositories, and integration clients; mappers have no web-layer knowledge
+- The controller receives DTOs only (never domain objects); the service calls `mapper.toResponse(domain)` before returning to the controller
 - When an entity is not found, the service throws the domain-specific exception (e.g. `UserNotFoundException`); never throw a generic `RuntimeException` or Spring exception directly
 
-## Dependency Injection
+## Dependency Injection **(Required)**
 - Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
 
 ## Domain Objects and API Boundaries
@@ -127,8 +123,12 @@ Use the narrowest visibility that works:
 - Never invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation; when uncertain, say so explicitly
 
 ## Convention Conflicts
-- When a user requirement or external protocol constraint conflicts with a style convention, the user requirement wins; never silently override it
-- Flag the conflict explicitly, state which convention would apply by default, and ask a clarifying question before proceeding
+When a user requirement or external protocol constraint conflicts with a style convention, resolve as follows:
+1. State the conflict explicitly: "Your requirement contradicts convention X"
+2. State the default convention: "Convention X applies by default"
+3. Ask one targeted clarifying question before proceeding
+
+The user requirement always wins; never silently override it.
 
 ## Formatting
 - After creating or editing a file, format it using the project's configured formatter or language tooling when available
@@ -142,10 +142,11 @@ Use the narrowest visibility that works:
 ### Scope Control
 - Only generate files for the specific feature or change requested; never add optional infrastructure, endpoints, or configuration blocks unless explicitly requested
 - When starting a new project, initialize mandatory shared infrastructure first; when adding a feature, skip already-present infrastructure files
+- When editing existing projects, apply only sections relevant to touched files; do not over-apply or add extra files
 
 ### Required inputs before generating any file
 
-Stop and ask before creating any file if any of the following is missing or ambiguous — do not infer or auto-fill:
+Stop and ask before creating any file if any of the following is missing or ambiguous:
 
 - **Project initialized?** — if not, initialize first; see [spring-boot-pom.instructions.md](./spring-boot-pom.instructions.md)
 - **Domain object name** (e.g. `User`)
@@ -155,7 +156,7 @@ Stop and ask before creating any file if any of the following is missing or ambi
 
 ### Generation order
 - Generate each file fully before moving to the next
-- List all files to be created explicitly before starting; never use vague placeholders like "config files" — name each file by its actual path and name
+- List all files to be created explicitly before starting; never use vague placeholders—name each file by its actual path
 
 #### Shared infrastructure — create once per project, skip if already present
 
