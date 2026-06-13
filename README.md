@@ -50,7 +50,8 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 
 | File | Invoke with | Purpose |
 |---|---|---|
-| [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain what is causing a problem, research the root cause, and provide the correct permanent fix — never a workaround |
+| [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain the problem cause, verify the root cause, and provide a permanent fix — not a workaround |
+| [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, draft logical commit messages by commit group, present for approval, and commit only after approval |
 | [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
 | [sync-readme-with-project.prompt.md](prompts/sync-readme-with-project.prompt.md) | `/sync-readme-with-project` | Update the main README.md with meaningful project changes from code, config, and docs |
 
@@ -67,7 +68,7 @@ Loaded automatically by Copilot when the prompt topic matches the skill descript
 - Keep each instruction file focused on one concern and define `applyTo` as narrowly as possible
 - For Spring Boot instruction files, follow the standardized structure already used in this repository
 - Keep examples reusable and place them in `## Templates` when that section exists; avoid duplicate code blocks across sections
-- Update [README.md](README.md) whenever a new instruction, prompt, or skill is added or renamed
+- Update [README.md](README.md) whenever an instruction, prompt, or skill is added, renamed, or meaningfully updated
 
 ## License
 
