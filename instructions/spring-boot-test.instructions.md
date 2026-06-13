@@ -12,8 +12,8 @@ applyTo: "**/*Test.java, **/*IT.java, **/test/**/*.java"
 - Use `@MockBean` only as a compatibility fallback for projects on Spring Boot < 3.4
 - For MyBatis mapper tests, use `@MybatisTest` when `mybatis-spring-boot-starter-test` is present on the classpath
 - For repositories using `NamedParameterJdbcTemplate`, use `@JdbcTest`
-- Never use `@DataJpaTest`; ORM-based repository testing is out of scope for this architecture
-- Do not use `@DataJdbcTest` for `NamedParameterJdbcTemplate` repositories; prefer `@JdbcTest`
+- Never use `@DataJpaTest` (ORM-based repository testing is out of scope for this architecture)
+- Never use `@DataJdbcTest` for `NamedParameterJdbcTemplate` repositories; prefer `@JdbcTest` instead
 
 ## Naming
 Name test methods using the pattern: `{method}_when{Condition}_should{Outcome}`

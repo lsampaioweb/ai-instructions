@@ -27,7 +27,7 @@ spring:
 
 ## Locale Resolution
 - Register `LocaleResolver` as a `@Bean` inside a dedicated `@Configuration` class configured to read the `Accept-Language` header
-- Do not support `?lang=` query parameter; the header mechanism is sufficient for all environments including testing
+- Do not support `?lang=` query parameter — the header mechanism is sufficient for all environments including testing
 
 ## Templates
 

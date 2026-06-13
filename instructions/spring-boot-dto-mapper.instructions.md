@@ -16,8 +16,7 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*Mapper.java, **/*Request.java, **/*Res
 - Define mappers as interfaces annotated with `@Mapper(componentModel = "spring")`
 - Use consistent method names: `toEntity`, `toResponse`, `toCreateResponse`
 - Keep mapper interfaces package-private when used only within the same feature package
-- Configure `unmappedTargetPolicy = ReportingPolicy.ERROR` in the `@Mapper` annotation to catch unmapped fields at compile time and prevent silent data loss.
-- If partial mapping is intentional (e.g., computed fields in the entity not present in the DTO, or differing inheritance hierarchies), explicitly set the policy to `WARN` or `IGNORE` for that specific mapper and add a one-line inline comment explaining why. Consider adding a unit test to document and verify the intentional unmapped fields.
+- Default to `unmappedTargetPolicy = ReportingPolicy.ERROR` to catch unmapped fields at compile time. For intentional partial mapping (e.g., computed fields not in DTO, differing hierarchies), explicitly set policy to `WARN` or `IGNORE`, add a one-line inline comment, and consider a unit test documenting the unmapped fields.
 
 ## Raw Passthrough Exception
 See [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) for the Raw Passthrough Exception rule. When the response body is raw opaque content (e.g. TOML, binary files), skip the response DTO and mapper entirely.

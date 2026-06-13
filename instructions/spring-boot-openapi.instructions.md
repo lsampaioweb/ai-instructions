@@ -15,8 +15,7 @@ Define a single `OpenAPI` bean in a dedicated `@Configuration` class with projec
 ## Endpoint Annotations
 - Annotate each controller method with `@Operation(summary = "...")` — one short sentence
 - Annotate each possible response with `@ApiResponse(responseCode = "...", description = "...")`
-- Annotate request body and path variable parameters with `@Parameter` only when the name alone is not self-explanatory
-- Do not duplicate information already expressed by the method signature, HTTP method, or return type
+- Annotate request body and path variable parameters with `@Parameter` only when needed; do not duplicate information already expressed by the method signature, HTTP method, or return type
 
 ## Profile Visibility
 - Disable Swagger UI in the production profile:

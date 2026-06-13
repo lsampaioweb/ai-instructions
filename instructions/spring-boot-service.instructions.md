@@ -19,6 +19,7 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 - Never catch and silently swallow an exception
 - Do not wrap every method body in a `try/catch` as boilerplate; let unchecked exceptions propagate to `@RestControllerAdvice`
 - When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
+- When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
 
 ## Templates
 

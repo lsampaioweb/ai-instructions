@@ -10,8 +10,7 @@ applyTo: "**/*Client.java, **/*ApiClient.java, **/*HttpClient.java"
 
 ## Configuration
 - Declare external API base URLs in `application.yml` under a dedicated key group (e.g. `external.api.*`) and bind them with `@ConfigurationProperties`
-- Inject `RestClient.Builder` via constructor; do not instantiate `RestClient` directly
-- Inject a typed `@ConfigurationProperties` class via constructor (e.g. `{Feature}ApiProperties`) and read `baseUrl` from it; never use `@Value` for domain-specific URL settings
+- Inject `RestClient.Builder` and a typed `@ConfigurationProperties` class (e.g. `{Feature}ApiProperties`) via constructor; do not instantiate `RestClient` directly and never use `@Value` for domain-specific URL settings
 - Initialize the `RestClient` instance in a `@PostConstruct` method using `restClientBuilder.baseUrl(url).build()`; see `## Templates` for the full setup
 
 ## Usage

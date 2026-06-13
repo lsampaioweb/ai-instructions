@@ -19,7 +19,7 @@ applyTo: "**/*Controller.java"
 - Never return `Map<String, Object>` or `Object`; every JSON response must be a strictly typed Java record
 - When returning a non-JSON response, set the `produces` attribute explicitly on the mapping annotation (e.g. `@PostMapping(value = "/", produces = "application/toml")`); the `produces` attribute sets the HTTP response `Content-Type` header
 - Use specific mapping annotations: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`
-- HTTP status discipline: 200 for successful reads, 201 for creation via `ResponseEntity`, 204 for no-content, 400 for validation errors, 404 for not found, 500 for unexpected errors
+- HTTP status discipline: use 200 (successful read), 201 (creation via `ResponseEntity`), 204 (no-content), 400 (validation errors), 404 (not found), 500 (unexpected errors)
 - Keep handler methods `public`; keep helper methods `private`
 
 ## API Versioning

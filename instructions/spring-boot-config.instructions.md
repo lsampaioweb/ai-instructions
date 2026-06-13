@@ -11,9 +11,7 @@ applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configurati
 - Set `spring.profiles.active: "production"` in `application.yml` as the default active profile; override it with the `SPRING_PROFILES_ACTIVE` environment variable or `--spring.profiles.active` argument at runtime
 
 ## Binding
-- Bind groups of related settings to a `@ConfigurationProperties` class
-- Any domain-specific configurable path, directory, or URL is always a grouped config block; bind it with `@ConfigurationProperties`, never `@Value`
-- Use `@Value` only for a single isolated property that does not belong to a larger config group
+- Bind groups of related settings (paths, directories, URLs) to a `@ConfigurationProperties` class; use `@Value` only for single isolated properties that do not belong to a larger config group
 
 ## Secrets
 Never hardcode credentials, tokens, or secrets in configuration files or code. See `spring-boot-security.instructions.md` for the full secrets rule.

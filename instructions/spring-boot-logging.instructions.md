@@ -9,7 +9,8 @@ applyTo: "**/*.java"
 
 - Use `@Slf4j` (Lombok) on every class that logs; never declare `private static final Logger` manually
 - Never hardcode message text as string literals in log statements; define all log message templates in `messages.properties` and resolve them by key before passing to the logger
-- Resolve log message keys via a project-level `LogMessages` utility; inject it via constructor; logs are always developer-facing and always in English — never resolve log messages with the request locale; see `## Templates` for the implementation
+- Resolve log message keys via a project-level `LogMessages` utility; inject it via constructor
+- Logs are always developer-facing and always in English — never resolve log messages with the request locale; see `## Templates` for the implementation
 - Use `logMessages.get(LOG_CONSTANT, args...)` in log statements; never pass a key string literal directly (e.g. `log.debug(logMessages.get(LOG_USER_NOT_FOUND, id))`, not `log.debug("User {} not found", id)`)
 - Declare i18n key constants as `private static final String` at the top of the class; see `spring-boot-architecture.instructions.md` for the constant naming rule
 

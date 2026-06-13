@@ -9,8 +9,8 @@ applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*
 Include `spring-boot-starter-actuator` in every project.
 
 ## Endpoint Exposure
-- Expose only `/actuator/health` and `/actuator/info` over the default management port
-- All other actuator endpoints are disabled by default; enable specific ones explicitly in `application.yml` only when there is a clear operational need
+- Expose only `/actuator/health` and `/actuator/info` on the default management port
+- Keep all other actuator endpoints disabled by default; enable specific ones in `application.yml` only when operationally required
 
 ```yaml
 management:
@@ -24,13 +24,13 @@ management:
 ```
 
 ## Security
-- Actuator endpoints must be secured; never expose them without authentication in production
+- Secure actuator endpoints; never expose them unauthenticated in production
 - Use a dedicated management port (`management.server.port`) to isolate actuator traffic from the application API
-- Do not expose actuator endpoints through the public API gateway
+- Do not route actuator endpoints through a public API gateway
 
 ## Custom Health Indicators
 - Implement a `HealthIndicator` for each external dependency (database, message broker, external API)
-- Return `Health.down()` with a descriptive detail key (from `messages.properties`) when the dependency is unavailable
+- Return `Health.down()` with a stable detail key (for example `reason`) and a descriptive value when the dependency is unavailable
 - Keep health indicator classes package-private; register them as `@Component`
 
 ## Templates

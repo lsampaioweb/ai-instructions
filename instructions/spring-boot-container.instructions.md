@@ -28,10 +28,9 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 - Use `--chown` and `${APP_HOME}` (defined in the base image) when copying from the builder stage
 
 ## Profile and Port Strategy
-- `application-development.yml`: `server.port: ${SERVER_PORT:8080}`
-- `application-production.yml`: `server.port: ${SERVER_PORT:9443}` with full SSL configuration
-- Use `${SERVER_PORT:8080}` syntax (colon, no dash) for Spring property placeholders with defaults
-- Never hardcode a port in the image or `ENTRYPOINT`; resolve it entirely from the active profile and env vars
+- Set ports in profiles: `application-development.yml` uses `${SERVER_PORT:8080}`, `application-production.yml` uses `${SERVER_PORT:9443}` with SSL
+- Use `${SERVER_PORT:8080}` syntax (colon, no dash) for Spring property placeholders with defaults; never hardcode ports in the image
+- Override ports entirely via environment variables at runtime; do not bake them into `ENTRYPOINT`
 
 ## Log Directory Ownership
 - The container runs as the `app` user with UID 1654; when using rootless Podman, use `podman unshare` to apply correct host-side ownership — never `sudo chown` with a bare UID
@@ -48,10 +47,11 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 - Healthcheck endpoint is `/actuator/health/ping` — not `/actuator/health`
 
 ## Build and Run Commands
-- Build the JAR first with `mvn clean package -DskipTests`, then build the image with `podman build`
-- For multi-stage builds, no local Maven is required; pass `--network=host` and `-f Dockerfile-multi-stage`
+Build and manage images and services:
+- Build JAR with `mvn clean package -DskipTests`, then image with `podman build`
+- For multi-stage builds, use `podman build --network=host -f Dockerfile-multi-stage` (no local Maven required)
 - Manage services with `podman compose`; create the external network once per host before first run
-- See `## Templates` for all build and run commands
+- See templates below for all build and run commands
 
 ## Required Project Files
 

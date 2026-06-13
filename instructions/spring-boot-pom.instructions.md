@@ -23,8 +23,7 @@ applyTo: "**/pom.xml"
 - For existing projects, preserve both the Spring Boot parent version and `java.version` unless the user explicitly requests an upgrade
 - For new projects, use the version the user requests; if no version is given, use the latest stable release available at project generation time — do not hardcode a version from model memory
 - Set the Java baseline via the `<java.version>` property; see `## Templates` for the snippet
-- Do not hardcode versions for any dependency managed by `spring-boot-starter-parent` or a BOM already imported
-- Declare versions in a `<properties>` block when a version must be explicit (third-party libraries not managed by the parent)
+- Do not hardcode versions for any dependency managed by `spring-boot-starter-parent` or a BOM already imported; when a version must be explicit (third-party libraries not managed by the parent), declare it in a `<properties>` block
 - Declare BOM imports via `<dependencyManagement>` using `import` scope; never copy-paste version numbers from a BOM into individual `<dependency>` entries
 
 ## Upgrading
