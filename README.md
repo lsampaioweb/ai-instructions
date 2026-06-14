@@ -1,5 +1,5 @@
 <!-- filepath: README.md -->
-# ia-instructions
+# ai-instructions
 
 Centralized VS Code Copilot instruction and prompt files for Spring Boot projects. These files are picked up automatically by GitHub Copilot in VS Code and drive consistent code generation, review, and tooling behaviour across all repositories that reference this configuration.
 
