@@ -21,3 +21,5 @@ Output format:
 - Commit N: subject
 - Files: list
 - Message: full commit message
+- Omit commit body when the subject line fully captures the change; do not restate the diff in prose.
+- Do not repeat the file list inside the commit body if it is already shown in the preview block.
