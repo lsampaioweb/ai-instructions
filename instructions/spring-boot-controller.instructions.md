@@ -7,6 +7,8 @@ applyTo: "**/*Controller.java, **/*Api.java"
 
 ## Rules
 
+- Scope boundary: applies to REST HTTP handlers only (JSON/API responses)
+- It does not apply to Thymeleaf MVC handlers returning template names
 - Annotate with `@RestController`
 - Declare the full versioned base path at class level: `@RequestMapping("/api/v1/resource-name")` using lowercase plural resource names
 - Method annotations use only the path suffix relative to the class mapping: `@GetMapping("/")`, `@GetMapping("/{id}")`, `@PostMapping("/")` — never repeat the base path in method annotations

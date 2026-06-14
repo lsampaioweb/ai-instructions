@@ -10,6 +10,8 @@ applyTo: "**/*Controller.java, **/*Routes.java, **/templates/**/*.html"
 - Add `spring-boot-starter-thymeleaf` alongside `spring-boot-starter-web`; Spring Boot auto-configures the Thymeleaf view resolver with no additional configuration required
 
 ## Controller
+- Scope boundary: applies to MVC/view handlers returning template names
+- It does not apply to REST JSON API handlers
 - Annotate Thymeleaf controllers with `@Controller`, not `@RestController`
 - Return view name strings from handler methods; never return `ResponseEntity` or JSON from a Thymeleaf controller
 - Declare the base path at class level with `@RequestMapping`; use only the path suffix on method annotations
