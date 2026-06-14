@@ -85,6 +85,13 @@ Use the narrowest visibility that works:
 - The controller receives DTOs only (never domain objects); the service calls `mapper.toResponse(domain)` before returning to the controller
 - When an entity is not found, the service throws the domain-specific exception (e.g. `UserNotFoundException`); never throw a generic `RuntimeException` or Spring exception directly
 
+## Web Layer Boundary
+- REST HTTP handlers use `@RestController`, return DTO or `ResponseEntity` API responses, and follow [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) and [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md)
+- MVC view handlers use `@Controller`, return template view names, and follow [spring-boot-thymeleaf.instructions.md](./spring-boot-thymeleaf.instructions.md)
+- Use naming as an intent hint: `*Controller`/`*Api` for REST handlers, `*Routes`/`*PageController` for MVC view handlers
+- Do not mix REST API handlers and Thymeleaf view handlers in the same class
+- Conflict precedence: if a class returns template names, Thymeleaf rules win; if a class exposes JSON API endpoints, REST rules win
+
 ## Dependency Injection **(Required)**
 - Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
 
