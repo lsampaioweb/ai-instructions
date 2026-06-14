@@ -9,6 +9,7 @@ applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configurati
 - Use `application.yml` as the only configuration format; do not use `application.properties`
 - These three profile files are mandatory in every project: `application.yml` (shared defaults), `application-development.yml` and `application-production.yml`
 - Set `spring.profiles.active: "production"` in `application.yml` as the default active profile; override it with the `SPRING_PROFILES_ACTIVE` environment variable or `--spring.profiles.active` argument at runtime
+- Keep `development` visible in `application.yml` as a commented option under `spring.profiles.active` when using list form, with `production` as the single uncommented default entry
 
 ## Binding
 - Bind groups of related settings (paths, directories, URLs) to a `@ConfigurationProperties` class; use `@Value` only for single isolated properties that do not belong to a larger config group
