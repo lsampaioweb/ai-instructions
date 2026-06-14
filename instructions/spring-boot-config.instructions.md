@@ -12,6 +12,7 @@ applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configurati
 
 ## Binding
 - Bind groups of related settings (paths, directories, URLs) to a `@ConfigurationProperties` class; use `@Value` only for single isolated properties that do not belong to a larger config group
+- Never hardcode environment-dependent URLs, hosts, ports, queue names, routing keys, file paths, or endpoint roots in Java code; store them in `application*.yml` and bind via `@ConfigurationProperties`
 
 ## Secrets
 Never hardcode credentials, tokens, or secrets in configuration files or code. See `spring-boot-security.instructions.md` for the full secrets rule.
@@ -19,6 +20,10 @@ Never hardcode credentials, tokens, or secrets in configuration files or code. S
 ## Organization
 - Keep each `@Configuration` class focused on one concern (security, messaging, persistence, web, etc.)
 - Each `@Configuration` class owns its own `@Bean` definitions; do not scatter beans across unrelated classes
+
+## YAML Section Ordering
+- In every `application*.yml`, place shared/system sections first (`spring`, `management`, `server`, `logging`), and put application-specific blocks (`app.*`) after them
+- Keep section order stable across profile files to reduce cognitive load during review
 
 ## Logging
 Always declare the logging configuration file in `application.yml`:
