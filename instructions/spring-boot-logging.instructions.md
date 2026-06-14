@@ -15,6 +15,7 @@ applyTo: "**/*.java"
 - Declare i18n key constants as `private static final String` at the top of the class; see `spring-boot-architecture.instructions.md` for the constant naming rule
 - Add logs for important lifecycle events (startup, connect/disconnect, external calls, publish/consume)
 - Prefer `DEBUG` for noisy flow details and `INFO` for business or lifecycle milestones
+- Do not wrap ordinary `log.debug(...)` with `if (log.isDebugEnabled())`; use guards only for expensive arguments or hot loops/high-throughput paths
 
 ## Log Levels
 
@@ -31,7 +32,7 @@ applyTo: "**/*.java"
 - Passwords, API keys, tokens, secrets, or any masked version of them
 - Full request or response bodies that may contain PII
 - Stack traces at `INFO` or `DEBUG` level; reserve those for `ERROR`
-- Inside tight loops or high-throughput paths without a level guard: `if (log.isDebugEnabled())`
+- Expensive debug message construction inside tight loops or high-throughput paths without a level guard: `if (log.isDebugEnabled())`
 
 ## Minimum Logging by Component
 
