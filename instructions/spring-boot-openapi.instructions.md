@@ -1,6 +1,6 @@
 ---
 description: "OpenAPI/Swagger rules: springdoc-openapi setup, OpenAPI bean, endpoint annotation, and profile-based UI toggle."
-applyTo: "**/*OpenApiConfig*.java, **/*SwaggerConfig*.java, **/*Controller.java"
+applyTo: "**/*OpenApiConfig*.java, **/*SwaggerConfig*.java, **/*Controller.java, **/*Api.java"
 ---
 
 # OpenAPI Rules

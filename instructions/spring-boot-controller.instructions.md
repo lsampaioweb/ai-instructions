@@ -1,6 +1,6 @@
 ---
 description: "REST controller rules: no business logic, @Valid inputs, DTO responses, API versioning, and HTTP status conventions."
-applyTo: "**/*Controller.java"
+applyTo: "**/*Controller.java, **/*Api.java"
 ---
 
 # Controller Rules

@@ -1,6 +1,6 @@
 ---
 description: "Thymeleaf rules: controller conventions, template layout, model attributes, form binding, and static resource references."
-applyTo: "**/*Controller.java, **/templates/**/*.html"
+applyTo: "**/*Controller.java, **/*Routes.java, **/templates/**/*.html"
 ---
 
 # Thymeleaf Rules
