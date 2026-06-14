@@ -16,6 +16,9 @@ Review selected AI customization files (prompts, skills, instructions, agents, h
 8. Preserve explicit user preferences, even when they differ from common conventions.
 9. Label optional polish as optional.
 10. After each file review, stop and wait for "ok" before moving to the next file.
+11. After reviewing all files, run a cross-file drift check: verify that rules shared across multiple files (e.g., constructor injection, deny-by-default, no hardcoded secrets) are still consistent. Report any rule that exists in one file but is weakened, or contradicted in another.
+12. During token optimization, never alter technical literals: code blocks, inline code, commands, file paths, URLs, identifiers, annotation names, config keys, environment variable names, versions, and dependency coordinates.
+13. For security, secrets handling, destructive operations, or irreversible actions, prioritize full clarity over terseness; do not compress wording if compression could reduce safety.
 
 For each file, output:
 1. Findings: filler, redundancy, or correctness issues.
