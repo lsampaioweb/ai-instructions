@@ -127,8 +127,8 @@ Use the narrowest visibility that works:
 ## Convention Conflicts
 When a user requirement or external protocol constraint conflicts with a style convention, resolve as follows:
 1. State the conflict explicitly: "Your requirement contradicts convention X"
-2. State the default convention: "Convention X applies by default"
-3. Ask one targeted clarifying question before proceeding
+1. State the default convention: "Convention X applies by default"
+1. Ask one targeted clarifying question before proceeding
 
 The user requirement always wins; never silently override it.
 
