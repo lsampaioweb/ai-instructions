@@ -21,5 +21,5 @@ Verification:
 
 Output format:
 1. A short summary of what was updated.
-2. A list of assumptions or uncertain points that need user confirmation, if any.
-3. Suggested follow-up edits, if any.
+1. A list of assumptions or uncertain points that need user confirmation, if any.
+1. Suggested follow-up edits, if any.
