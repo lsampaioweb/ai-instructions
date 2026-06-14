@@ -41,7 +41,7 @@ project-root/
 ```
 
 ## Code Style
-- **Never trust user input.** Treat all data crossing API boundaries or originating from external sources (files, network, user input) as untrusted. Validate format, length, and content explicitly; reject or sanitize by default.
+- **Never trust user input.** Treat all data crossing API boundaries or from external sources as untrusted. Validate format, length, and content explicitly; reject or sanitize by default.
 - All Java identifiers (classes, methods, fields, constants) must follow standard Java naming conventions: `camelCase` for variables and methods, `UPPER_SNAKE_CASE` for constants, `PascalCase` for class and interface names. Do not use underscores, hyphens, or other separators in Java identifiers; map external formats (e.g., JSON snake_case) via framework annotations (Jackson `@JsonProperty` or `@JsonNaming`) instead.
 - Import order: `java.*` → `jakarta.*` → third-party (`org.*`, `com.*`) → project-internal; separate each group with a blank line; never use wildcard imports
 - Stack annotations one per line; never place two annotations on the same line; apply class-level annotations before method-level and field-level annotations
@@ -52,6 +52,8 @@ project-root/
 - Separate logically distinct blocks within a method body with a blank line (e.g. between validation, data retrieval, transformation, and return)
 - Do not add a blank line after every single statement; use spacing to group related lines, not to isolate them
 - In constructors and methods, keep assignment order consistent with field declaration order and parameter order whenever possible
+- Extract complex boolean predicates into well-named private methods when readability improves; avoid embedding multi-part validation logic inline in `if`, `while`, and ternary expressions
+- For new code, never introduce APIs or classes marked as deprecated when a supported alternative exists
 
 ## Member and Method Ordering
 - Order members to reflect the logical flow a reader would follow; never let IDE auto-sort or alphabetical ordering decide placement
