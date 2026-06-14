@@ -51,8 +51,9 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 | File | Invoke with | Purpose |
 |---|---|---|
 | [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain the problem cause, verify the root cause, and provide a permanent fix — not a workaround |
-| [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, draft logical commit messages by commit group, present for approval, and commit only after approval |
-| [review-ai-customizations.prompt.md](prompts/review-ai-customizations.prompt.md) | `/review-ai-customizations` | Review AI customization files with non-aggressive token optimization, one-file-at-a-time approval, and meaning-preserving edits |
+| [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, draft logical commit messages by commit group, and keep commit output concise without redundant bodies or repeated file lists |
+| [reconcile-code-instructions.prompt.md](prompts/reconcile-code-instructions.prompt.md) | `/reconcile-code-instructions` | Reconcile drift between project code and AI customization files in either direction: `code-to-instructions` or `instructions-to-code` |
+| [review-ai-customizations.prompt.md](prompts/review-ai-customizations.prompt.md) | `/review-ai-customizations` | Review AI customization files with non-aggressive token optimization, one-file-at-a-time approval, cross-file drift checks, and meaning-preserving edits |
 | [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
 | [sync-readme-with-project.prompt.md](prompts/sync-readme-with-project.prompt.md) | `/sync-readme-with-project` | Update the main README.md with meaningful project changes from code, config, and docs |
 
