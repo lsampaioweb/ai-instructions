@@ -1,0 +1,98 @@
+---
+description: "WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience."
+applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*SessionEventsListener.java, **/*ConnectionTracker.java, **/*StompMessage.java, **/*SocketMessage.java, **/*WebSocketMessage.java, **/static/js/*websocket*.js, **/static/js/*socket*.js"
+---
+
+# WebSocket and STOMP Rules
+
+## Scope
+- Use this file for WebSocket/STOMP transport concerns only (broker setup, endpoint contract, messaging flow, lifecycle events, and browser socket state)
+- Keep business rules in service/domain instructions; do not move domain workflows into WebSocket endpoint classes
+
+## Endpoint and Broker Topology
+- Keep WebSocket setup in a dedicated `@Configuration` class implementing `WebSocketMessageBrokerConfigurer`
+- Define destination prefixes and endpoint paths as constants, not inline literals spread across methods
+- Configure clear destination domains: application/inbound prefix (for example `/app`) for messages sent from clients to server handlers, and broker/outbound prefixes (for example `/topic`, `/queue`) for server-to-client delivery
+- Register a STOMP endpoint and enable SockJS fallback when browser compatibility is required
+
+## Configuration Binding
+- Bind WebSocket settings using `@ConfigurationProperties` for grouped values (origins, endpoint roots, destination overrides)
+- Do not hardcode environment-dependent origins in Java code
+- Wildcard origins (`*`) are acceptable only for tutorials/local demos; production profiles should use explicit origin lists
+
+## Message Handler Contract
+- Implement STOMP handlers in dedicated `@Controller` endpoint classes with `@MessageMapping`
+- Publish broadcast responses using explicit broker destinations (for example via `@SendTo`)
+- Keep payload and response models as immutable records unless mutability is required
+- Do not trust client-generated timestamps or metadata for canonical server events; set canonical server values in the handler or delegated service
+
+## Lifecycle and Observability
+- Handle connect/disconnect lifecycle events with listener classes and keep connection-state tracking thread-safe
+- Defensively ignore null/blank session IDs before updating state
+- Expose operational connection status via typed response DTOs/records when an HTTP status endpoint is required
+- Apply existing logging instructions: use i18n log keys and avoid sensitive data in logs
+
+## Browser Client Behavior
+- Keep socket lifecycle in a single JS module with one active client reference and explicit connection-state flags
+- Enforce reconnect safety: detect stale connections, reset state on close/error, and guard duplicate connect attempts
+- Keep send and subscribe destinations explicit and aligned with server mapping conventions
+- Disable message actions while disconnected and re-enable only after successful connection
+- Externalize user-facing runtime text through server-rendered i18n values or configurable runtime strings
+
+## Templates
+
+In templates, fallback `*` origins are for tutorials/local demos only; production profiles should use explicit origin lists.
+
+```java
+@Configuration
+@EnableWebSocketMessageBroker
+@EnableConfigurationProperties(WebSocketConfigurationProperties.class)
+class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
+
+  private static final String APP_PREFIX = "/app";
+  private static final String TOPIC_PREFIX = "/topic";
+  private static final String QUEUE_PREFIX = "/queue";
+  private static final String STOMP_ENDPOINT = "/ws";
+
+  private final WebSocketConfigurationProperties properties;
+
+  WebSocketConfiguration(WebSocketConfigurationProperties properties) {
+    this.properties = properties;
+  }
+
+  @Override
+  public void configureMessageBroker(MessageBrokerRegistry registry) {
+    registry.enableSimpleBroker(TOPIC_PREFIX, QUEUE_PREFIX);
+    registry.setApplicationDestinationPrefixes(APP_PREFIX);
+  }
+
+  @Override
+  public void registerStompEndpoints(StompEndpointRegistry registry) {
+    registry.addEndpoint(STOMP_ENDPOINT)
+      .setAllowedOriginPatterns(resolveAllowedOrigins())
+      .withSockJS();
+  }
+
+  private String[] resolveAllowedOrigins() {
+    List<String> configuredOrigins = properties.allowedOrigins();
+
+    if (configuredOrigins == null || configuredOrigins.isEmpty()) {
+      return new String[] { "*" };
+    }
+
+    return configuredOrigins.toArray(String[]::new);
+  }
+}
+```
+
+```java
+@Controller
+class ChatSocketEndpoint {
+
+  @MessageMapping("/chat.send")
+  @SendTo("/topic/messages")
+  public ChatMessage publish(ChatMessage message) {
+    return new ChatMessage(message.sender(), message.content(), Instant.now());
+  }
+}
+```
