@@ -36,6 +36,7 @@ applyTo: "**/pom.xml"
 - Common ordering (alphabetically within groups): Spring starters → production libraries → optional/runtime → test-only
 - Declare `spring-boot-devtools` with `<scope>runtime</scope>` and `<optional>true</optional>`; it must never be packaged in the production artifact
 - Declare `spring-boot-starter-test` with `<scope>test</scope>`. Add `mockito-core` with `<scope>test</scope>` only when mocking beyond starter-test's built-in capabilities
+- For newly added dependencies and related code, prefer non-deprecated APIs; if a class is deprecated and marked for removal, use the supported replacement
 - **Document every dependency purpose**: add a brief XML comment above each `<dependency>` block explaining why it was added; see `## Templates` for an example
 
 ## Plugins
