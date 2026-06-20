@@ -12,7 +12,7 @@ applyTo: "**/*.java"
 - Resolve log message keys via a project-level `LogMessages` utility; inject it via constructor
 - Logs are always developer-facing and always in English — never resolve log messages with the request locale; see `## Templates` for the implementation
 - Use `logMessages.get(LOG_CONSTANT, args...)` in log statements; never pass a key string literal directly (e.g. `log.debug(logMessages.get(LOG_USER_NOT_FOUND, id))`, not `log.debug("User {} not found", id)`)
-- Declare i18n key constants as `private static final String` at the top of the class; see `spring-boot-architecture.instructions.md` for the constant naming rule
+- Declare i18n key constants as `private static final String` at the top of the class with descriptive names aligned to event intent (for example `LOG_USER_CREATED`)
 - Add logs for important lifecycle events (startup, connect/disconnect, external calls, publish/consume)
 - Prefer `DEBUG` for noisy flow details and `INFO` for business or lifecycle milestones
 - Do not wrap ordinary `log.debug(...)` with `if (log.isDebugEnabled())`; use guards only for expensive arguments or hot loops/high-throughput paths

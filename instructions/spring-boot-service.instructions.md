@@ -10,7 +10,7 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 - All business logic lives in the service layer; never in controllers, repositories, or entities
 - Define a service interface; provide a single implementation class suffixed with `Impl`
 - Apply `@Transactional` at the method level, not on the class; read-only methods use `@Transactional(readOnly = true)`
-- Throw domain-specific exceptions that extend the project's base exception class; do not throw raw Spring or JPA exceptions
+- Throw domain-specific exceptions that extend the project's base exception class; do not throw raw Spring infrastructure exceptions
 - Services may call repositories, mappers, and integration clients; they do not call controllers
 - Keep service classes and methods package-private when used only within the same feature package
 
@@ -19,11 +19,11 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 - Never catch and silently swallow an exception
 - Do not wrap every method body in a `try/catch` as boilerplate; let unchecked exceptions propagate to `@RestControllerAdvice`
 - When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
-- When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
 
 ## Templates
 
 Service interface and implementation skeleton. Replace `{Resource}`, `{resource}`, and all DTO names with actual project values.
+The implementation template below targets the repository contract documented in `spring-boot-repository.instructions.md` (`findAll`, `findById`, `insert`, `update`, `existsById`, `deleteById`).
 
 ```java
 interface {Resource}Service {
@@ -41,17 +41,17 @@ interface {Resource}Service {
 class {Resource}ServiceImpl implements {Resource}Service {
 
   private final {Resource}Repository {resource}Repository;
-  private final {Resource}Mapper {resource}Mapper;
+  private final {Resource}DtoMapper {resource}DtoMapper;
 
-  {Resource}ServiceImpl({Resource}Repository {resource}Repository, {Resource}Mapper {resource}Mapper) {
+  {Resource}ServiceImpl({Resource}Repository {resource}Repository, {Resource}DtoMapper {resource}DtoMapper) {
     this.{resource}Repository = {resource}Repository;
-    this.{resource}Mapper = {resource}Mapper;
+    this.{resource}DtoMapper = {resource}DtoMapper;
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<{Resource}Response> findAll() {
-    return {resource}Repository.findAll().stream().map({resource}Mapper::toResponse).toList();
+    return {resource}Repository.findAll().stream().map({resource}DtoMapper::toResponse).toList();
   }
 
   @Override
@@ -60,13 +60,17 @@ class {Resource}ServiceImpl implements {Resource}Service {
     {Resource} entity = {resource}Repository.findById(id)
       .orElseThrow(() -> new {Resource}NotFoundException(id));
 
-    return {resource}Mapper.toResponse(entity);
+    return {resource}DtoMapper.toResponse(entity);
   }
 
   @Override
   @Transactional
   public {Resource}Response create(Create{Resource}Request request) {
-    return {resource}Mapper.toResponse({resource}Repository.save({resource}Mapper.toEntity(request)));
+    {Resource} entity = {resource}DtoMapper.toEntity(request);
+
+    {resource}Repository.insert(entity);
+
+    return {resource}DtoMapper.toResponse(entity);
   }
 
   @Override
@@ -75,9 +79,11 @@ class {Resource}ServiceImpl implements {Resource}Service {
     {Resource} entity = {resource}Repository.findById(id)
       .orElseThrow(() -> new {Resource}NotFoundException(id));
 
-    {resource}Mapper.updateEntity(request, entity);
+    {resource}DtoMapper.updateEntity(request, entity);
 
-    return {resource}Mapper.toResponse({resource}Repository.save(entity));
+    {resource}Repository.update(entity);
+
+    return {resource}DtoMapper.toResponse(entity);
   }
 
   @Override

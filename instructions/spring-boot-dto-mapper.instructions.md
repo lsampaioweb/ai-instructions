@@ -1,6 +1,6 @@
 ---
 description: "DTO and MapStruct mapper rules: immutable records, validation placement, and @Mapper conventions."
-applyTo: "**/*DTO.java, **/*Dto.java, **/*Mapper.java, **/*Request.java, **/*Response.java"
+applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Request.java, **/*Response.java"
 ---
 
 # DTO and Mapper Rules
@@ -14,6 +14,7 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*Mapper.java, **/*Request.java, **/*Res
 
 ## MapStruct
 - Define mappers as interfaces annotated with `@Mapper(componentModel = "spring")`
+- Name MapStruct mapper interfaces with suffix `DtoMapper` to avoid overlap with SQL/MyBatis mapper conventions
 - Use consistent method names: `toEntity`, `toResponse`, `toCreateResponse`
 - Keep mapper interfaces package-private when used only within the same feature package
 - Default to `unmappedTargetPolicy = ReportingPolicy.ERROR` to catch unmapped fields at compile time. For intentional partial mapping (e.g., computed fields not in DTO, differing hierarchies), explicitly set policy to `WARN` or `IGNORE`, add a one-line inline comment, and consider a unit test documenting the unmapped fields.

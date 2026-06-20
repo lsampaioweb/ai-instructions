@@ -11,6 +11,7 @@ Include `spring-boot-starter-actuator` in every project.
 ## Endpoint Exposure
 - Expose only `/actuator/health` and `/actuator/info` on the default management port
 - Keep all other actuator endpoints disabled by default; enable specific ones in `application.yml` only when operationally required
+- Configure a `ping` health group at `/actuator/health/ping` for container liveness checks; the built-in `PingHealthIndicator` always returns `UP`, preventing false container restarts caused by external dependency failures
 
 ```yaml
 management:
@@ -21,6 +22,9 @@ management:
   endpoint:
     health:
       show-details: "when-authorized"
+      group:
+        ping:
+          include: "ping"
 ```
 
 ## Security
@@ -45,9 +49,11 @@ class {Dependency}HealthIndicator implements HealthIndicator {
   private static final String LOG_HEALTH_{DEPENDENCY}_DOWN = "health.{dependency}.down";
 
   private final {Dependency}Client {dependency}Client;
+  private final LogMessages logMessages;
 
-  {Dependency}HealthIndicator({Dependency}Client {dependency}Client) {
+  {Dependency}HealthIndicator({Dependency}Client {dependency}Client, LogMessages logMessages) {
     this.{dependency}Client = {dependency}Client;
+    this.logMessages = logMessages;
   }
 
   @Override
@@ -57,7 +63,7 @@ class {Dependency}HealthIndicator implements HealthIndicator {
 
       return Health.up().build();
     } catch (Exception ex) {
-      log.warn(LogMessages.get(LOG_HEALTH_{DEPENDENCY}_DOWN), ex.getMessage());
+      log.warn(logMessages.get(LOG_HEALTH_{DEPENDENCY}_DOWN), ex.getMessage());
 
       return Health.down()
         .withDetail("reason", ex.getMessage())

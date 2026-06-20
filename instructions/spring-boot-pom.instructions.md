@@ -5,6 +5,9 @@ applyTo: "**/pom.xml"
 
 # Maven POM Rules
 
+- Target the latest stable Spring Boot and Java versions for new projects. For existing projects, detect the version from `pom.xml` and apply compatible rules without suggesting upgrades unless asked.
+
+
 ## Project Coordinates
 - `groupId`: use `io.github.lsampaioweb` as the default unless the user specifies a different groupId
 - `artifactId`: project name in kebab-case (e.g. `proxmox-installer-endpoint`)

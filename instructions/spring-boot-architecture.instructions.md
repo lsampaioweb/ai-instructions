@@ -1,220 +1,103 @@
 ---
-description: "Feature-based packaging, dependency flow, visibility, domain object rules, interface conventions, and code style for all Java and Spring Boot files."
+description: "Project profile and architecture contract for all Spring Boot projects: technology stack, cross-cutting rules, and component catalogue."
 ---
 
 # Spring Boot Architecture Conventions
 
-## Project Setup
-- Use Maven. See [spring-boot-pom.instructions.md](./spring-boot-pom.instructions.md) for all POM rules.
-- Target the latest stable Spring Boot and Java versions for new projects. For existing projects, detect the version from `pom.xml` and apply compatible rules without suggesting upgrades unless asked.
-
-## Project Layout
-Non-Java project files belong at the project root, never inside `src/`:
-
-```text
-project-root/
-├── .dockerignore
-├── .env
-├── .gitignore
-├── docker-compose.yml
-├── Dockerfile
-├── pom.xml
-├── README.md
-├── logs/
-│   └── .keep
-├── ssl/
-│   └── .keep
-└── src/
-    ├── main/
-    │   ├── java/
-    │   └── resources/
-    │       ├── application.yml
-    │       ├── application-development.yml
-    │       ├── application-production.yml
-    │       ├── i18n/
-    │       │   ├── messages.properties
-    │       │   └── messages_pt_BR.properties
-    │       └── log/
-    │           └── logback-spring.xml
-    └── test/
-        └── java/
-```
-
-## Code Style
-- **Never trust user input.** Treat all data crossing API boundaries or from external sources as untrusted. Validate format, length, and content explicitly; reject or sanitize by default.
-- All Java identifiers (classes, methods, fields, constants) must follow standard Java naming conventions: `camelCase` for variables and methods, `UPPER_SNAKE_CASE` for constants, `PascalCase` for class and interface names. Do not use underscores, hyphens, or other separators in Java identifiers; map external formats (e.g., JSON snake_case) via framework annotations (Jackson `@JsonProperty` or `@JsonNaming`) instead.
-- Import order: `java.*` → `jakarta.*` → third-party (`org.*`, `com.*`) → project-internal; separate each group with a blank line; never use wildcard imports
-- Stack annotations one per line; never place two annotations on the same line; apply class-level annotations before method-level and field-level annotations
+## Code and Style Rules
 - 2 spaces for indentation; never use tabs
-- Use modern Java features where the project's Java version supports them: records, pattern matching, sealed classes, text blocks
-- Keep method and constructor signatures on one line when reasonably readable; wrap parameters only when line length exceeds 160 characters or readability clearly improves
+- All Java identifiers follow standard naming: `camelCase` for variables and methods, `UPPER_SNAKE_CASE` for constants, `PascalCase` for class and interface names; never use underscores or hyphens in identifiers; map external formats (e.g., JSON `snake_case`) via `@JsonProperty` or `@JsonNaming`
+- Import order: `java.*` → `jakarta.*` → third-party (`org.*`, `com.*`) → project-internal; blank line between groups; never use wildcard imports
+- Stack annotations one per line; class-level annotations before method-level and field-level
+- Use modern Java features where the project's Java version supports them: records, sealed classes
+- Keep signatures on one line unless line length exceeds 160 characters
 - Add a blank line before every `return` statement unless the method body is a single expression
-- Separate logically distinct blocks within a method body with a blank line (e.g. between validation, data retrieval, transformation, and return)
-- Do not add a blank line after every single statement; use spacing to group related lines, not to isolate them
-- In constructors and methods, keep assignment order consistent with field declaration order and parameter order whenever possible
-- Extract complex boolean predicates into well-named private methods when readability improves; avoid embedding multi-part validation logic inline in `if`, `while`, and ternary expressions
-- For new code, never introduce APIs or classes marked as deprecated when a supported alternative exists
+- Separate logically distinct blocks within a method with a blank line; do not add a blank line after every single statement
+- Keep assignment order consistent with field declaration and parameter order
+- Extract complex boolean predicates into well-named private methods; avoid inline multi-part logic in `if`, `while`, or ternary expressions
+- Never introduce deprecated APIs when a supported alternative exists
+- Never trust user input; validate format, length, and content explicitly at every API boundary; reject or sanitize by default
+- Ensure every edited file ends with a blank newline character
+- After creating or editing a file, format it using the project's configured formatter; if none is configured, preserve existing style; never claim a file was formatted unless formatting ran successfully
+- Prefer clear names over comments; add comments only for intent, trade-offs, invariants, and non-obvious behavior; never comment obvious assignments or control flow; add short Javadoc to public methods only when behavior is not obvious
 
-## Member and Method Ordering
-- Order members to reflect the logical flow a reader would follow; never let IDE auto-sort or alphabetical ordering decide placement
-- Static constants (`private static final`) — i18n key constants first, then other constants
-- Instance fields — in the order they are used; dependencies injected via constructor come first
-- Constructor(s)
-- Public API methods — in the order a caller would logically invoke them (e.g. the main operation before its supporting overloads)
-- Package-private or protected methods — same flow principle
-- Private helper methods — in the order they are called from the methods above, not alphabetically
+## Class Structure
+- Use the narrowest visibility: `private` for internal helpers, package-private for intra-feature classes, `public` only when accessible from outside the package
+- Order members to reflect the logical flow a reader would follow: static constants (i18n key constants first) → instance fields → constructor(s) → public API methods → package-private/protected methods → private helpers (in call order, not alphabetically)
+- Define interfaces for any component that may have multiple implementations or needs to be mocked in tests; skip interfaces for one-off utilities and configuration classes never tested in isolation
 
-## Packaging
-- Organize code by feature or domain; use packages like `user`, `product`, `order`, `config`, `integration`
-- Never create generic root packages named `controller`, `service`, or `repository`
+## Packaging and Project Layout
+- Organize code by feature or domain: `user`, `product`, `order`, `config`, `integration`; never create generic root packages named `controller`, `service`, or `repository`
 - Keep all classes for a feature in one package (e.g. `UserController`, `UserService`, `UserMapper`, `User`, `CreateUserRequest`, and `UserNotFoundException` all belong in `com.example.user`)
+- Non-Java project files belong at the project root, never inside `src/`
 
-## Visibility **(Required)**
-Use the narrowest visibility that works:
-- `private` for helpers not used outside the class
-- Package-private (no modifier) for classes and methods used only within the same feature package
-- `public` only for types and methods that must be accessible from outside the package
-
-## Interfaces **(Required)**
-- Define interfaces for services and any component that may have multiple implementations or needs to be mocked in tests
-- A dedicated interface is not required for one-off utilities or configuration classes that are never tested in isolation
-
-## Dependency Flow **(Required)**
+## Architecture Rules
+- Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
 - Enforce one-way dependency: `controller → service → repository` or `service → integration client`; skip-layer calls are not allowed
 - Controllers call only services; services call mappers, repositories, and integration clients; mappers have no web-layer knowledge
 - The controller receives DTOs only (never domain objects); the service calls `mapper.toResponse(domain)` before returning to the controller
 - When an entity is not found, the service throws the domain-specific exception (e.g. `UserNotFoundException`); never throw a generic `RuntimeException` or Spring exception directly
+- REST handlers use `@RestController` and return DTOs or `ResponseEntity`; MVC view handlers use `@Controller` and return template names; never mix both in the same class
+- Name REST handlers `*Controller`/`*Api`; name MVC view handlers `*Routes`/`*PageController`
+- If a class returns template names, Thymeleaf rules win; if a class exposes JSON API endpoints, REST rules win
+- Do not introduce new layers, patterns, dependencies, or frameworks unless explicitly requested; if a change cannot fit the existing structure, state why and propose the minimum change needed
 
-## Web Layer Boundary
-- REST HTTP handlers use `@RestController`, return DTO or `ResponseEntity` API responses, and follow [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) and [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md)
-- MVC view handlers use `@Controller`, return template view names, and follow [spring-boot-thymeleaf.instructions.md](./spring-boot-thymeleaf.instructions.md)
-- Use naming as an intent hint: `*Controller`/`*Api` for REST handlers, `*Routes`/`*PageController` for MVC view handlers
-- Do not mix REST API handlers and Thymeleaf view handlers in the same class
-- Conflict precedence: if a class returns template names, Thymeleaf rules win; if a class exposes JSON API endpoints, REST rules win
+## Domain and Persistence Rules
+- Domain objects are plain Java records or classes with no persistence annotations; use records for immutable objects
+- Field names and types map to SQL result sets via MyBatis result maps in XML; no annotations required on the domain class
+- Never expose domain objects in controller responses or request parameters; always pass DTOs across API boundaries
+- Never use JPA, Hibernate, or any ORM framework; never annotate domain objects with `@Entity`, `@Table`, or `@Column`; never add ORM dependencies; use MyBatis or Spring JDBC Templates for all data access
 
-## Dependency Injection **(Required)**
-- Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
+## AI Behavior Rules
+- Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully; if diagnostics still report errors, say so explicitly
+- Never invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation; when uncertain, say so
+- When a user requirement conflicts with a style convention: state the conflict explicitly, state the default convention, ask one targeted clarifying question; the user requirement always wins
 
-## Domain Objects and API Boundaries
-- Domain objects are plain Java records or classes with no persistence annotations
-- Use Java records for immutable domain objects; use a class only when mutation is genuinely necessary
-- Field names and types map to SQL result sets via MyBatis result maps defined in XML; no annotations are required on the domain class itself
-- Never expose domain objects in controller responses or request parameters; pass DTOs across all API boundaries
+## Scope Control
+- Only generate files for the specific feature or change requested; never add optional infrastructure or endpoints unless explicitly requested
+- When starting a new project, ensure mandatory shared infrastructure is present before generating feature-specific code; do not hardcode project-structure checklists here
+- When editing existing projects, apply only sections relevant to touched files; do not over-apply
 
-## No ORM
-- Never use JPA, Hibernate, or any ORM framework; never annotate domain objects with `@Entity`, `@Table`, or `@Column`
-- Never add ORM dependencies to the project; use MyBatis or Spring JDBC Templates for all data access
-- See [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) for data access rules
+## Ambiguity and Clarification Protocol
+- If context is sufficient, infer required components and proceed
+- If context is insufficient and different interpretations would change generated files, architecture, security, persistence, transport, deployment, or test scope, ask one targeted clarifying question before generating
+- Do not hardcode fixed question lists in this file; clarification must be contextual
+- Do not hardcode keyword trigger lists in this file; component inclusion decisions must be semantic and contextual
+- If ambiguity is low-impact and does not change architecture or generated artifact boundaries, proceed with the safest minimal assumption and state it briefly
 
-## Object Mapping
-- Use MapStruct for all object mapping between layers; see [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md) for mapper conventions
-
-## Exception Handling
-- Centralize all exception handling in a single `@RestControllerAdvice` class; see [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) for the full pattern
-
-## Logging
-- Use `@Slf4j` (Lombok) for all logging; see [spring-boot-logging.instructions.md](./spring-boot-logging.instructions.md) for level and content rules
-
-## i18n Text and Constants
-- Never hardcode human-readable text (messages, labels, error descriptions) as string literals; define all text in `messages.properties` and reference by key; see [spring-boot-i18n.instructions.md](./spring-boot-i18n.instructions.md) for message file rules
-- Declare i18n key strings as `private static final String` constants at the top of the class; never pass key literals inline (e.g. `logMessages.get(LOG_USER_FIND_ALL)`, not `logMessages.get("log.user.find.all")`)
-- Name constants in `UPPER_SNAKE_CASE` that describes the message, not the key string value
-
-## Architectural Preservation
-- Do not introduce new layers, patterns, dependencies, abstractions, or frameworks unless explicitly requested; work within the existing structure
-- If a requested change cannot be correctly implemented within the existing structure, explicitly state that limitation and describe the minimum structural change required before proceeding
-
-## Execution Integrity
-- Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully
-- If any diagnostics still report errors, state that clearly and do not present the task as fully validated
-
-## Anti-Hallucination
-- Never invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation; when uncertain, say so explicitly
-
-## Convention Conflicts
-When a user requirement or external protocol constraint conflicts with a style convention, resolve as follows:
-1. State the conflict explicitly: "Your requirement contradicts convention X"
-1. State the default convention: "Convention X applies by default"
-1. Ask one targeted clarifying question before proceeding
-
-The user requirement always wins; never silently override it.
-
-## Formatting
-- After creating or editing a file, format it using the project's configured formatter or language tooling when available
-- If no formatter is configured, preserve the existing style and limit formatting changes to touched code
-- Never claim a file was formatted unless formatting actually ran successfully
-- Ensure every edited file ends with one newline character
-
-## Comments
-- Prefer clear names over comments
-- Add comments for intent, trade-offs, invariants, and non-obvious behavior
-- Do not comment obvious assignments or control flow
-- Add short Javadoc to public methods only when behavior is not obvious
+## Delegation Rules
+- This architecture file defines global constraints, component catalogue, and decision protocol only
+- Component-specific implementation details belong exclusively to their referenced instruction files
+- Do not duplicate component internals in this file
+- If a rule in this file conflicts with a component-specific rule for a touched artifact, follow the component-specific file unless the user explicitly overrides it
 
 ---
 
-## Project Blueprint
+## Mandatory Components
 
-### Scope Control
-- Only generate files for the specific feature or change requested; never add optional infrastructure, endpoints, or configuration blocks unless explicitly requested
-- When starting a new project, initialize mandatory shared infrastructure first; when adding a feature, skip already-present infrastructure files
-- When editing existing projects, apply only sections relevant to touched files; do not over-apply or add extra files
+Every Spring Boot project includes these components. Always enforce their presence in new projects and always apply their rules when generating or reviewing code. Use the linked instruction files for all implementation details.
 
-### Required inputs before generating any file
+- **Actuator** — health and info endpoints exposed; no sensitive endpoints exposed without security → [spring-boot-actuator.instructions.md](./spring-boot-actuator.instructions.md)
+- **Configuration** — multi-profile setup: `application.yml`, `application-development.yml`, `application-production.yml`; no hardcoded secrets → [spring-boot-config.instructions.md](./spring-boot-config.instructions.md)
+- **Exception handling** — single `@RestControllerAdvice`; domain-specific exceptions extend a base `AppException` → [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md)
+- **i18n** — English (`messages.properties`) and pt_BR (`messages_pt_BR.properties`) required; locale resolved via `Accept-Language` header only → [spring-boot-i18n.instructions.md](./spring-boot-i18n.instructions.md)
+- **Logging** — `@Slf4j` (Lombok); all log messages use i18n keys, never hardcoded strings → [spring-boot-logging.instructions.md](./spring-boot-logging.instructions.md)
+- **Maven build** — `spring-boot-starter-parent`; no hardcoded managed versions → [spring-boot-pom.instructions.md](./spring-boot-pom.instructions.md)
+- **OpenAPI** — all REST endpoints documented with springdoc-openapi; UI toggled by profile → [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md)
+- **README** — required sections, no filler prose → [spring-boot-readme.instructions.md](./spring-boot-readme.instructions.md)
 
-Stop and ask before creating any file if any of the following is missing or ambiguous:
+## Conditional Components
 
-- **Project initialized?** — if not, initialize first; see [spring-boot-pom.instructions.md](./spring-boot-pom.instructions.md)
-- **Domain object name** (e.g. `User`)
-- **Base package** (e.g. `com.example`)
-- **Fields** — each as `name: type [validations]`, e.g. `email: String [@NotBlank, @Email]`
-- **Database?** — yes or no; drives repository, XML mapper, and schema SQL generation
+Include these only when the requested feature needs them. Infer from full request context and intent, not fixed keywords. Ask one targeted clarifying question only when ambiguity changes what must be generated.
 
-### Generation order
-- Generate each file fully before moving to the next
-- List all files to be created explicitly before starting; never use vague placeholders—name each file by its actual path
-
-#### Shared infrastructure — create once per project, skip if already present
-
-| File | Instruction |
-|------|-------------|
-| `.gitignore`, `.dockerignore` | Root-level boilerplate (create once, no instruction file) |
-| `pom.xml` | [spring-boot-pom.instructions.md](./spring-boot-pom.instructions.md) |
-| `application.yml`, `application-development.yml`, `application-production.yml` | [spring-boot-config.instructions.md](./spring-boot-config.instructions.md) |
-| `src/main/resources/log/logback-spring.xml`, `LogMessages.java` | [spring-boot-logging.instructions.md](./spring-boot-logging.instructions.md) |
-| `AppException.java`, `ErrorResponse.java`, `AppControllerAdvice.java` | [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) |
-| `ActuatorConfig.java` | [spring-boot-actuator.instructions.md](./spring-boot-actuator.instructions.md) |
-| `LocaleConfig.java`, `messages.properties`, `messages_pt_BR.properties` | [spring-boot-i18n.instructions.md](./spring-boot-i18n.instructions.md) |
-| `ssl/` folder with `.keep` | SSL certificates folder (create empty, populate later if needed) |
-| `README.md` | [spring-boot-readme.instructions.md](./spring-boot-readme.instructions.md) |
-| `OpenApiConfig.java` | [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md) |
-
-#### Shared infrastructure — optional, include only when needed
-
-| File | When | Instruction |
-|------|------|-------------|
-| `SwaggerConfig.java` | Swagger config not in `OpenApiConfig` | [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md) |
-| `SecurityConfig.java` | Spring Security needed | [spring-boot-security.instructions.md](./spring-boot-security.instructions.md) |
-| `HealthIndicator.java` | Custom health check needed | [spring-boot-actuator.instructions.md](./spring-boot-actuator.instructions.md) |
-| `{Feature}ConfigurationProperties.java` | Grouped config block needed | [spring-boot-config.instructions.md](./spring-boot-config.instructions.md) |
-
-#### Feature files — create for every new domain object
-
-| File | Instruction |
-|------|-------------|
-| `{Domain}.java` | [spring-boot-architecture.instructions.md](./spring-boot-architecture.instructions.md) |
-| `Create{Domain}Request.java`, `Update{Domain}Request.java`, `{Domain}Response.java`, `{Domain}Mapper.java` | [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md) |
-| `{Domain}NotFoundException.java` | [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) |
-| `{Domain}Repository.java`, `src/main/resources/mapper/{Domain}Mapper.xml`, `src/main/resources/sql/schema.sql` *(all database only; append SQL, never overwrite)* | [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) |
-| `{Domain}Repository.java` (interface) + `{Domain}RepositoryImpl.java` *(filesystem only; no database)* | [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) |
-| `{Domain}Service.java`, `{Domain}ServiceImpl.java` | [spring-boot-service.instructions.md](./spring-boot-service.instructions.md) |
-| `{Domain}Controller.java` | [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) |
-| `{Domain}ControllerTest.java`, `{Domain}ServiceTest.java` | [spring-boot-test.instructions.md](./spring-boot-test.instructions.md) |
-
-#### Feature files — optional
-
-| File | When | Instruction |
-|------|------|-------------|
-| `{Feature}Client.java`, `{Feature}ApiClient.java` | Integrating with external APIs | [spring-boot-http-client.instructions.md](./spring-boot-http-client.instructions.md) |
-| `{Domain}Event.java`, `{Domain}Listener.java`, `{Domain}Publisher.java` | Async or event-driven feature | [spring-boot-async-events.instructions.md](./spring-boot-async-events.instructions.md) |
-| `{Domain}ConfigurationProperties.java` | Domain-specific config group | [spring-boot-config.instructions.md](./spring-boot-config.instructions.md) |
+- **Async / event-driven** — when background processing or cross-feature event propagation is needed → [spring-boot-async-events.instructions.md](./spring-boot-async-events.instructions.md)
+- **Container / Compose** — when packaging the application with Docker → [spring-boot-container.instructions.md](./spring-boot-container.instructions.md)
+- **Data persistence (SQL, no ORM)** — when the feature stores or retrieves data; MyBatis or Spring JDBC Templates, never JPA → [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md)
+- **DTO and mapping (MapStruct)** — when crossing layer boundaries (controller ↔ service ↔ repository) → [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md)
+- **HTTP client** — when calling external APIs; use `RestClient` → [spring-boot-http-client.instructions.md](./spring-boot-http-client.instructions.md)
+- **REST API controller** — when exposing HTTP endpoints; DTOs in/out, no business logic in the controller → [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md)
+- **Security** — when authentication or authorization is required; deny-by-default, `@PreAuthorize` → [spring-boot-security.instructions.md](./spring-boot-security.instructions.md)
+- **Service layer** — when business logic, transactions, or orchestration is needed → [spring-boot-service.instructions.md](./spring-boot-service.instructions.md)
+- **Tests** — always include when creating or modifying controllers or services → [spring-boot-test.instructions.md](./spring-boot-test.instructions.md)
+- **Thymeleaf (server-side UI)** — when rendering server-side HTML views → [spring-boot-thymeleaf.instructions.md](./spring-boot-thymeleaf.instructions.md)
+- **WebSocket / STOMP** — when real-time bidirectional communication is needed → [spring-boot-websocket.instructions.md](./spring-boot-websocket.instructions.md)

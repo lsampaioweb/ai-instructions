@@ -44,7 +44,7 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 - Use `logging.driver: k8s-file` for structured log capture
 - Pass `JAVA_TOOL_OPTIONS` to set JVM heap bounds at runtime; do not hardcode memory settings in the image
 - Set `SPRING_PROFILES_ACTIVE` directly (no shell default needed when using Compose); comment out the alternative profile
-- Healthcheck endpoint is `/actuator/health/ping` — not `/actuator/health`
+- Healthcheck endpoint uses the `ping` health group (`/actuator/health/ping`) for container liveness checks; the ping group checks only whether the app process is alive, avoiding false restarts when external dependencies are temporarily unavailable; configure it in `application.yml` (see actuator rules)
 
 ## Build and Run Commands
 Build and manage images and services:

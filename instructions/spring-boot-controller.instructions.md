@@ -57,10 +57,8 @@ class {Resource}Controller {
 
   @GetMapping("/")
   @Operation(summary = "List all {resources}")
-  public PagedModel<EntityModel<{Resource}Response>> findAll(
-      Pageable pageable, PagedResourcesAssembler<{Resource}Response> assembler) {
-
-    return assembler.toModel({resource}Service.findAll(pageable));
+  public ResponseEntity<List<{Resource}Response>> findAll() {
+    return ResponseEntity.ok({resource}Service.findAll());
   }
 
   @GetMapping("/{id}")

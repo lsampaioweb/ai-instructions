@@ -6,7 +6,7 @@ applyTo: "**/*OpenApiConfig*.java, **/*SwaggerConfig*.java, **/*Controller.java,
 # OpenAPI Rules
 
 ## Dependency
-- Include `springdoc-openapi-starter-webmvc-ui` in every project that exposes at least one HTTP endpoint; OpenAPI documentation is mandatory
+- Include `springdoc-openapi-starter-webmvc-ui` in every project that exposes at least one REST JSON API endpoint; OpenAPI documentation is mandatory for REST APIs
 - Never use springfox
 
 ## OpenAPI Bean

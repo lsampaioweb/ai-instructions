@@ -54,12 +54,17 @@ class {Resource}ServiceImpl implements {Resource}Service {
 class {Resource}CreatedListener {
 
   private static final String LOG_{RESOURCE}_CREATED = "{resource}.created.log";
+  private final LogMessages logMessages;
+
+  {Resource}CreatedListener(LogMessages logMessages) {
+    this.logMessages = logMessages;
+  }
 
   @Async
   @TransactionalEventListener
   public void on{Resource}Created({Resource}CreatedEvent event) {
     // heavy I/O: email, notification, external API call, etc.
-    log.info(LogMessages.get(LOG_{RESOURCE}_CREATED), event.{resource}Id());
+    log.info(logMessages.get(LOG_{RESOURCE}_CREATED), event.{resource}Id());
   }
 }
 ```

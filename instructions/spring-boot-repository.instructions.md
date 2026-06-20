@@ -15,10 +15,11 @@ Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend
 - Use MyBatis result maps in XML to map SQL result sets to domain objects; no annotations on domain classes
 - Keep mapper interfaces package-private when used only within the same feature package
 
-## Spring JDBC Templates
-- Use `NamedParameterJdbcTemplate` for all JDBC access; never use positional `?` parameters
+## Spring JDBC (JdbcClient)
+- Use `JdbcClient` for JDBC access; keep named parameters and never use positional `?` parameters
 - SQL statements live in external XML files referenced by key; never inline SQL as string literals in Java
-- Map result sets with a `RowMapper` implementation; keep `RowMapper` classes package-private
+- Map result sets with explicit row mapping (`RowMapper`) or mapped classes; keep mapping helpers package-private
+- For batch operations, use `NamedParameterJdbcTemplate.batchUpdate()` alongside `JdbcClient`; `JdbcClient` does not have a batch API
 
 ## General
 - No business logic in repositories; data access only
@@ -123,18 +124,35 @@ class {Resource}Repository {
   }
 
   @Transactional
-  public void save({Resource} entity) {
-    jdbcClient.sql(SQL_INSERT)
+  public int insert({Resource} entity) {
+    return jdbcClient.sql(SQL_INSERT)
       .param("name", entity.getName())
       .param("description", entity.getDescription())
       .update();
   }
 
   @Transactional
-  public void deleteById(Long id) {
-    jdbcClient.sql(SQL_DELETE_BY_ID)
+  public int update({Resource} entity) {
+    return jdbcClient.sql(SQL_UPDATE)
+      .param("id", entity.getId())
+      .param("name", entity.getName())
+      .param("description", entity.getDescription())
+      .update();
+  }
+
+  @Transactional
+  public int deleteById(Long id) {
+    return jdbcClient.sql(SQL_DELETE_BY_ID)
       .param("id", id)
       .update();
+  }
+
+  @Transactional(readOnly = true)
+  public boolean existsById(Long id) {
+    return jdbcClient.sql(SQL_EXISTS_BY_ID)
+      .param("id", id)
+      .query(Boolean.class)
+      .single();
   }
 }
 ```
