@@ -7,9 +7,8 @@ tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 Requirements:
 - Inspect the current README.md in the workspace root first.
 - Inspect uncommitted changes and recent commits to identify important additions or behavior changes.
-- Include only user/maintainer-impacting changes; skip internal-only refactors.
-- Keep existing README structure and writing style unless there is a clear documentation gap.
-- Add missing sections only when needed.
+- Include only user/maintainer-impacting changes; skip internal refactors.
+- Preserve existing README structure and writing style; add or update sections only when necessary.
 - Update outdated sections instead of duplicating content.
 - Keep the text concise, factual, and actionable.
 
