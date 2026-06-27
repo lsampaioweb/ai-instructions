@@ -1,26 +1,23 @@
 ---
-description: "Reconcile drift between project code and AI customization files, in either direction."
-argument-hint: "Mode + optional scope. Example: code-to-instructions samples/18-rabbitmq or instructions-to-code spring-boot-config.instructions.md"
+description: "Reconcile drift between AI customization files and project code, in either direction."
+argument-hint: "Mode + optional scope. Example: instructions-to-code samples/18-rabbitmq or code-to-instructions samples/18-rabbitmq"
 tools: [vscode, execute, read, search, edit]
 ---
 
 Supported modes:
-1. `code-to-instructions`: treat code as source of truth and update AI customization files.
-1. `instructions-to-code`: treat AI customization files as source of truth and update code.
+1. `instructions-to-code`: use AI customization files as source of truth and align code to them.
+1. `code-to-instructions`: use code as source of truth and align AI customization files to it.
 
 Inputs:
-1. Mode.
+1. Optional mode: when omitted, default to `instructions-to-code`.
 1. Optional scope: one or more files, folders, or changed-files-only selectors; define deterministic boundaries for the run.
-
-Mode behavior:
-1. `code-to-instructions`: Review code changes first, identify what AI customization files failed to encode, then update relevant prompt, instruction, skill, or agent files.
-1. `instructions-to-code`: Review AI customization files first, identify missing or non-compliant code, then update code to match instructions.
 
 Workflow:
 1. Inspect the requested scope first.
 1. Identify the current source of truth based on the selected mode.
 1. Freeze that source of truth for the full run; do not switch source of truth mid-run.
 1. Validate each material drift against authoritative references first (official framework docs, standards, or widely accepted community guidance).
+1. If authoritative references are unavailable in local context, record this explicitly in `Verification` with the risk impact.
 1. Decide using `X/Y/Z` logic: keep instruction (`X`), keep code (`Y`), or adopt a third solution (`Z`) when both are suboptimal.
 1. If `Z` is selected, update the true source first (usually instructions), then align code.
 1. Find concrete drift, not stylistic preference.
