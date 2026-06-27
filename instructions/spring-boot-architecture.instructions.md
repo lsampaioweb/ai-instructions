@@ -15,6 +15,8 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - Keep assignment order consistent with field declaration and parameter order
 - Extract complex boolean predicates into well-named private methods; avoid inline multi-part logic in `if`, `while`, or ternary expressions
 - Never introduce deprecated APIs when a supported alternative exists
+- Never call date/time `now()` methods without explicit `ZoneId` or `Clock`; default to UTC when no domain-specific timezone is required
+- Prefer `Instant` or `OffsetDateTime` for cross-service/API timestamps; use `LocalDateTime` only when timezone-free local business time is intentional
 - Never trust user input; validate format, length, and content explicitly at every API boundary; reject or sanitize by default
 - Ensure every edited file ends with a blank newline character
 - After creating or editing a file, format it using the project's configured formatter; if none is configured, preserve existing style; never claim a file was formatted unless formatting ran successfully
