@@ -24,7 +24,8 @@ spring:
 - Inject `MessageSource` via constructor; never use field injection
 - Resolve the current locale with `LocaleContextHolder.getLocale()` via a private helper method
 - Resolve locale from the `Accept-Language` request header; this is the only supported locale detection mechanism
-- Browsers send `Accept-Language` automatically based on user OS/browser settings; mobile apps set it programmatically; for manual testing use curl with `-H "Accept-Language: pt-BR"`
+- For manual testing, use curl with `-H "Accept-Language: pt-BR"`
+- Locale resolution policy is defined in this file; operator-facing message text policy is defined in `spring-boot-logging.instructions.md` and `spring-boot-exception.instructions.md`
 
 ## Locale Resolution
 - Register `LocaleResolver` as a `@Bean` inside a dedicated `@Configuration` class configured to read the `Accept-Language` header

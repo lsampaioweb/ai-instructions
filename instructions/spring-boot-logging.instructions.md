@@ -5,6 +5,15 @@ applyTo: "**/*.java"
 
 # Logging Rules
 
+## Scope: All Developer/Operator-Facing Text
+The i18n principle in these rules applies to **operator/developer operational text**, not only log statements. This includes:
+- Log messages (via `log.info()`, `log.debug()`, etc.)
+- Exception messages thrown by services, utilities, and integration clients
+- String constants containing human-readable text
+
+All such text must be defined as i18n keys in `messages.properties`, never hardcoded. Exception messages and error text follow the same pattern as logs: define a message key constant, resolve it via `LogMessages` (for operational/startup exceptions) or `MessageSource` (for HTTP-facing domain exceptions), and never embed English text in constants.
+For HTTP response error rendering and locale-aware user-facing messages, follow `spring-boot-exception.instructions.md` and `spring-boot-i18n.instructions.md`.
+
 ## Rules
 
 - Use `@Slf4j` (Lombok) on every class that logs; never declare `private static final Logger` manually
@@ -16,6 +25,15 @@ applyTo: "**/*.java"
 - Add logs for important lifecycle events (startup, connect/disconnect, external calls, publish/consume)
 - Prefer `DEBUG` for noisy flow details and `INFO` for business or lifecycle milestones
 - Do not wrap ordinary `log.debug(...)` with `if (log.isDebugEnabled())`; use guards only for expensive arguments or hot loops/high-throughput paths
+
+## Audit Scope: Identifying Hardcoded Text
+When auditing compliance, check for hardcoded text violations in:
+1. **Exception messages**: String literals in `throw new Exception("text")` or exception message constants
+2. **String constants**: Any `private static final String` holding English text (should hold message keys instead)
+3. **Validation errors**: Custom error messages not resolved from `messages.properties`
+4. **Startup warnings/errors**: Any printed output or log statements with embedded text
+
+Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words, constants ending in `_MESSAGE`, `_ERROR`, `_WARNING`, exception constructors with string literals.
 
 ## Log Levels
 
@@ -44,7 +62,6 @@ applyTo: "**/*.java"
 ## Logback Configuration
 - Place `logback-spring.xml` under `src/main/resources/log/`.
 - Add all profile-based appenders:
-
 - `development` profile: console appender + async file appender at `DEBUG` level
 - `production` and default profiles: async file appender only at `INFO` level
 
