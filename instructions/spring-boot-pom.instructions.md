@@ -7,7 +7,6 @@ applyTo: "**/pom.xml"
 
 - Target the latest stable Spring Boot and Java versions for new projects. For existing projects, detect the version from `pom.xml` and apply compatible rules without suggesting upgrades unless asked.
 
-
 ## Project Coordinates
 - `groupId`: use `io.github.lsampaioweb` as the default unless the user specifies a different groupId
 - `artifactId`: project name in kebab-case (e.g. `proxmox-installer-endpoint`)
@@ -15,8 +14,8 @@ applyTo: "**/pom.xml"
 - `name`: human-readable title in title case (e.g. `Proxmox Installer Endpoint`)
 
 ## Project Initialization
-- Always initialize a new project using `mvn archetype:generate` directly in the final target path
-- Never create `pom.xml` manually from scratch and never use Spring Initializr (requires internet access)
+- By default, initialize a new project using `mvn archetype:generate` directly in the final target path
+- Do not create `pom.xml` manually from scratch and do not use Spring Initializr (requires internet access), unless the user explicitly requires a different initialization flow
 - If a command auto-creates `.mvn`, remove the auto-generated `.mvn` folder before finalizing the step
 - Before generating feature code, ensure the module contains at minimum: `pom.xml`, `src/main/java`, `src/main/resources`, `src/test/java`
 
@@ -41,6 +40,13 @@ applyTo: "**/pom.xml"
 - Declare `spring-boot-starter-test` with `<scope>test</scope>`. Add `mockito-core` with `<scope>test</scope>` only when mocking beyond starter-test's built-in capabilities
 - For newly added dependencies and related code, prefer non-deprecated APIs; if a class is deprecated and marked for removal, use the supported replacement
 - **Document every dependency purpose**: add a brief XML comment above each `<dependency>` block explaining why it was added; see `## Templates` for an example
+
+### Version Management for Third-Party Libraries
+- When a third-party library is not managed by `spring-boot-starter-parent` (e.g., `springdoc-openapi`), do NOT hardcode the version in the `<dependency>` block
+- Instead, declare a version property in the `<properties>` section and reference it with `${property.name}` syntax
+- Example: for Springdoc compatibility with Spring Boot 4.x, add `<springdoc.version>3.0.1</springdoc.version>` to properties, then use `<version>${springdoc.version}</version>` in the dependency
+- This approach centralizes version updates to one location and reduces repetition across multiple modules
+- Treat this section as the canonical policy for third-party version-property management across instruction files
 
 ## Plugins
 - **CRITICAL**: Always configure `spring-boot-maven-plugin` with `<workingDirectory>${project.basedir}</workingDirectory>`; without this, the JVM working directory varies depending on the launch method (IDE vs. `mvn spring-boot:run` from a parent folder), causing relative log paths and other file references to resolve inconsistently. This setting alone is not sufficient for IDE launch buttons (e.g., VSCode); IDEs must also be configured with a `.vscode/launch.json` that sets `cwd` to the project folder for consistency
