@@ -6,64 +6,95 @@ applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configurati
 # Configuration Rules
 
 ## Files
-- Use `application.yml` as the only configuration format; do not use `application.properties`
-- These three profile files are mandatory in every project: `application.yml` (shared defaults), `application-development.yml` and `application-production.yml`
-- Set `spring.profiles.active: "production"` in `application.yml` as the default active profile; override it with the `SPRING_PROFILES_ACTIVE` environment variable or `--spring.profiles.active` argument at runtime
-- Keep `development` visible in `application.yml` as a commented option under `spring.profiles.active` when using list form, with `production` as the single uncommented default entry
+- Use only `application.yml`; no `application.properties`
+- **Mandatory three-file structure**:
+  - `application.yml`: Shared settings (name, logging, management, messages, datasource, app properties)
+  - `application-development.yml`: Dev overrides (port 8080, detailed error/health, swagger enabled)
+  - `application-production.yml`: Prod overrides (strict error/health, swagger disabled)
+- Set `spring.profiles.active: production` in base config with `development` commented; override with `SPRING_PROFILES_ACTIVE` environment variable if needed
 
-## Binding
-- Bind groups of related settings (paths, directories, URLs) to a `@ConfigurationProperties` class; use `@Value` only for single isolated properties that do not belong to a larger config group
-- Never hardcode environment-dependent URLs, hosts, ports, queue names, routing keys, file paths, or endpoint roots in Java code; store them in `application*.yml` and bind via `@ConfigurationProperties`
-
-## Secrets
-Never hardcode credentials, tokens, or secrets in configuration files or code. See `spring-boot-security.instructions.md` for the full secrets rule.
-
-## Organization
-- Keep each `@Configuration` class focused on one concern (security, messaging, persistence, web, etc.)
-- Each `@Configuration` class owns its own `@Bean` definitions; do not scatter beans across unrelated classes
-
-## YAML Section Ordering
-- In every `application*.yml`, place shared/system sections first (`spring`, `management`, `server`, `logging`), and put application-specific blocks (`app.*`) after them
-- Keep section order stable across profile files to reduce cognitive load during review
-
-## Logging
-Always declare the logging configuration file in `application.yml`:
-
-```yaml
-logging:
-  config: "classpath:log/logback-spring.xml"
-```
-
-Place the `logback-spring.xml` file under `src/main/resources/log/`.
-
-## Server
-- Always set `server.port` explicitly in `application.yml`; do not rely on the Spring Boot default of 8080
-- Enable virtual threads in `application.yml`:
-
+## application.yml Template
 ```yaml
 spring:
+  application:
+    name: "{app-name}"
+  messages:
+    basename: "i18n/messages"
   threads:
     virtual:
       enabled: true
+  profiles:
+    active:
+      # - "development"
+      - "production"
+  datasource: ...  # if project uses DB
+  rabbitmq: ...    # if project uses messaging
+
+logging:
+  config: "classpath:log/logback-spring.xml"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  endpoint:
+    health:
+      show-details: "when-authorized"
+
+app:
+  {feature}: ...
 ```
 
-## Database
-Only add database configuration when the project requires a database — confirm this before generating any datasource code. Configure the datasource using environment variables with fallback defaults where appropriate. Use Hikari as the connection pool with these baseline settings:
-
+## application-development.yml Template
 ```yaml
-spring:
-  datasource:
-    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}"
-    username: "${DB_USER}"
-    password: "${DB_PASSWORD}"
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      idle-timeout: 30000
-      connection-timeout: 20000
+server:
+  port: 8080
+  error:
+    include-stacktrace: "always"
+management:
+  endpoint:
+    health:
+      show-details: "always"
+# include only when OpenAPI is part of the project scope
+springdoc:
+  swagger-ui:
+    enabled: true
 ```
 
-Standard environment variable names: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+## application-production.yml Template
+```yaml
+server:
+  port: 9443
+  error:
+    include-stacktrace: "never"
+management:
+  endpoint:
+    health:
+      show-details: "never"
+# include only when OpenAPI is part of the project scope
+springdoc:
+  swagger-ui:
+    enabled: false
+```
+
+## Rules
+- **Base config**: Application name, logging, management, datasource/broker, app properties
+- **Dev config**: Lower ports, verbose output
+- **Prod config**: Strict output, explicit non-standard ports (e.g., 9443 instead of defaulting)
+- **Never hardcode** in code: URLs, ports, queue names, endpoints; use `application*.yml` + `@ConfigurationProperties`
+- Use `${VAR_NAME:default}` for environment-dependent values; avoid default values for credentials, tokens, and keys
+- Virtual threads: Include `spring.threads.virtual.enabled: true` in base config
+- Never put `spring.profiles.active` in profile files; only in base config
+- Logging config path: `src/main/resources/log/logback-spring.xml`
+
+## Secrets
+Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instructions.md`.
+
+## Organization
+- One `@Configuration` class = one concern (security, messaging, database, web, etc.)
+- Each config class owns its `@Bean` definitions
+- Use `@ConfigurationProperties` for related config groups; `@Value` for single properties only
 
 ## Templates
 
