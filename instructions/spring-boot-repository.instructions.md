@@ -5,6 +5,10 @@ applyTo: "**/*Repository.java, **/*Mapper.java, **/mapper/**/*.xml, **/sql/**/*.
 
 # Repository Rules
 
+## Scope
+- Applies only to persistence repositories and SQL/MyBatis mappers
+- If a `*Mapper` class is a feature mapper for domain ↔ DTO conversion (for example Spring `@Component` mapper), follow `spring-boot-dto-mapper.instructions.md` instead
+
 ## No ORM
 Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend `JpaRepository`, `CrudRepository`, or any Spring Data interface. Do not use JPQL or any ORM query language.
 

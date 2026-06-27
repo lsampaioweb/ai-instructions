@@ -43,17 +43,17 @@ interface {Resource}Service {
 class {Resource}ServiceImpl implements {Resource}Service {
 
   private final {Resource}Repository {resource}Repository;
-  private final {Resource}DtoMapper {resource}DtoMapper;
+  private final {Resource}Mapper {resource}Mapper;
 
-  {Resource}ServiceImpl({Resource}Repository {resource}Repository, {Resource}DtoMapper {resource}DtoMapper) {
+  {Resource}ServiceImpl({Resource}Repository {resource}Repository, {Resource}Mapper {resource}Mapper) {
     this.{resource}Repository = {resource}Repository;
-    this.{resource}DtoMapper = {resource}DtoMapper;
+    this.{resource}Mapper = {resource}Mapper;
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<{Resource}Response> findAll() {
-    return {resource}Repository.findAll().stream().map({resource}DtoMapper::toResponse).toList();
+    return {resource}Repository.findAll().stream().map({resource}Mapper::toResponse).toList();
   }
 
   @Override
@@ -62,17 +62,17 @@ class {Resource}ServiceImpl implements {Resource}Service {
     {Resource} entity = {resource}Repository.findById(id)
       .orElseThrow(() -> new {Resource}NotFoundException(id));
 
-    return {resource}DtoMapper.toResponse(entity);
+    return {resource}Mapper.toResponse(entity);
   }
 
   @Override
   @Transactional
   public {Resource}Response create(Create{Resource}Request request) {
-    {Resource} entity = {resource}DtoMapper.toEntity(request);
+    {Resource} entity = {resource}Mapper.toEntity(request);
 
     {resource}Repository.insert(entity);
 
-    return {resource}DtoMapper.toResponse(entity);
+    return {resource}Mapper.toResponse(entity);
   }
 
   @Override
@@ -81,11 +81,11 @@ class {Resource}ServiceImpl implements {Resource}Service {
     {Resource} entity = {resource}Repository.findById(id)
       .orElseThrow(() -> new {Resource}NotFoundException(id));
 
-    {resource}DtoMapper.updateEntity(request, entity);
+    {resource}Mapper.updateEntity(request, entity);
 
     {resource}Repository.update(entity);
 
-    return {resource}DtoMapper.toResponse(entity);
+    return {resource}Mapper.toResponse(entity);
   }
 
   @Override
