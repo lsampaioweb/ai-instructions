@@ -96,6 +96,14 @@ Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instru
 - Each config class owns its `@Bean` definitions
 - Use `@ConfigurationProperties` for related config groups; `@Value` for single properties only
 
+## Startup Initialization and Validation
+When a resource is needed at startup (e.g., connection pooling, cache warming, configuration validation):
+- Create a `@Component` class with a `@PostConstruct` method to initialize the resource
+- Use `@PostConstruct` to fail fast: if initialization fails, throw an exception (typically `IllegalStateException` with an i18n message key) so the application cannot start with incomplete/invalid configuration
+- Example use case: loading secrets from an external service, validating critical configuration dependencies, or prewarming caches required by services
+- Fail-fast startup prevents silent configuration errors from cascading into runtime failures; always prefer immediate failure over deferred/lazy initialization for critical resources
+- Never swallow exceptions in `@PostConstruct`; let them propagate to cause startup failure
+
 ## Templates
 
 `@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a `@Configuration` class.
@@ -123,5 +131,50 @@ Enable the properties class:
 @EnableConfigurationProperties({Feature}ConfigurationProperties.class)
 class {Feature}Configuration {
     // @Bean definitions that depend on {Feature}ConfigurationProperties go here
+}
+```
+
+**Startup initialization with fail-fast validation.** Use this pattern when a resource must be initialized at startup and missing/invalid configuration should cause the application to fail immediately.
+
+```java
+@Slf4j
+@Component
+class {Feature}Registry {
+  
+  private static final String LOG_LOADING = "log.feature.loading";
+  private static final String ERROR_LOAD_FAILED = "error.feature.load.failed";
+  
+  private final {Feature}ConfigurationProperties properties;
+  private final LogMessages logMessages;
+  private final Map<String, String> cache = new HashMap<>();
+
+  {Feature}Registry({Feature}ConfigurationProperties properties, LogMessages logMessages) {
+    this.properties = properties;
+    this.logMessages = logMessages;
+  }
+
+  @PostConstruct
+  void initialize() {
+    log.info(logMessages.get(LOG_LOADING));
+    
+    try {
+      // Load and validate critical resources here
+      // If any step fails, throw an exception to fail startup immediately
+      
+      cache.put("key", "value");
+    } catch (RuntimeException ex) {
+      throw new IllegalStateException(
+          logMessages.get(ERROR_LOAD_FAILED, ex.getMessage()), ex);
+    }
+    
+    log.info("Initialization complete");
+  }
+  
+  public String get(String key) {
+    if (!cache.containsKey(key)) {
+      throw new IllegalStateException("Key not found: " + key);
+    }
+    return cache.get(key);
+  }
 }
 ```
