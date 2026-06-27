@@ -1,6 +1,6 @@
 ---
 description: "Actuator and health check rules: dependency setup, endpoint exposure, security, and custom health indicators."
-applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*.java"
+applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*.java, **/application*.yml"
 ---
 
 # Actuator and Health Check Rules
@@ -9,9 +9,11 @@ applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*
 Include `spring-boot-starter-actuator` in every project.
 
 ## Endpoint Exposure
-- Expose only `/actuator/health` and `/actuator/info` on the default management port
+- Expose only `/actuator/health` (including health subpaths such as `/actuator/health/liveness` and `/actuator/health/readiness`) and `/actuator/info` on the default management port
 - Keep all other actuator endpoints disabled by default; enable specific ones in `application.yml` only when operationally required
-- Configure a `ping` health group at `/actuator/health/ping` for container liveness checks; the built-in `PingHealthIndicator` always returns `UP`, preventing false container restarts caused by external dependency failures
+- For container probes, prefer Spring Boot built-in probe groups (`/actuator/health/liveness` and `/actuator/health/readiness`) instead of a custom `ping` group
+- Enable probes explicitly outside Kubernetes with `management.endpoint.health.probes.enabled: true`
+- Keep liveness independent from external dependencies; include external checks in readiness only when the dependency is truly required to serve traffic
 
 ```yaml
 management:
@@ -22,9 +24,8 @@ management:
   endpoint:
     health:
       show-details: "when-authorized"
-      group:
-        ping:
-          include: "ping"
+      probes:
+        enabled: true
 ```
 
 ## Security
@@ -34,8 +35,9 @@ management:
 
 ## Custom Health Indicators
 - Implement a `HealthIndicator` for each external dependency (database, message broker, external API)
-- Return `Health.down()` with a stable detail key (for example `reason`) and a descriptive value when the dependency is unavailable
+- Return `Health.down()` with a stable detail key (for example `reason`) and a descriptive value when the dependency is unavailable; avoid exposing raw internal error text in details unless it is explicitly safe for operators
 - Keep health indicator classes package-private; register them as `@Component`
+- Custom dependency indicators should influence readiness semantics; avoid coupling external dependency state to liveness
 
 ## Templates
 

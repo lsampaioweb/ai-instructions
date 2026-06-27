@@ -40,18 +40,18 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 - Declare the network as `external: true`; create it once with `podman network create {app}-network` before first run
 - Apply runtime security hardening on every service: `read_only: true`, `cap_drop: ["ALL"]`, `security_opt: no-new-privileges:true`
 - Add a `tmpfs` mount for `/tmp` with `noexec,nosuid` to allow the JVM to write temporary files in a read-only container filesystem
-- Mount logs to `./logs/container` (subdirectory, not `./logs` directly) and ssl read-only
+- Mount logs to `./logs/container` (subdirectory, not `./logs` directly) and mount the SSL directory read-only
 - Use `logging.driver: k8s-file` for structured log capture
 - Pass `JAVA_TOOL_OPTIONS` to set JVM heap bounds at runtime; do not hardcode memory settings in the image
 - Set `SPRING_PROFILES_ACTIVE` directly (no shell default needed when using Compose); comment out the alternative profile
-- Healthcheck endpoint uses the `ping` health group (`/actuator/health/ping`) for container liveness checks; the ping group checks only whether the app process is alive, avoiding false restarts when external dependencies are temporarily unavailable; configure it in `application.yml` (see actuator rules)
+- Healthcheck endpoint should use Spring Boot probe groups: liveness (`/actuator/health/liveness`) for restart decisions and readiness (`/actuator/health/readiness`) for traffic routing when applicable; avoid custom `ping` groups by default
 
 ## Build and Run Commands
 Build and manage images and services:
 - Build JAR with `mvn clean package -DskipTests`, then image with `podman build`
 - For multi-stage builds, use `podman build --network=host -f Dockerfile-multi-stage` (no local Maven required)
 - Manage services with `podman compose`; create the external network once per host before first run
-- See templates below for all build and run commands
+- See the templates section for copy-ready commands
 
 ## Required Project Files
 
@@ -96,10 +96,7 @@ FROM docker.io/lsampaioweb/java-build:{jdk}-maven-alpine.{alpine}-{date} AS buil
 COPY . .
 
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn clean
-
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn package
+  mvn clean package
 
 FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-{date} AS runtime
 # FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-latest AS runtime
@@ -150,10 +147,10 @@ services:
       # - "SERVER_PORT=9443"
       - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx1024m"
     healthcheck:
-      # HTTP (development)
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/actuator/health/ping || exit 1"]
-      # HTTPS self-signed cert (production, bypass cert check)
-      # test: ["CMD-SHELL", "wget --no-check-certificate -q -O- https://localhost:9443/actuator/health/ping || exit 1"]
+      # HTTP (development, liveness used for restart decisions)
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/actuator/health/liveness || exit 1"]
+      # HTTPS self-signed cert (production, bypass cert check; readiness may be used for traffic routing)
+      # test: ["CMD-SHELL", "wget --no-check-certificate -q -O- https://localhost:9443/actuator/health/liveness || exit 1"]
       start_period: "2s"
       interval: "10s"
       timeout: "2s"
