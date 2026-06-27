@@ -6,7 +6,9 @@ applyTo: "**/Dockerfile, **/Dockerfile-multi-stage, **/docker-compose.yml, **/.d
 # Container Rules
 
 ## Base Images
-Use the internal hardened images from `docker.io/lsampaioweb/`. Never use public images (`eclipse-temurin`, `amazoncorretto`, etc.) directly.
+For Spring Boot application Dockerfiles, use the internal hardened images from `docker.io/lsampaioweb/`. Never use public Java runtime images (`eclipse-temurin`, `amazoncorretto`, etc.) directly.
+
+For infrastructure services orchestrated only via `docker-compose.yml` (for example PostgreSQL, RabbitMQ, Redis, Vault, Traefik), official upstream service images are allowed.
 
 | Purpose | Image |
 |---------|-------|
@@ -38,13 +40,20 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 
 ## docker-compose.yml
 - Declare the network as `external: true`; create it once with `podman network create {app}-network` before first run
-- Apply runtime security hardening on every service: `read_only: true`, `cap_drop: ["ALL"]`, `security_opt: no-new-privileges:true`
+- Apply runtime security hardening on every service: `cap_drop: ["ALL"]`, `security_opt: no-new-privileges:true`
+
+Spring Boot application service containers:
+- Add `read_only: true`
 - Add a `tmpfs` mount for `/tmp` with `noexec,nosuid` to allow the JVM to write temporary files in a read-only container filesystem
 - Mount logs to `./logs/container` (subdirectory, not `./logs` directly) and mount the SSL directory read-only
 - Use `logging.driver: k8s-file` for structured log capture
 - Pass `JAVA_TOOL_OPTIONS` to set JVM heap bounds at runtime; do not hardcode memory settings in the image
 - Set `SPRING_PROFILES_ACTIVE` directly (no shell default needed when using Compose); comment out the alternative profile
 - Healthcheck endpoint should use Spring Boot probe groups: liveness (`/actuator/health/liveness`) for restart decisions and readiness (`/actuator/health/readiness`) for traffic routing when applicable; avoid custom `ping` groups by default
+
+Infrastructure service containers (datastores, brokers, proxies, secret stores):
+- `read_only`, `tmpfs`, `logging.driver: k8s-file`, `JAVA_TOOL_OPTIONS`, and `SPRING_PROFILES_ACTIVE` are optional and service-dependent
+- Healthchecks should use service-native checks/endpoints (for example `pg_isready`, `rabbitmq-diagnostics`, `redis-cli ping`, Vault sys health, Traefik ping)
 
 ## Build and Run Commands
 Build and manage images and services:
@@ -55,7 +64,7 @@ Build and manage images and services:
 
 ## Required Project Files
 
-Every containerized project must include these files at the root:
+Every containerized Spring Boot application project must include these files at the root:
 
 | File | Purpose |
 |------|---------|
@@ -63,9 +72,20 @@ Every containerized project must include these files at the root:
 | `Dockerfile-multi-stage` | Multi-stage image build (no local Maven required) |
 | `docker-compose.yml` | Service orchestration |
 | `.dockerignore` | Excludes non-essential files from build context |
-| `.env` | Local env var overrides (never commit secrets; commit with placeholder comments only) |
+| `.env.example` | Committed template showing all required environment variables with defaults and documentation; developers copy to `.env` locally |
+| `.env` | Local env var overrides (never commit; add to `.gitignore`; contains actual secrets and local values) |
+| `.gitignore` | Must exclude `.env` to prevent committing local secrets |
 | `logs/container/.keep` | Placeholder so the log subdirectory is tracked by git |
 | `ssl/.keep` | Placeholder so the `ssl/` directory is tracked by git |
+
+### .env and .env.example Pattern
+For any project using environment variables:
+1. Create `.env.example` at the project root (committed) with all required `VAR_NAME=default` entries, plus brief comments explaining each variable's purpose and when it has no default (e.g., secrets, tokens)
+2. Create `.env` locally (never committed; in `.gitignore`) by copying `.env.example` and filling in actual values
+3. Developers read `.env.example` to understand what configuration is needed; they never see `.env` from the repo
+4. This pattern avoids committing secrets while ensuring new developers know what environment variables are required
+
+Infrastructure-only compose projects may be compose-first and do not require `Dockerfile`/`Dockerfile-multi-stage` when no application image is built in-project.
 
 ## Templates
 
