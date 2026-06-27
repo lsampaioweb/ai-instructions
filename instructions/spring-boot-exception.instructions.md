@@ -18,6 +18,50 @@ applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.ja
 - Exception constructors are plain data holders: never hardcode message text (pass an i18n key as `messageKey`) and never call `MessageSource` or any Spring infrastructure
 - Domain exceptions pass key, args, and status to the base constructor; message text resolution happens in `@RestControllerAdvice` using `MessageSource` and the request locale from `LocaleContextHolder.getLocale()`
 
+## Operational Exceptions
+Not all exceptions are domain exceptions caught by `@RestControllerAdvice`. Integration clients, utilities, and startup validators may throw operational exceptions (e.g., `IllegalStateException`, `IllegalArgumentException`) that are **never** intended for HTTP response handling. These exceptions are logged or cause startup failure.
+For shared operator-facing message-key conventions, follow `spring-boot-logging.instructions.md`.
+
+### Pattern for Operational Exception Messages
+Operational exception messages follow the same i18n principle as logs:
+1. Define message key constants at the top of the class (e.g., `ERROR_VAULT_RESPONSE_EMPTY = "error.vault.response.empty"`)
+2. Define the message keys and translations in `messages.properties` and `messages_pt_BR.properties`
+3. Inject `LogMessages` via constructor
+4. Resolve the message when throwing the exception: `throw new IllegalStateException(logMessages.get(ERROR_VAULT_RESPONSE_EMPTY))`
+
+### When to Use Operational Exceptions
+- Integration client validation: Vault client throws `IllegalStateException` for malformed responses
+- Startup validators: Configuration validators throw `IllegalArgumentException` for missing required values
+- Utility preconditions: Utility methods throw `IllegalStateException` for invalid state
+- **Never** for business logic that should result in an HTTP response — use domain exceptions instead
+
+### Example
+```java
+@Service
+public class VaultSecretService {
+  private static final String ERROR_EMPTY_RESPONSE = "error.vault.response.empty";
+  private static final String ERROR_KEY_NOT_FOUND = "error.vault.secret.key.not.found";
+
+  private final LogMessages logMessages;
+
+  VaultSecretService(LogMessages logMessages) {
+    this.logMessages = logMessages;
+  }
+
+  String readSecret(String path, String key) {
+    Map<String, Object> response = vaultClient.read(path);
+    if (response == null) {
+      throw new IllegalStateException(logMessages.get(ERROR_EMPTY_RESPONSE));
+    }
+    Object value = response.get(key);
+    if (value == null) {
+      throw new IllegalStateException(logMessages.get(ERROR_KEY_NOT_FOUND, key));
+    }
+    return String.valueOf(value);
+  }
+}
+```
+
 ## ErrorResponse
 - Every exception handler (except the `MethodArgumentNotValidException` handler) returns the same `ErrorResponse` DTO
 - `ErrorResponse` fields: `timestamp` (LocalDateTime), `status` (int), `error` (HTTP reason phrase), `message` (resolved i18n string), `path` (request URI), `trace` (stack trace string, null when not exposed)
@@ -121,7 +165,7 @@ class GlobalExceptionHandler {
   }
 
   private ErrorResponse buildError(int status, String error, String message, HttpServletRequest request, Exception ex) {
-
+    // Keep trace null by default; include it conditionally only when explicitly exposed (e.g., development profile).
     return new ErrorResponse(LocalDateTime.now(), status, error, message, request.getRequestURI(), null);
   }
 
