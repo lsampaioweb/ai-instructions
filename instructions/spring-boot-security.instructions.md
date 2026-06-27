@@ -12,7 +12,7 @@ applyTo: "**/*SecurityConfig.java, **/security/**/*.java"
 
 ## Authorization
 - Use `@PreAuthorize` for method-level authorization on business-sensitive operations
-- Never disable CSRF globally unless the service is strictly stateless and uses token-based authentication
+- Never disable CSRF globally unless the service is strictly stateless and uses non-cookie authentication (for example token-based authentication)
 
 ## CORS
 Configure CORS with explicit allowed origins, methods, and headers. Never use wildcard origins in production.
@@ -24,6 +24,8 @@ Configure CORS with explicit allowed origins, methods, and headers. Never use wi
 ## Logging and Errors
 - Do not log credentials, tokens, raw authorization headers, or full security exceptions with sensitive payloads
 - Return generic messages for authentication and authorization failures; never expose internal details
+- Never include user input, request parameters, or any dynamic values in exception message text; use i18n keys with parameterized placeholders instead
+- For shared operator-facing message-key and HTTP error rendering conventions, follow `spring-boot-logging.instructions.md` and `spring-boot-exception.instructions.md`
 
 ## Cryptography
 Never implement custom cryptography. Use approved Spring Security password encoders and providers.

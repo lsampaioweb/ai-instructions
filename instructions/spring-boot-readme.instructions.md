@@ -7,13 +7,13 @@ applyTo: "**/README.md"
 
 ## Recommended Sections
 
-Include the sections that are relevant; omit sections that do not apply to the project. Suggested order:
+Include the sections that are relevant; omit sections that do not apply to the topic. Suggested order:
 
-1. **Overview** — what the service does and its role in the system
+1. **Overview** — what the feature/integration does and its role in Spring Boot development
 1. **Prerequisites** — required tools, Java version, and environment setup
-1. **Running locally** — steps to start the application
-1. **Environment variables** — table of required and optional variables with descriptions
-1. **API summary** — endpoints, HTTP method, brief description, and required auth
+1. **Running locally** — steps to start the sample or test the feature
+1. **Environment variables** (if applicable) — table of required and optional variables with descriptions
+1. **API summary** (if applicable) — endpoints, HTTP method, brief description, and required auth
 
 ## Rules
 
@@ -23,10 +23,10 @@ Include the sections that are relevant; omit sections that do not apply to the p
 
 ## Documentation Standards
 - Use `1.` for ALL numbered lists (let Markdown auto-increment)
-- Always sort lists, tables, and enumerations in alphabetical order by the primary column or key
-- ONE command per code block with a description above it
+- Sort lists, tables, and enumerations alphabetically only when order is not semantic (e.g., references, variable tables)
+- One command per code block with a description above it
 - Always include `<!-- filepath: ... -->` at the top of every Markdown file
-- End each documentation file with navigation (if applicable) and author signature:
+- When applicable to the document type and repository convention, end each documentation file with navigation and author signature:
 
 ```markdown
 [Go Back](../README.md)

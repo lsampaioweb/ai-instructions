@@ -11,7 +11,6 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - Stack annotations one per line; class-level annotations before method-level and field-level
 - Use modern Java features where the project's Java version supports them: records, sealed classes
 - Keep signatures on one line unless line length exceeds 160 characters
-- Add a blank line before every `return` statement unless the method body is a single expression
 - Separate logically distinct blocks within a method with a blank line; do not add a blank line after every single statement
 - Keep assignment order consistent with field declaration and parameter order
 - Extract complex boolean predicates into well-named private methods; avoid inline multi-part logic in `if`, `while`, or ternary expressions
@@ -51,7 +50,7 @@ description: "Project profile and architecture contract for all Spring Boot proj
 ## AI Behavior Rules
 - Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully; if diagnostics still report errors, say so explicitly
 - Never invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation; when uncertain, say so
-- When a user requirement conflicts with a style convention: state the conflict explicitly, state the default convention, ask one targeted clarifying question; the user requirement always wins
+- When a user requirement conflicts with a style convention: state the conflict explicitly, state the default convention, and ask one targeted clarifying question only if the ambiguity materially changes architecture or generated artifacts; the user requirement always wins
 
 ## Scope Control
 - Only generate files for the specific feature or change requested; never add optional infrastructure or endpoints unless explicitly requested
@@ -60,7 +59,7 @@ description: "Project profile and architecture contract for all Spring Boot proj
 
 ## Ambiguity and Clarification Protocol
 - If context is sufficient, infer required components and proceed
-- If context is insufficient and different interpretations would change generated files, architecture, security, persistence, transport, deployment, or test scope, ask one targeted clarifying question before generating
+- If context is insufficient and different interpretations would change generated files, architecture, security, persistence, transport, deployment, or test scope, ask one targeted clarifying question before generating; prioritize the highest-impact unknown first: transport type (REST API, MVC pages, CLI/batch, event-driven) or relational database requirement
 - Do not hardcode fixed question lists in this file; clarification must be contextual
 - Do not hardcode keyword trigger lists in this file; component inclusion decisions must be semantic and contextual
 - If ambiguity is low-impact and does not change architecture or generated artifact boundaries, proceed with the safest minimal assumption and state it briefly
@@ -74,8 +73,9 @@ description: "Project profile and architecture contract for all Spring Boot proj
 ---
 
 ## Mandatory Components
-
-Every Spring Boot project includes these components. Always enforce their presence in new projects and always apply their rules when generating or reviewing code. Use the linked instruction files for all implementation details.
+Mandatory components are required for applicable Spring Boot project profiles and should be applied by default when they fit the project type and transport model.
+If a mandatory component is architecturally inapplicable, do not include it.
+In existing projects, enforce mandatory components only when creating a new project slice or when the requested change touches that concern; do not add unrelated components.
 
 - **Actuator** — health and info endpoints exposed; no sensitive endpoints exposed without security → [spring-boot-actuator.instructions.md](./spring-boot-actuator.instructions.md)
 - **Configuration** — multi-profile setup: `application.yml`, `application-development.yml`, `application-production.yml`; no hardcoded secrets → [spring-boot-config.instructions.md](./spring-boot-config.instructions.md)
@@ -83,19 +83,19 @@ Every Spring Boot project includes these components. Always enforce their presen
 - **i18n** — English (`messages.properties`) and pt_BR (`messages_pt_BR.properties`) required; locale resolved via `Accept-Language` header only → [spring-boot-i18n.instructions.md](./spring-boot-i18n.instructions.md)
 - **Logging** — `@Slf4j` (Lombok); all log messages use i18n keys, never hardcoded strings → [spring-boot-logging.instructions.md](./spring-boot-logging.instructions.md)
 - **Maven build** — `spring-boot-starter-parent`; no hardcoded managed versions → [spring-boot-pom.instructions.md](./spring-boot-pom.instructions.md)
-- **OpenAPI** — all REST endpoints documented with springdoc-openapi; UI toggled by profile → [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md)
 - **README** — required sections, no filler prose → [spring-boot-readme.instructions.md](./spring-boot-readme.instructions.md)
 
 ## Conditional Components
 
-Include these only when the requested feature needs them. Infer from full request context and intent, not fixed keywords. Ask one targeted clarifying question only when ambiguity changes what must be generated.
+Include conditional components only when required by requested feature scope and project type. Infer inclusion semantically from the request context, not fixed keywords.
 
 - **Async / event-driven** — when background processing or cross-feature event propagation is needed → [spring-boot-async-events.instructions.md](./spring-boot-async-events.instructions.md)
-- **Container / Compose** — when packaging the application with Docker → [spring-boot-container.instructions.md](./spring-boot-container.instructions.md)
-- **Data persistence (SQL, no ORM)** — when the feature stores or retrieves data; MyBatis or Spring JDBC Templates, never JPA → [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md)
+- **Container / Compose** — when packaging the application with Docker, Podman or Kubernetes → [spring-boot-container.instructions.md](./spring-boot-container.instructions.md)
+- **Data persistence (SQL, no ORM)** — include only when the requested feature requires persisting to or querying from a relational database; use MyBatis or Spring JDBC Templates, never JPA → [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md)
 - **DTO and mapping (MapStruct)** — when crossing layer boundaries (controller ↔ service ↔ repository) → [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md)
 - **HTTP client** — when calling external APIs; use `RestClient` → [spring-boot-http-client.instructions.md](./spring-boot-http-client.instructions.md)
-- **REST API controller** — when exposing HTTP endpoints; DTOs in/out, no business logic in the controller → [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md)
+- **REST API controller** — include when exposing HTTP JSON endpoints; DTOs in/out, no business logic in the controller. Dependency: if REST API controller is included, OpenAPI is required → [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md)
+- **OpenAPI** — include when the application exposes REST API endpoints; all REST endpoints documented with springdoc-openapi; UI toggled by profile → [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md)
 - **Security** — when authentication or authorization is required; deny-by-default, `@PreAuthorize` → [spring-boot-security.instructions.md](./spring-boot-security.instructions.md)
 - **Service layer** — when business logic, transactions, or orchestration is needed → [spring-boot-service.instructions.md](./spring-boot-service.instructions.md)
 - **Tests** — always include when creating or modifying controllers or services → [spring-boot-test.instructions.md](./spring-boot-test.instructions.md)

@@ -8,9 +8,10 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 ## Rules
 
 - All business logic lives in the service layer; never in controllers, repositories, or entities
-- Define a service interface; provide a single implementation class suffixed with `Impl`
+- Define a service interface; provide a single implementation class suffixed with `Impl` per interface
 - Apply `@Transactional` at the method level, not on the class; read-only methods use `@Transactional(readOnly = true)`
 - Throw domain-specific exceptions that extend the project's base exception class; do not throw raw Spring infrastructure exceptions
+- If throwing operational exceptions (e.g., `IllegalStateException` for startup/validation), use i18n message keys resolved via `LogMessages`, never hardcode message text
 - Services may call repositories, mappers, and integration clients; they do not call controllers
 - Keep service classes and methods package-private when used only within the same feature package
 
@@ -19,6 +20,7 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 - Never catch and silently swallow an exception
 - Do not wrap every method body in a `try/catch` as boilerplate; let unchecked exceptions propagate to `@RestControllerAdvice`
 - When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
+- For API error-response shape and stacktrace exposure policy, follow `spring-boot-exception.instructions.md`
 
 ## Templates
 
