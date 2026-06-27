@@ -106,7 +106,7 @@ When a resource is needed at startup (e.g., connection pooling, cache warming, c
 
 ## Templates
 
-`@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a `@Configuration` class.
+`@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a `@Configuration` class. `@SpringBootApplication` also qualifies because it is composed with `@SpringBootConfiguration`, which itself extends `@Configuration`; a dedicated `@Configuration` class is still preferred for clarity.
 
 ```java
 @ConfigurationProperties(prefix = "app.{feature}")

@@ -34,6 +34,7 @@ description: "Project profile and architecture contract for all Spring Boot proj
 
 ## Architecture Rules
 - Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
+- Lombok's `@RequiredArgsConstructor` generates a constructor for all `final` fields and is an acceptable alternative to writing an explicit constructor; use an explicit constructor when any parameter requires a `@Value` annotation, since Lombok cannot apply method-level annotations to generated constructor parameters
 - Enforce one-way dependency: `controller → service → repository` or `service → integration client`; skip-layer calls are not allowed
 - Controllers call only services; services call mappers, repositories, and integration clients; mappers have no web-layer knowledge
 - The controller receives DTOs only (never domain objects); the service calls `mapper.toResponse(domain)` before returning to the controller

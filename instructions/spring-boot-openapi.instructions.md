@@ -48,7 +48,7 @@ For production APIs, enhance the auto-generated spec with custom documentation:
 - Annotate each possible response with `@ApiResponse(responseCode = "...", description = "...")`
 - Annotate request body and path variable parameters with `@Parameter` only when needed
 
-For tutorials, omit annotations and rely on springdoc's auto-generation.
+The controller template includes `@Tag` and `@Operation` as the production baseline. These annotations may be omitted in the earliest learning samples where brevity is the explicit goal; add them as the project matures or when a defined API contract is needed.
 
 ## Profile Visibility
 - Disable Swagger UI in the production profile:

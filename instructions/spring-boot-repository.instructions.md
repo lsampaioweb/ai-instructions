@@ -113,14 +113,14 @@ class {Resource}Repository {
   }
 
   @Transactional(readOnly = true)
-  public List<{Resource}> findAll() {
+  List<{Resource}> findAll() {
     return jdbcClient.sql(SQL_FIND_ALL)
       .query({Resource}.class)
       .list();
   }
 
   @Transactional(readOnly = true)
-  public Optional<{Resource}> findById(Long id) {
+  Optional<{Resource}> findById(Long id) {
     return jdbcClient.sql(SQL_FIND_BY_ID)
       .param("id", id)
       .query({Resource}.class)
@@ -128,7 +128,7 @@ class {Resource}Repository {
   }
 
   @Transactional
-  public int insert({Resource} entity) {
+  int insert({Resource} entity) {
     return jdbcClient.sql(SQL_INSERT)
       .param("name", entity.getName())
       .param("description", entity.getDescription())
@@ -136,7 +136,7 @@ class {Resource}Repository {
   }
 
   @Transactional
-  public int update({Resource} entity) {
+  int update({Resource} entity) {
     return jdbcClient.sql(SQL_UPDATE)
       .param("id", entity.getId())
       .param("name", entity.getName())
@@ -145,14 +145,14 @@ class {Resource}Repository {
   }
 
   @Transactional
-  public int deleteById(Long id) {
+  int deleteById(Long id) {
     return jdbcClient.sql(SQL_DELETE_BY_ID)
       .param("id", id)
       .update();
   }
 
   @Transactional(readOnly = true)
-  public boolean existsById(Long id) {
+  boolean existsById(Long id) {
     return jdbcClient.sql(SQL_EXISTS_BY_ID)
       .param("id", id)
       .query(Boolean.class)
