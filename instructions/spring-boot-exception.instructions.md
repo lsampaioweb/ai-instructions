@@ -66,7 +66,7 @@ public class VaultSecretService {
 ## ErrorResponse
 - Every exception handler (except the `MethodArgumentNotValidException` handler) returns the same `ErrorResponse` DTO
 - `ErrorResponse` fields: `timestamp` (LocalDateTime), `status` (int), `error` (HTTP reason phrase), `message` (resolved i18n string), `path` (request URI), `trace` (stack trace string, null when not exposed)
-- The `message` field is always locale-aware; the same exception may return different text depending on the `Accept-Language` header
+- The `message` field is locale-aware; the same exception may return different text depending on the `Accept-Language` header
 - Use `LocalDateTime.now(ZoneOffset.UTC)` for the `timestamp` field; never use bare `LocalDateTime.now()` — the architecture rule requiring an explicit `ZoneId` applies here; `LocalDateTime` with UTC is acceptable for this informational, non-cross-service field even though the architecture instruction prefers `OffsetDateTime` for API timestamps
 - The `trace` field is `null` by default; populate it conditionally based on `server.error.include-stacktrace` — see `## Stacktrace Exposure`
 

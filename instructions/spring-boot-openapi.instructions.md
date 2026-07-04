@@ -34,7 +34,7 @@ Then in the dependency block:
 ## OpenAPI Bean (Required)
 Define a single `OpenAPI` bean in a dedicated `@Configuration` class with project title, version, and description (contact is optional).
 
-**Why only the bean?** Springdoc auto-generates the full OpenAPI specification from your controller code:
+Springdoc auto-generates the full OpenAPI specification from controller code:
 - All endpoints are discovered automatically
 - Request/response schemas are inferred from method signatures
 - Response codes are auto-detected from Spring's default HTTP conventions

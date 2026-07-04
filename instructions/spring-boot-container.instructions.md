@@ -6,9 +6,9 @@ applyTo: "**/Dockerfile, **/Dockerfile-multi-stage, **/docker-compose.yml, **/.d
 # Container Rules
 
 ## Base Images
-For Spring Boot application Dockerfiles, use the internal hardened images from `docker.io/lsampaioweb/`. Never use public Java runtime images (`eclipse-temurin`, `amazoncorretto`, etc.) directly.
+For Spring Boot Dockerfiles, use internal hardened images from `docker.io/lsampaioweb/`. Never use public Java runtime images (`eclipse-temurin`, `amazoncorretto`, etc.) directly.
 
-For infrastructure services orchestrated only via `docker-compose.yml` (for example PostgreSQL, RabbitMQ, Redis, Vault, Traefik), official upstream service images are allowed.
+For infrastructure services orchestrated only via `docker-compose.yml` (e.g., PostgreSQL, RabbitMQ, Redis, Vault, Traefik), official upstream service images are allowed.
 
 | Purpose | Image |
 |---------|-------|
@@ -53,7 +53,7 @@ Spring Boot application service containers:
 
 Infrastructure service containers (datastores, brokers, proxies, secret stores):
 - `read_only`, `tmpfs`, `logging.driver: k8s-file`, `JAVA_TOOL_OPTIONS`, and `SPRING_PROFILES_ACTIVE` are optional and service-dependent
-- Healthchecks should use service-native checks/endpoints (for example `pg_isready`, `rabbitmq-diagnostics`, `redis-cli ping`, Vault sys health, Traefik ping)
+- Healthchecks should use service-native checks/endpoints (e.g., `pg_isready`, `rabbitmq-diagnostics`, `redis-cli ping`, Vault sys health, Traefik ping)
 
 ## Build and Run Commands
 Build and manage images and services:

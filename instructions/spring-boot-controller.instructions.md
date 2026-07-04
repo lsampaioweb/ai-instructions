@@ -18,7 +18,7 @@ applyTo: "**/*Controller.java, **/*Api.java"
 - When accepting Java Records as `@RequestBody` or `@ModelAttribute`, explicitly annotate the parameter with `@Valid` to trigger DTO-level validation constraints (`@NotNull`, `@NotBlank`, etc.).
 - Do NOT apply `@Valid` to scalar parameters like `@PathVariable Long id` or `@RequestParam String name`; they use framework-level type coercion and Spring's built-in constraints. If you need custom validation on scalars, use class-level `@Validated` on the controller combined with `@NotNull` / `@Pattern` on the method parameters.
 - Return DTOs only; never return domain objects directly; exception: when the response is raw opaque content (e.g. file bytes, TOML passthrough), return `ResponseEntity<String>` or `ResponseEntity<byte[]>` — see the Raw Passthrough Exception rule below
-- Never return `Map<String, Object>` or `Object`; every JSON response must be a strictly typed Java record
+- Never return `Map<String, Object>` or `Object`; every JSON response must be a typed Java record
 - When returning a non-JSON response, set the `produces` attribute explicitly on the mapping annotation (e.g. `@PostMapping(value = "/", produces = "application/toml")`); the `produces` attribute sets the HTTP response `Content-Type` header
 - Use specific mapping annotations: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`
 - HTTP status discipline: use 200 (successful read), 201 (creation via `ResponseEntity`), 204 (no-content), 400 (validation errors), 404 (not found), 500 (unexpected errors)

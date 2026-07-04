@@ -10,9 +10,9 @@ applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*Session
 - Keep business rules in service/domain instructions; do not move domain workflows into WebSocket endpoint classes
 
 ## Endpoint and Broker Topology
-- Keep WebSocket setup in a dedicated `@Configuration` class implementing `WebSocketMessageBrokerConfigurer`
+- Use a dedicated `@Configuration` class implementing `WebSocketMessageBrokerConfigurer` for WebSocket setup
 - Define destination prefixes and endpoint paths as constants, not inline literals spread across methods
-- Configure clear destination domains: application/inbound prefix (for example `/app`) for messages sent from clients to server handlers, and broker/outbound prefixes (for example `/topic`, `/queue`) for server-to-client delivery
+- Configure clear destination domains: application/inbound prefix (e.g., `/app`) for messages sent from clients to server handlers, and broker/outbound prefixes (e.g., `/topic`, `/queue`) for server-to-client delivery
 - Register a STOMP endpoint and enable SockJS fallback when browser compatibility is required
 
 ## Configuration Binding
@@ -22,7 +22,7 @@ applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*Session
 
 ## Message Handler Contract
 - Implement STOMP handlers in dedicated `@Controller` endpoint classes with `@MessageMapping`
-- Publish broadcast responses using explicit broker destinations (for example via `@SendTo`)
+- Publish broadcast responses using explicit broker destinations (e.g., via `@SendTo`)
 - Keep payload and response models as immutable records unless mutability is required
 - Do not trust client-generated timestamps or metadata for canonical server events; set canonical server values in the handler or delegated service
 

@@ -6,7 +6,7 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*R
 # DTO and Mapper Rules
 
 ## Scope
-- Applies to DTO classes and non-SQL feature mappers (for example Spring `@Component` mappers used for domain ↔ DTO conversion)
+- Applies to DTO classes and non-SQL feature mappers (e.g., Spring `@Component` mappers used for domain ↔ DTO conversion)
 - SQL/MyBatis persistence mappers follow `spring-boot-repository.instructions.md`
 
 ## DTOs
@@ -19,7 +19,7 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*R
 ## Mapper Boundary
 - Always map at layer boundaries: controller returns response DTOs, service maps domain objects to DTOs before returning
 - Use consistent method names: `toEntity`, `toResponse`, `toCreateResponse`
-- Default mapper style: package-private Spring component class (for example `{Resource}Mapper`) when mapping is simple and MapStruct is not already required
+- Default mapper style: package-private Spring component class (e.g., `{Resource}Mapper`) when mapping is simple and MapStruct is not already required
 
 ## MapStruct (Optional)
 - Use MapStruct when it is already present in the module or explicitly requested
