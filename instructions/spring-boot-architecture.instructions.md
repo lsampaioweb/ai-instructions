@@ -9,7 +9,7 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - All Java identifiers follow standard naming: `camelCase` for variables and methods, `UPPER_SNAKE_CASE` for constants, `PascalCase` for class and interface names; never use underscores or hyphens in identifiers; map external formats (e.g., JSON `snake_case`) via `@JsonProperty` or `@JsonNaming`
 - Import order: `java.*` → `jakarta.*` → third-party (`org.*`, `com.*`) → project-internal; blank line between groups; never use wildcard imports
 - Stack annotations one per line; class-level annotations before method-level and field-level
-- Use modern Java features where the project's Java version supports them: records, sealed classes
+- Use explicit type declarations for all variable declarations; do not use `var` — type clarity is required for code readability and maintainability; use modern Java features such as records and sealed classes where applicable
 - Keep signatures on one line unless line length exceeds 160 characters
 - Separate logically distinct blocks within a method with a blank line; do not add a blank line after every single statement
 - Keep assignment order consistent with field declaration and parameter order
