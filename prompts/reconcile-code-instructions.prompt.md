@@ -26,6 +26,8 @@ Workflow:
 1. Preserve technical literals: code blocks, inline code, commands, paths, URLs, identifiers, annotation names, config keys, environment variables, versions, and dependency coordinates.
 1. Derive changes from existing patterns, explicit user preferences, or repeated corrections; do not invent new project rules.
 1. Avoid broad rewrites when a narrow correction is enough.
+1. Prefer the smallest correct diff that resolves the identified drift.
+1. Do not silently fix adjacent out-of-scope issues; record them as separate findings when relevant.
 
 Edit policy:
 1. For review-only requests: stop after analysis and proposed changes.
