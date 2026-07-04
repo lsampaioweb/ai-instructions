@@ -6,7 +6,7 @@ argument-hint: "Name of the application or feature to scaffold or review (e.g. '
 
 # Spring Boot Feature Scaffolding and Code Review
 
-## When to Use This Skill
+## When to Use
 
 **Scaffold/Generate scenarios:**
 - Creating a new Spring Boot application
