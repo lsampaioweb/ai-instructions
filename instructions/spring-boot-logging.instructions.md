@@ -16,7 +16,7 @@ For HTTP response error rendering and locale-aware user-facing messages, follow 
 
 ## Rules
 
-- Use `@Slf4j` (Lombok) on every class that logs; never declare `private static final Logger` manually
+- Add `@Slf4j` (Lombok) to a class when it contains at least one `log.*` call; never declare `private static final Logger` manually
 - Never hardcode message text as string literals in log statements; define all log message templates in `messages.properties` and resolve them by key before passing to the logger
 - Resolve log message keys via a project-level `LogMessages` utility; inject it via constructor
 - Logs are always developer-facing and always in English — never resolve log messages with the request locale; see `## Templates` for the implementation
@@ -62,7 +62,7 @@ Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words
 ## Logback Configuration
 - Place `logback-spring.xml` under `src/main/resources/log/`.
 - Add all profile-based appenders:
-- `development` profile: console appender + async file appender at `DEBUG` level
+- `development` profile: console appender + async file appender at `INFO` level
 - `production` and default profiles: async file appender only at `INFO` level
 
 File rotation settings:
