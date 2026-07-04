@@ -1,6 +1,6 @@
 ---
 description: "Actuator and health check rules: dependency setup, endpoint exposure, security, and custom health indicators."
-applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*.java, **/application*.yml"
+applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*.java, **/application*.yml, **/pom.xml"
 ---
 
 # Actuator and Health Check Rules
@@ -14,6 +14,12 @@ Include `spring-boot-starter-actuator` in every project.
 - For container probes, prefer Spring Boot built-in probe groups (`/actuator/health/liveness` and `/actuator/health/readiness`) instead of a custom `ping` group
 - Enable probes explicitly outside Kubernetes with `management.endpoint.health.probes.enabled: true`
 - Keep liveness independent from external dependencies; include external checks in readiness only when the dependency is truly required to serve traffic
+
+Readiness vs liveness decision:
+- Liveness answers: should the process be restarted now; avoid external dependency checks here
+- Readiness answers: can this instance serve traffic now
+- Include a dependency in readiness only when requests cannot be served without it
+- Exclude optional dependencies from readiness when the service can degrade gracefully
 
 ```yaml
 management:
@@ -35,7 +41,7 @@ management:
 
 ## Custom Health Indicators
 - Implement a `HealthIndicator` for each external dependency (database, message broker, external API)
-- Return `Health.down()` with a stable detail key (for example `reason`) and a descriptive value when the dependency is unavailable; avoid exposing raw internal error text in details unless it is explicitly safe for operators
+- Return `Health.down()` with a stable detail key (e.g., `reason`) and descriptive value when the dependency is unavailable; avoid exposing raw internal error text unless it is explicitly safe for operators
 - Keep health indicator classes package-private; register them as `@Component`
 - Custom dependency indicators should influence readiness semantics; avoid coupling external dependency state to liveness
 

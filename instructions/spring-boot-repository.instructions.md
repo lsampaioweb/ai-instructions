@@ -7,14 +7,14 @@ applyTo: "**/*Repository.java, **/*Mapper.java, **/mapper/**/*.xml, **/sql/**/*.
 
 ## Scope
 - Applies only to persistence repositories and SQL/MyBatis mappers
-- If a `*Mapper` class is a feature mapper for domain ↔ DTO conversion (for example Spring `@Component` mapper), follow `spring-boot-dto-mapper.instructions.md` instead
+- If a `*Mapper` class is a feature mapper for domain ↔ DTO conversion (e.g., Spring `@Component` mapper), follow `spring-boot-dto-mapper.instructions.md` instead
 
 ## No ORM
 Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend `JpaRepository`, `CrudRepository`, or any Spring Data interface. Do not use JPQL or any ORM query language.
 
 ## MyBatis
 - Define repositories as interfaces annotated with `@Mapper`
-- SQL statements live in XML mapper files under `src/main/resources/mapper/`; never inline SQL as Java string literals
+- SQL statements live in XML mapper files under `src/main/resources/mapper/`; never inline SQL as string literals
 - Reference statements by their XML ID; the mapper interface method name must match the XML `id`
 - Use MyBatis result maps in XML to map SQL result sets to domain objects; no annotations on domain classes
 - Keep mapper interfaces package-private when used only within the same feature package
@@ -30,6 +30,12 @@ Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend
 - Keep repository and mapper classes package-private when used only within the same feature package
 - Place schema and seed SQL files under `src/main/resources/sql/`; do not place them in the root of `src/main/resources/`
 - Never add Flyway or Liquibase dependencies unless explicitly requested; assume SQL files are executed manually or via `spring.sql.init` properties
+
+## Schema Initialization
+- Development: keep DDL in `src/main/resources/sql/schema.sql` and optional seed data in `src/main/resources/sql/data.sql`
+- Development startup: when automatic initialization is required, configure `spring.sql.init` in profile-specific YAML files
+- Production: apply DDL before deployment using deployment tooling; do not rely on implicit runtime schema creation
+- Keep SQL files as the source of truth for schema shape; do not store database state snapshots in the repository
 
 ## Filesystem Repositories
 Use when the feature has no database and data is stored as files on disk identified by a key.

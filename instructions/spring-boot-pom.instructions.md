@@ -21,7 +21,7 @@ applyTo: "**/pom.xml"
 
 ## Parent and Versions
 - Every Spring Boot project must declare `spring-boot-starter-parent` as the Maven parent; it provides managed dependency versions, plugin configuration, and sensible defaults
-- Never rely on model memory for framework or Java versions; always read the current `pom.xml` and repository docs first
+- Never rely on model memory for framework or Java versions; always read the current `pom.xml` and repository docs
 - For existing projects, preserve both the Spring Boot parent version and `java.version` unless the user explicitly requests an upgrade
 - For new projects, use the version the user requests; if no version is given, use the latest stable release available at project generation time — do not hardcode a version from model memory
 - Set the Java baseline via the `<java.version>` property; see `## Templates` for the snippet
@@ -34,6 +34,7 @@ applyTo: "**/pom.xml"
 - For full upgrade procedures (bulk parent pin, Java property update, build verification) follow the project's own documentation in `documentation/maven/upgrade.md`
 
 ## Dependencies
+- Include the following mandatory starters in every project: `spring-boot-starter-web`, `spring-boot-starter-thymeleaf` (for MVC view projects), `spring-boot-starter-actuator`, `spring-boot-starter-test`, and `spring-boot-devtools` (runtime scope, optional)
 - Add starters rather than individual Spring Framework or Spring Boot jars
 - Common ordering (alphabetically within groups): Spring starters → production libraries → optional/runtime → test-only
 - Declare `spring-boot-devtools` with `<scope>runtime</scope>` and `<optional>true</optional>`; it must never be packaged in the production artifact

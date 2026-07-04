@@ -1,6 +1,6 @@
 ---
 description: "Thymeleaf rules: controller conventions, template layout, model attributes, form binding, and static resource references."
-applyTo: "**/*Controller.java, **/*Routes.java, **/templates/**/*.html"
+applyTo: "**/*PageController.java, **/*Routes.java, **/templates/**/*.html"
 ---
 
 # Thymeleaf Rules
@@ -12,7 +12,8 @@ applyTo: "**/*Controller.java, **/*Routes.java, **/templates/**/*.html"
 ## Controller
 - Scope boundary: applies to MVC/view handlers returning template names
 - It does not apply to REST JSON API handlers
-- Annotate Thymeleaf controllers with `@Controller`, not `@RestController`
+- Annotate with `@Controller`, not `@RestController`; name the class `*PageController` or `*Routes` (never `*Controller` for view handlers; that name is reserved for REST API handlers)
+- Use `@Controller`, not `@RestController`, for Thymeleaf controllers
 - Return view name strings from handler methods; never return `ResponseEntity` or JSON from a Thymeleaf controller
 - Declare the base path at class level with `@RequestMapping`; use only the path suffix on method annotations
 - Inject `Model` as a method parameter when the handler needs to pass data to the template
@@ -51,7 +52,7 @@ applyTo: "**/*Controller.java, **/*Routes.java, **/templates/**/*.html"
 @Slf4j
 @Controller
 @RequestMapping("/{feature}")
-class {Feature}Controller {
+class {Feature}PageController {
 
   @GetMapping
   public String index() {
@@ -73,7 +74,7 @@ class {Feature}Controller {
 @Slf4j
 @Controller
 @RequestMapping("/{feature}/form")
-class {Feature}FormController {
+class {Feature}FormPageController {
 
   @GetMapping
   public String showForm(Model model) {

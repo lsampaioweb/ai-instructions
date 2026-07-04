@@ -18,6 +18,11 @@ applyTo: "**/*Event.java, **/*Listener.java, **/*Publisher.java"
 - Do not configure custom `ThreadPoolTaskExecutor` beans for `@Async`; virtual threads are enabled globally, so Spring Boot uses the default virtual thread executor
 - Ensure `@EnableAsync` is present on a configuration class when any `@Async` listener exists
 
+## When to Use @Async
+- Use `@Async` for listeners that perform blocking I/O expected to take noticeable time (e.g., external API calls, file I/O, messaging, or email sending)
+- Do not use `@Async` for CPU-bound in-memory transformations or short non-blocking logic
+- Prefer synchronous listeners for simple, fast operations where ordering and immediate visibility are more important than parallelism
+
 ## Templates
 
 **Event record.** Replace `{Resource}` with the domain concept. Keep the record immutable — no setters, no mutable fields.

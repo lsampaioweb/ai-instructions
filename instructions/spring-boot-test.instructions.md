@@ -20,6 +20,12 @@ Name test methods using the pattern: `{method}_when{Condition}_should{Outcome}`
 
 Example: `findById_whenUserNotFound_shouldReturn404`
 
+Test type examples:
+- Slice test (`@WebMvcTest`): `findById_whenUserNotFound_shouldReturn404`
+- Integration test (`@SpringBootTest`): `create_whenValidRequest_shouldPersistAndReturn201`
+- Unit test (pure JUnit/Mockito): `validateEmail_whenFormatInvalid_shouldThrowException`
+- Repository test (`@JdbcTest` or `@MybatisTest`): `insert_whenNewUser_shouldGenerateId`
+
 ## Assertions and Fixtures
 - Use AssertJ (`assertThat`) for all assertions; do not use raw JUnit `assertEquals`
 - Use `@ActiveProfiles("test")` when tests need to isolate from production configuration

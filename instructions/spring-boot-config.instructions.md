@@ -83,10 +83,28 @@ springdoc:
 - **Dev config**: Lower ports, verbose output
 - **Prod config**: Strict output, explicit non-standard ports (e.g., 9443 instead of defaulting)
 - **Never hardcode** in code: URLs, ports, queue names, endpoints; use `application*.yml` + `@ConfigurationProperties`
-- Use `${VAR_NAME:default}` for environment-dependent values; avoid default values for credentials, tokens, and keys
+- Use `${VAR_NAME:default}` for environment-dependent values; avoid defaults for credentials, tokens, and keys
 - Virtual threads: Include `spring.threads.virtual.enabled: true` in base config
 - Never put `spring.profiles.active` in profile files; only in base config
 - Logging config path: `src/main/resources/log/logback-spring.xml`
+
+## Test Configuration
+- Create `application-test.yml` when tests need profile-specific overrides (e.g., in-memory datasource, mock URLs, reduced timeouts)
+- Keep test overrides isolated to test scope; never reuse production credentials or production endpoints in test profile values
+- Use `@ActiveProfiles("test")` in tests that require these overrides
+
+`application-test.yml` template (adapt fields to project needs):
+
+```yaml
+spring:
+  datasource:
+    url: "jdbc:h2:mem:testdb"
+    driver-class-name: "org.h2.Driver"
+
+app:
+  external-api:
+    base-url: "http://localhost:8089"
+```
 
 ## Secrets
 Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instructions.md`.
