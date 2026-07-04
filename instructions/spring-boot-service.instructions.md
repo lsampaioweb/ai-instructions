@@ -33,7 +33,7 @@ interface {Resource}Service {
   {Resource}Response findById(Long id);
   {Resource}Response create(Create{Resource}Request request);
   {Resource}Response update(Long id, Update{Resource}Request request);
-  void delete(Long id);
+  int delete(Long id);
 }
 ```
 
@@ -90,12 +90,12 @@ class {Resource}ServiceImpl implements {Resource}Service {
 
   @Override
   @Transactional
-  public void delete(Long id) {
+  public int delete(Long id) {
     if (!{resource}Repository.existsById(id)) {
       throw new {Resource}NotFoundException(id);
     }
 
-    {resource}Repository.deleteById(id);
+    return {resource}Repository.deleteById(id);
   }
 }
 ```
