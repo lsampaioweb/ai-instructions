@@ -13,6 +13,17 @@ Inputs:
 1. Optional scope: one or more files, folders, or changed-files-only selectors; define deterministic boundaries for the run.
 
 Workflow:
+
+### Pre-Scan Phase (Mandatory)
+1. **List all applicable mandatory components** from `spring-boot-architecture.instructions.md` for the scope's project type
+   - For Spring Boot projects: Configuration, i18n, Logging, Exception handling, Maven/POM, README
+   - For additional components: check if REST API, Thymeleaf, async, security, database, etc. are applicable
+1. **Validate component presence**: verify each mandatory component's required files exist
+   - Example: if i18n is mandatory, verify `src/main/resources/i18n/messages.properties` and `messages_pt_BR.properties` exist
+   - Example: if configuration is mandatory, verify `application.yml`, `application-development.yml`, `application-production.yml` exist
+   - Record missing files as findings (one per missing file)
+
+### Drift Analysis Phase
 1. Inspect the requested scope first.
 1. Identify the current source of truth based on the selected mode.
 1. Freeze that source of truth for the full run; do not switch source of truth mid-run.
@@ -45,11 +56,17 @@ Closure policy (mandatory for every run):
 1. If a finding already has a prior accepted-intentional or deferred decision in repository context, reuse that status instead of rediscovering it as a new unresolved drift.
 
 Required output format:
-1. `Findings` list (only concrete drift in scope).
+1. `Findings` list (only concrete drift in scope; include missing mandatory files, missing annotations, hardcoded strings).
 1. `Drift ledger` table with columns: `id`, `type`, `source-of-truth`, `recommended-solution`, `action`, `status`, `owner`, `evidence`.
-1. `Verification` section listing checks executed (or explicitly not executed with reason and risk note).
+1. `Verification` section must explicitly list:
+   - All mandatory components checked and their presence/absence status
+   - Pattern audits executed (hardcoded strings, missing @Slf4j, etc.) with results
+   - Any checks explicitly NOT executed, with reason and risk note
 
 Guardrails:
 1. Be direct when current instructions are weak, contradictory, or overly vague.
 1. Do not compress safety-critical guidance if clarity would be reduced.
 1. Keep changes consistent with existing repository conventions unless the user explicitly wants a convention change.
+1. **Exhaustive audit requirement**: Do NOT stop after finding one drift. Always complete the Pre-Scan Phase first to identify ALL mandatory component violations before proceeding to drift analysis.
+1. **Mandatory vs optional**: Distinguish between violations of mandatory components (always report) and code-style inconsistencies (only report if within scope).
+1. **Never assume presence**: If an instruction specifies a file/folder should exist, verify it actually does. Do not assume it exists just because the main file exists.
