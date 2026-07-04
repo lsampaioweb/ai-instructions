@@ -13,7 +13,7 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - Keep signatures on one line unless line length exceeds 160 characters
 - Separate logically distinct blocks within a method with a blank line; do not add a blank line after every single statement
 - Keep assignment order consistent with field declaration and parameter order
-- Extract complex boolean predicates into well-named private methods; avoid inline multi-part logic in `if`, `while`, or ternary expressions
+- Extract complex boolean predicates into named private methods; avoid inline multi-part logic in `if`, `while`, or ternary expressions
 - Never introduce deprecated APIs when a supported alternative exists
 - Never call date/time `now()` methods without explicit `ZoneId` or `Clock`; default to UTC when no domain-specific timezone is required
 - Prefer `Instant` or `OffsetDateTime` for cross-service/API timestamps; use `LocalDateTime` only when timezone-free local business time is intentional
@@ -31,6 +31,26 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - Organize code by feature or domain: `user`, `product`, `order`, `config`, `integration`; never create generic root packages named `controller`, `service`, or `repository`
 - Keep all classes for a feature in one package (e.g. `UserController`, `UserService`, `UserMapper`, `User`, `CreateUserRequest`, and `UserNotFoundException` all belong in `com.example.user`)
 - Non-Java project files belong at the project root, never inside `src/`
+
+Feature package structure example:
+
+```text
+src/main/java/com/example/user/
+  User.java
+  CreateUserRequest.java
+  UserResponse.java
+  UserNotFoundException.java
+  UserController.java
+  UserService.java
+  UserServiceImpl.java
+  UserMapper.java
+  UserRepository.java
+
+src/test/java/com/example/user/
+  UserControllerTest.java
+  UserServiceTest.java
+  UserRepositoryIT.java
+```
 
 ## Architecture Rules
 - Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
@@ -54,11 +74,17 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully; if diagnostics still report errors, say so explicitly
 - Never invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation; when uncertain, say so
 - When a user requirement conflicts with a style convention: state the conflict explicitly, state the default convention, and ask one targeted clarifying question only if the ambiguity materially changes architecture or generated artifacts; the user requirement always wins
+- Prefer fixing the shared root cause over patching one symptom path; inspect affected callers when changing shared functions
 
 ## Scope Control
 - Only generate files for the specific feature or change requested; never add optional infrastructure or endpoints unless explicitly requested
-- When starting a new project, ensure mandatory shared infrastructure is present before generating feature-specific code; do not hardcode project-structure checklists here
+- When starting a new project, generate mandatory shared infrastructure for the selected project type first as one coherent scaffolding step, then wait for confirmation before feature-specific code
 - When editing existing projects, apply only sections relevant to touched files; do not over-apply
+
+## Change Decision Order
+- Before introducing new code, apply this order: validate necessity first, then reuse existing project patterns, then prefer standard library or platform features.
+- Only after those options are exhausted, implement the minimum new code required.
+- Avoid adding dependencies, layers, or abstractions unless they are necessary for the requested scope.
 
 ## Ambiguity and Clarification Protocol
 - If context is sufficient, infer required components and proceed
