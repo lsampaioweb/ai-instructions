@@ -17,6 +17,7 @@ skills/         — SKILL.md files; domain knowledge loaded on demand
 
 | File | Applies to | Purpose |
 |---|---|---|
+| [ai-customization.instructions.md](instructions/ai-customization.instructions.md) | `**/*.agent.md`, `**/hooks/**/*.json`, `**/hooks/**/*.md`, `**/*.instructions.md`, `**/*.prompt.md`, `**/skills/**/SKILL.md` | Style contract for AI customization files: structure, wording, conflict handling, and scoring rubric for consistent, enforceable guidance |
 | [copilot-instructions.md](instructions/copilot-instructions.md) | `**` | Always-on behavioral baseline: directness, scope control, anti-hallucination, concise output, and tool discipline guardrails |
 | [spring-boot-actuator.instructions.md](instructions/spring-boot-actuator.instructions.md) | `**/*ActuatorConfig*.java`, `**/*HealthIndicator.java`, `**/management/**/*.java`, `**/application*.yml`, `**/pom.xml` | Actuator and health check rules: dependency setup, endpoint exposure, security, probe-based liveness/readiness, and custom health indicators |
 | [spring-boot-architecture.instructions.md](instructions/spring-boot-architecture.instructions.md) | no `applyTo` pattern (loaded as cross-cutting guidance) | Cross-cutting architecture and boundary rules (packaging, dependency flow, API/domain boundaries, visibility, no-ORM, execution integrity), constructor injection conventions (including `@RequiredArgsConstructor` guidance), plus global scope/ambiguity protocol and pointers to specialized instruction files for implementation details |
@@ -28,6 +29,7 @@ skills/         — SKILL.md files; domain knowledge loaded on demand
 | [spring-boot-exception.instructions.md](instructions/spring-boot-exception.instructions.md) | `**/*Exception.java`, `**/*ControllerAdvice.java`, `**/*ExceptionHandler.java`, `**/*ErrorResponse.java` | Exception handling rules: single `@RestControllerAdvice`, domain exception hierarchy (including `transient` args guidance for serializability), `ErrorResponse`/`ValidationError` DTO patterns, UTC timestamp handling, and environment-driven stacktrace exposure policy |
 | [spring-boot-http-client.instructions.md](instructions/spring-boot-http-client.instructions.md) | `**/*Client.java`, `**/*ApiClient.java`, `**/*HttpClient.java` | HTTP client rules: `RestClient` setup, configuration, and usage patterns for calling external APIs |
 | [spring-boot-i18n.instructions.md](instructions/spring-boot-i18n.instructions.md) | `**/i18n/**`, `**/messages*.properties`, `**/*LocaleConfig.java` | i18n rules: message file layout, English+pt_BR required, locale resolution via `Accept-Language` header only |
+| [spring-boot-logback.instructions.md](instructions/spring-boot-logback.instructions.md) | `**/src/main/resources/log/logback-spring.xml`, `**/src/main/resources/logback-spring.xml`, `**/pom.xml`, `**/.vscode/launch.json` | Logback configuration rules: file location, profile-based appenders, rotation, and working-directory path resolution |
 | [spring-boot-logging.instructions.md](instructions/spring-boot-logging.instructions.md) | `**/*.java` | Logging and operator-text rules: `@Slf4j`, i18n keys for logs and exception/operator-facing text, log level selection, and what must never be logged |
 | [spring-boot-openapi.instructions.md](instructions/spring-boot-openapi.instructions.md) | `**/*OpenApiConfig*.java`, `**/*SwaggerConfig*.java`, `**/*Controller.java`, `**/*Api.java` | OpenAPI/Swagger rules: springdoc-openapi setup, version property management, required OpenAPI bean, controller annotation guidance (`@Tag`/`@Operation` baseline with early-tutorial exceptions), and profile-based UI toggle |
 | [spring-boot-pom.instructions.md](instructions/spring-boot-pom.instructions.md) | `**/pom.xml` | Maven POM rules: `spring-boot-starter-parent`, required starter baseline, no hardcoded managed versions, dependency ordering, and BOM usage |
@@ -44,6 +46,7 @@ skills/         — SKILL.md files; domain knowledge loaded on demand
 - `spring-boot-*.instructions.md` files follow a standardized structure: YAML frontmatter, one H1 title, and H2 rule sections
 - Most instruction files end with `## Templates`; exceptions are `spring-boot-architecture.instructions.md` and `spring-boot-readme.instructions.md`
 - Keep reusable code examples only in `## Templates`; avoid duplicating code blocks inside rule sections
+- All `.instructions.md`, `.prompt.md`, `.agent.md`, and `SKILL.md` files must follow the style contract defined in [ai-customization.instructions.md](instructions/ai-customization.instructions.md)
 
 ## Prompt files
 
@@ -54,7 +57,7 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 | [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain the problem cause, verify the root cause, and provide a permanent fix — not a workaround |
 | [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, group logical commits, present commit plan for approval, then commit if approved; keep output concise without redundant bodies or repeated file lists |
 | [reconcile-code-instructions.prompt.md](prompts/reconcile-code-instructions.prompt.md) | `/reconcile-code-instructions` | Reconcile drift between project code and AI customization files in either direction with mandatory closure states (`fixed`, `accepted-intentional`, `deferred`), smallest-correct-diff preference, out-of-scope issue logging, and a drift ledger output |
-| [review-ai-customizations.prompt.md](prompts/review-ai-customizations.prompt.md) | `/review-ai-customizations` | Review AI customization files with non-aggressive token optimization, one-file-at-a-time approval, cross-file drift checks, and meaning-preserving edits |
+| [review-ai-customization.prompt.md](prompts/review-ai-customization.prompt.md) | `/review-ai-customization` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
 | [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
 | [sync-readme-with-project.prompt.md](prompts/sync-readme-with-project.prompt.md) | `/sync-readme-with-project` | Update the main README.md with meaningful project changes from code, config, and docs |
 
@@ -64,7 +67,8 @@ Loaded automatically by Copilot when the prompt topic matches the skill descript
 
 | Folder | Invoke with | Purpose |
 |---|---|---|
-| [skills/spring-boot/](skills/spring-boot/SKILL.md) | `/spring-boot` | Generate or code review a Spring Boot app or feature: controller, service, repository, DTO, mapper, exception, and any other Spring Boot component |
+| [skills/spring-boot-generate/](skills/spring-boot-generate/SKILL.md) | `/spring-boot-generate` | Generate or implement Spring Boot features in agent mode with strict instruction-file compliance, mandatory traceability, and requirement coverage reporting |
+| [skills/spring-boot-review/](skills/spring-boot-review/SKILL.md) | `/spring-boot-review` | Audit or review Spring Boot code in plan mode with findings-first output, strict instruction traceability, and architecture compliance reporting |
 
 ## Contributing
 
