@@ -5,19 +5,20 @@ applyTo: "**/src/main/resources/log/logback-spring.xml, **/src/main/resources/lo
 
 # Logback Configuration Rules
 
+## Scope
+- Applies to Logback output, rotation, and working-directory path resolution for Spring Boot applications
+
 ## Logback Configuration
 - Place `logback-spring.xml` under `src/main/resources/log/`.
-- Add all profile-based appenders:
-- `development` profile: console appender + async file appender at `INFO` level
-- `production` and default profiles: async file appender only at `INFO` level
-
-File rotation settings:
-- `maxFileSize`: 10MB
-- `totalSizeCap`: 1GB
-- `maxHistory`: 7 (days to retain)
+- Add all profile-based appenders.
+- `development` profile: use console appender + async file appender at `INFO` level.
+- `production` and default profiles: use async file appender only at `INFO` level.
+- Set `maxFileSize` to `10MB`.
+- Set `totalSizeCap` to `1GB`.
+- Set `maxHistory` to `7` days.
 
 ## Working Directory & Path Resolution
-Relative paths in `logback-spring.xml` resolve from the JVM's working directory. To ensure consistent log placement across Maven and IDE launches:
+Relative paths in `logback-spring.xml` resolve from the JVM working directory. Ensure consistent log placement across Maven and IDE launches:
 
 1. **POM configuration**: Set `<workingDirectory>${project.basedir}</workingDirectory>` in `spring-boot-maven-plugin` (required; ensures Maven always uses the project folder, even when run from a parent folder)
 2. **IDE configuration**: Create `.vscode/launch.json` (or IntelliJ Run Configuration) with `cwd` pointing to the project folder:
@@ -27,5 +28,7 @@ Relative paths in `logback-spring.xml` resolve from the JVM's working directory.
    <springProperty scope="context" source="spring.application.name" name="APPLICATION_NAME" />
    <springProperty scope="context" source="logging.file.path" name="LOG_DIR" defaultValue="./logs" />
    ```
-   Reference the properties in appender definitions using `${APPLICATION_NAME}` and `${LOG_DIR}`. No custom `app.*` key is needed; Spring Boot's standard `logging.file.path` property is sufficient and is configurable via the `LOGGING_FILE_PATH` environment variable.
-   Appender definitions must also be declared at root level, outside `<springProfile>`. Use `<springProfile>` **only** to switch the `<root level>` block.
+   - Reference these properties in appender definitions declared once at the root level
+   - Use Spring Boot's standard `logging.file.path` property (configurable via `LOGGING_FILE_PATH`); do not introduce a custom `app.*` key for log directory resolution
+   - Keep appender definitions outside `<springProfile>`
+   - Use `<springProfile>` only to conditionally switch the `<root level>` block

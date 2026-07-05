@@ -7,7 +7,7 @@ applyTo: "**/*Repository.java, **/*Mapper.java, **/mapper/**/*.xml, **/sql/**/*.
 
 ## Scope
 - Applies only to persistence repositories and SQL/MyBatis mappers
-- If a `*Mapper` class is a feature mapper for domain ↔ DTO conversion (e.g., Spring `@Component` mapper), follow `spring-boot-dto-mapper.instructions.md` instead
+- Does not apply to feature mappers for domain ↔ DTO conversion (e.g., Spring `@Component` mapper); for those, follow `spring-boot-dto-mapper.instructions.md`
 
 ## No ORM
 Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend `JpaRepository`, `CrudRepository`, or any Spring Data interface. Do not use JPQL or any ORM query language.
@@ -17,7 +17,7 @@ Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend
 - SQL statements live in XML mapper files under `src/main/resources/mapper/`; never inline SQL as string literals
 - Reference statements by their XML ID; the mapper interface method name must match the XML `id`
 - Use MyBatis result maps in XML to map SQL result sets to domain objects; no annotations on domain classes
-- Keep mapper interfaces package-private when used only within the same feature package
+- Use package-private visibility by default for mapper interfaces; elevate to `public` only when external callers require it
 
 ## Spring JDBC (JdbcClient)
 - Use `JdbcClient` for JDBC access; keep named parameters and never use positional `?` parameters
@@ -27,7 +27,7 @@ Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend
 
 ## General
 - No business logic in repositories; data access only
-- Keep repository and mapper classes package-private when used only within the same feature package
+- Use package-private visibility by default for repository and mapper classes; elevate to `public` only when external callers require it
 - Place schema and seed SQL files under `src/main/resources/sql/`; do not place them in the root of `src/main/resources/`
 - Never add Flyway or Liquibase dependencies unless explicitly requested; assume SQL files are executed manually or via `spring.sql.init` properties
 
@@ -43,11 +43,19 @@ Use when the feature has no database and data is stored as files on disk identif
 - Define a plain Java interface (no `@Mapper`, no Spring Data annotations)
 - Implement the interface as a package-private class; inject the base directory as a `Path` from a `@ConfigurationProperties` class — never hardcode the path
 - **Security: Validate and normalize the lookup key** — treat all keys as untrusted input:
-  1. Validate the key format against an allowlist (e.g., regex pattern for MAC addresses: `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$`); reject invalid formats immediately with a domain bad-request exception
-  1. Normalize to a canonical form (e.g., lowercase, colon-separated)
-  1. Construct the file path by resolving the normalized key against the base directory
-  1. Enforce that the resolved path is within the base directory (path traversal check): `filePath.normalize().startsWith(baseDir.normalize())`
-  1. If the check fails, throw a domain bad-request exception; do not attempt access
+  - Validate the key format against an allowlist (e.g., regex pattern for MAC addresses: `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$`); reject invalid formats immediately with a domain bad-request exception
+  - Normalize to a canonical form (e.g., lowercase, colon-separated)
+  - Construct the file path by resolving the normalized key against the base directory
+- **Security: Prevent path traversal**:
+  - Enforce that the resolved path is within the base directory: `filePath.normalize().startsWith(baseDir.normalize())`
+  - If the check fails, throw a domain bad-request exception and do not attempt file access
+  - Use this guard before any read operation:
+
+```java
+if (!filePath.normalize().startsWith(baseDir.normalize())) {
+  throw new BadRequestException("error.invalid.path");
+}
+```
 - Use `Files.readString(path, StandardCharsets.UTF_8)` to read file contents; catch `NoSuchFileException` and rethrow as the domain `NotFoundException`
 - No business logic; I/O only
 - Keep the implementation class package-private when used only within the same feature package

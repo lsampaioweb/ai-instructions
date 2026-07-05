@@ -14,10 +14,12 @@ applyTo: "**/*Controller.java, **/*Api.java"
 - Method annotations use only the path suffix relative to the class mapping: `@GetMapping("/")`, `@GetMapping("/{id}")`, `@PostMapping("/")` — never repeat the base path in method annotations
 - No business logic; delegate all processing to the service layer
 - Do not call mapper classes or integration clients directly
-- Accept input via `@RequestBody` or `@PathVariable`
+- Accept input via explicit Spring binding annotations (`@RequestBody`, `@PathVariable`, `@RequestParam`, `@RequestHeader`, or `@ModelAttribute`) as required by the endpoint contract
 - When accepting Java Records as `@RequestBody` or `@ModelAttribute`, explicitly annotate the parameter with `@Valid` to trigger DTO-level validation constraints (`@NotNull`, `@NotBlank`, etc.).
-- Do NOT apply `@Valid` to scalar parameters like `@PathVariable Long id` or `@RequestParam String name`; they use framework-level type coercion and Spring's built-in constraints. If you need custom validation on scalars, use class-level `@Validated` on the controller combined with `@NotNull` / `@Pattern` on the method parameters.
-- Return DTOs only; never return domain objects directly; exception: when the response is raw opaque content (e.g. file bytes, TOML passthrough), return `ResponseEntity<String>` or `ResponseEntity<byte[]>` — see the Raw Passthrough Exception rule below
+- Do NOT apply `@Valid` to scalar parameters like `@PathVariable Long id` or `@RequestParam String name`; they use framework-level type coercion and Spring's built-in constraints
+- If scalar validation is needed, use class-level `@Validated` on the controller plus parameter-level constraints such as `@NotNull` and `@Pattern`
+- Return DTOs only; never return domain objects directly
+- For raw opaque passthrough responses (e.g. file bytes, TOML), return `ResponseEntity<String>` or `ResponseEntity<byte[]>` as defined in the Raw Passthrough Exception section
 - Never return `Map<String, Object>` or `Object`; every JSON response must be a typed Java record
 - When returning a non-JSON response, set the `produces` attribute explicitly on the mapping annotation (e.g. `@PostMapping(value = "/", produces = "application/toml")`); the `produces` attribute sets the HTTP response `Content-Type` header
 - Use specific mapping annotations: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`

@@ -54,7 +54,7 @@ src/test/java/com/example/user/
 
 ## Architecture Rules
 - Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
-- Lombok's `@RequiredArgsConstructor` generates a constructor for all `final` fields and is an acceptable alternative to writing an explicit constructor; use an explicit constructor when any parameter requires a `@Value` annotation, since Lombok cannot apply method-level annotations to generated constructor parameters
+- Lombok's `@RequiredArgsConstructor` generates a constructor for all `final` fields and is the default approach for constructor injection; use an explicit constructor when any parameter requires a `@Value` annotation, since Lombok cannot apply method-level annotations to generated constructor parameters
 - Enforce one-way dependency: `controller → service → repository` or `service → integration client`; skip-layer calls are not allowed
 - Controllers call only services; services call mappers, repositories, and integration clients; mappers have no web-layer knowledge
 - The controller receives DTOs only (never domain objects); the service calls `mapper.toResponse(domain)` before returning to the controller
@@ -87,7 +87,8 @@ src/test/java/com/example/user/
 - Avoid adding dependencies, layers, or abstractions unless they are necessary for the requested scope.
 
 ## Ambiguity and Clarification Protocol
-- If context is sufficient, infer required components and proceed
+- If context is sufficient, infer required components and proceed within one coherent implementation step
+- For requests with multiple independent steps, follow `copilot-instructions.md`: complete one independent step at a time and wait for confirmation before continuing
 - If context is insufficient and different interpretations would change generated files, architecture, security, persistence, transport, deployment, or test scope, ask one targeted clarifying question before generating; prioritize the highest-impact unknown first: transport type (REST API, MVC pages, CLI/batch, event-driven) or relational database requirement
 - Do not hardcode fixed question lists in this file; clarification must be contextual
 - Do not hardcode keyword trigger lists in this file; component inclusion decisions must be semantic and contextual
@@ -102,7 +103,7 @@ src/test/java/com/example/user/
 ---
 
 ## Mandatory Components
-Mandatory components are required for applicable Spring Boot project profiles and should be applied by default when they fit the project type and transport model.
+Mandatory components are required for applicable Spring Boot project profiles and will be applied by default when they fit the project type and transport model.
 If a mandatory component is architecturally inapplicable, do not include it.
 In existing projects, enforce mandatory components only when creating a new project slice or when the requested change touches that concern; do not add unrelated components.
 

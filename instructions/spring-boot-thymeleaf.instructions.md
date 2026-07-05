@@ -13,7 +13,7 @@ applyTo: "**/*PageController.java, **/*Routes.java, **/templates/**/*.html"
 - Scope boundary: applies to MVC/view handlers returning template names
 - It does not apply to REST JSON API handlers
 - Annotate with `@Controller`, not `@RestController`; name the class `*PageController` or `*Routes` (never `*Controller` for view handlers; that name is reserved for REST API handlers)
-- Use `@Controller`, not `@RestController`, for Thymeleaf controllers
+- Use package-private visibility by default for Thymeleaf controllers; elevate to `public` only when external callers require it
 - Return view name strings from handler methods; never return `ResponseEntity` or JSON from a Thymeleaf controller
 - Declare the base path at class level with `@RequestMapping`; use only the path suffix on method annotations
 - Inject `Model` as a method parameter when the handler needs to pass data to the template
@@ -129,7 +129,7 @@ class {Feature} {
   <title>{Feature} Form</title>
 </head>
 <body>
-  <form method="POST" th:object="${{feature}}">
+  <form method="POST" th:object="${feature}">
     <div>
       <label for="field1">Field 1</label>
       <input id="field1" type="text" th:field="*{field1}" />

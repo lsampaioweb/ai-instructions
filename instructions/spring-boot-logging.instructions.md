@@ -7,13 +7,9 @@ applyTo: "**/*.java"
 
 For logback configuration guidance, see `spring-boot-logback.instructions.md`.
 
-## Scope: All Developer/Operator-Facing Text
-The i18n principle in these rules applies to **operator/developer operational text**, not only log statements. This includes:
-- Log messages (via `log.info()`, `log.debug()`, etc.)
-- Exception messages thrown by services, utilities, and integration clients
-- String constants containing human-readable text
-
-All such text must be defined as i18n keys in `messages.properties`, never hardcoded. Exception messages and error text follow the same pattern as logs: define a message key constant, resolve it via `LogMessages` (for operational/startup exceptions) or `MessageSource` (for HTTP-facing domain exceptions), and never embed English text in constants.
+## Scope: All Operator-Facing Text
+- Apply this i18n rule to operator-facing logs, operational exception messages, and human-readable string constants
+- Define all such text as i18n keys in `messages.properties`; never hardcode English text
 For HTTP response error rendering and locale-aware user-facing messages, follow `spring-boot-exception.instructions.md` and `spring-boot-i18n.instructions.md`.
 
 ## Rules
@@ -25,10 +21,10 @@ For HTTP response error rendering and locale-aware user-facing messages, follow 
 - Use `logMessages.get(LOG_CONSTANT, args...)` in log statements; never pass a key string literal directly (e.g. `log.debug(logMessages.get(LOG_USER_NOT_FOUND, id))`, not `log.debug("User {} not found", id)`)
 - Declare i18n key constants as `private static final String` at class top with descriptive names aligned to event intent (e.g., `LOG_USER_CREATED`)
 - Add logs for important lifecycle events (startup, connect/disconnect, external calls, publish/consume)
-- Prefer `DEBUG` for noisy flow details and `INFO` for business or lifecycle milestones
+- Use `DEBUG` for noisy flow details and `INFO` for business or lifecycle milestones
 - Do not wrap ordinary `log.debug(...)` with `if (log.isDebugEnabled())`; use guards only for expensive arguments or hot loops/high-throughput paths
 
-## Audit Scope: Identifying Hardcoded Text
+## Compliance Check: Identifying Hardcoded Text
 When auditing compliance, check for hardcoded text violations in:
 1. **Exception messages**: String literals in `throw new Exception("text")` or exception message constants
 2. **String constants**: Any `private static final String` holding English text (should hold message keys instead)

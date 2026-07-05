@@ -23,18 +23,20 @@ applyTo: "**/pom.xml"
 - Every Spring Boot project must declare `spring-boot-starter-parent` as the Maven parent; it provides managed dependency versions, plugin configuration, and sensible defaults
 - Never rely on model memory for framework or Java versions; always read the current `pom.xml` and repository docs
 - For existing projects, preserve both the Spring Boot parent version and `java.version` unless the user explicitly requests an upgrade
-- For new projects, use the version the user requests; if no version is given, use the latest stable release available at project generation time — do not hardcode a version from model memory
+- For new projects, use the version the user requests; if no version is given, use the latest stable release available at project generation time
 - Set the Java baseline via the `<java.version>` property; see `## Templates` for the snippet
 - Do not hardcode versions for any dependency managed by `spring-boot-starter-parent` or a BOM already imported; when a version must be explicit (third-party libraries not managed by the parent), declare it in a `<properties>` block
 - Declare BOM imports via `<dependencyManagement>` using `import` scope; never copy-paste version numbers from a BOM into individual `<dependency>` entries
 
 ## Upgrading
-- `mvn release:update-versions` bumps the project/module `<version>` tag only — it does not touch the Spring Boot parent
-- Use `versions:update-parent` with `-DskipResolution=true` to pin the Spring Boot parent to an exact version without Maven resolving to a newer one
-- For full upgrade procedures (bulk parent pin, Java property update, build verification) follow the project's own documentation in `documentation/maven/upgrade.md`
+- Use the canonical upgrade workflow in `documentation/maven/upgrade.md` for parent pinning, Java property updates, and build verification
+- `mvn release:update-versions` updates only the project/module `<version>`
+- Use `versions:update-parent -DskipResolution=true` to pin the Spring Boot parent without resolving to a newer version
 
 ## Dependencies
-- Include the following mandatory starters in every project: `spring-boot-starter-web`, `spring-boot-starter-thymeleaf` (for MVC view projects), `spring-boot-starter-actuator`, `spring-boot-starter-test`, and `spring-boot-devtools` (runtime scope, optional)
+- Include these starters in every project: `spring-boot-starter-web`, `spring-boot-starter-actuator`, and `spring-boot-starter-test`
+- Include `spring-boot-starter-thymeleaf` only for MVC/server-rendered view projects
+- Include `spring-boot-devtools` only when explicitly needed for local development
 - Add starters rather than individual Spring Framework or Spring Boot jars
 - Common ordering (alphabetically within groups): Spring starters → production libraries → optional/runtime → test-only
 - Declare `spring-boot-devtools` with `<scope>runtime</scope>` and `<optional>true</optional>`; it must never be packaged in the production artifact
@@ -46,11 +48,11 @@ applyTo: "**/pom.xml"
 - When a third-party library is not managed by `spring-boot-starter-parent` (e.g., `springdoc-openapi`), do NOT hardcode the version in the `<dependency>` block
 - Instead, declare a version property in the `<properties>` section and reference it with `${property.name}` syntax
 - Example: for Springdoc compatibility with Spring Boot 4.x, add `<springdoc.version>3.0.1</springdoc.version>` to properties, then use `<version>${springdoc.version}</version>` in the dependency
-- This approach centralizes version updates to one location and reduces repetition across multiple modules
+- This approach centralizes version updates and reduces repetition across modules
 - Treat this section as the canonical policy for third-party version-property management across instruction files
 
 ## Plugins
-- **CRITICAL**: Always configure `spring-boot-maven-plugin` with `<workingDirectory>${project.basedir}</workingDirectory>`; without this, the JVM working directory varies depending on the launch method (IDE vs. `mvn spring-boot:run` from a parent folder), causing relative log paths and other file references to resolve inconsistently. This setting alone is not sufficient for IDE launch buttons (e.g., VSCode); IDEs must also be configured with a `.vscode/launch.json` that sets `cwd` to the project folder for consistency
+- Always configure `spring-boot-maven-plugin` with `<workingDirectory>${project.basedir}</workingDirectory>`; without this, the JVM working directory varies by launch method (IDE vs. `mvn spring-boot:run` from a parent folder), causing relative log paths and other file references to resolve inconsistently. This setting alone is not sufficient for IDE launch buttons (e.g., VSCode); IDEs must also be configured with a `.vscode/launch.json` that sets `cwd` to the project folder for consistency
 - Keep plugin configuration minimal beyond the required working directory setting
 - When using Java 23 or later, explicitly declare Lombok in `<annotationProcessorPaths>` inside `maven-compiler-plugin`; Java 23+ removed implicit annotation processor discovery, so without this `@Slf4j`, `@Data`, and all other Lombok annotations will fail to compile; see `## Templates` for the configuration
 

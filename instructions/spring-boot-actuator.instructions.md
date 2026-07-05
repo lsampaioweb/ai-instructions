@@ -5,21 +5,19 @@ applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*
 
 # Actuator and Health Check Rules
 
+## Scope
+- Applies to health endpoints, probe exposure, and custom dependency health indicators
+
 ## Dependency
 Include `spring-boot-starter-actuator` in every project.
 
 ## Endpoint Exposure
-- Expose only `/actuator/health` (including health subpaths such as `/actuator/health/liveness` and `/actuator/health/readiness`) and `/actuator/info` on the default management port
+- Expose only `/actuator/health` (including health subpaths such as `/actuator/health/liveness` and `/actuator/health/readiness`) and `/actuator/info`
+- Serve exposed actuator endpoints on the default management port unless a dedicated management port is explicitly required
 - Keep all other actuator endpoints disabled by default; enable specific ones in `application.yml` only when operationally required
-- For container probes, prefer Spring Boot built-in probe groups (`/actuator/health/liveness` and `/actuator/health/readiness`) instead of a custom `ping` group
+- For container probes, use Spring Boot built-in probe groups (`/actuator/health/liveness` and `/actuator/health/readiness`) instead of a custom `ping` group
 - Enable probes explicitly outside Kubernetes with `management.endpoint.health.probes.enabled: true`
 - Keep liveness independent from external dependencies; include external checks in readiness only when the dependency is truly required to serve traffic
-
-Readiness vs liveness decision:
-- Liveness answers: should the process be restarted now; avoid external dependency checks here
-- Readiness answers: can this instance serve traffic now
-- Include a dependency in readiness only when requests cannot be served without it
-- Exclude optional dependencies from readiness when the service can degrade gracefully
 
 ```yaml
 management:
@@ -38,12 +36,14 @@ management:
 - Secure actuator endpoints; never expose them unauthenticated in production
 - Use a dedicated management port (`management.server.port`) to isolate actuator traffic from the application API
 - Do not route actuator endpoints through a public API gateway
+- For authentication and authorization rules, follow `spring-boot-security.instructions.md`
 
 ## Custom Health Indicators
 - Implement a `HealthIndicator` for each external dependency (database, message broker, external API)
-- Return `Health.down()` with a stable detail key (e.g., `reason`) and descriptive value when the dependency is unavailable; avoid exposing raw internal error text unless it is explicitly safe for operators
+- Return `Health.down()` with a stable detail key (e.g., `reason`) and descriptive value when the dependency is unavailable
+- Do not expose raw internal error text in health details unless the value is explicitly reviewed and documented as operator-safe
 - Keep health indicator classes package-private; register them as `@Component`
-- Custom dependency indicators should influence readiness semantics; avoid coupling external dependency state to liveness
+- Custom dependency indicators must influence readiness semantics; do not couple external dependency state to liveness
 
 ## Templates
 

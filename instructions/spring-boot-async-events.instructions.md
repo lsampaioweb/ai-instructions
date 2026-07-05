@@ -19,7 +19,7 @@ applyTo: "**/*Event.java, **/*Listener.java, **/*Publisher.java"
 - Ensure `@EnableAsync` is present on a configuration class when any `@Async` listener exists
 
 ## When to Use @Async
-- Use `@Async` for listeners that perform blocking I/O expected to take noticeable time (e.g., external API calls, file I/O, messaging, or email sending)
+- Use `@Async` for listeners that perform blocking I/O operations expected to exceed 100ms (e.g., external API calls, file I/O, messaging, or email sending)
 - Do not use `@Async` for CPU-bound in-memory transformations or short non-blocking logic
 - Prefer synchronous listeners for simple, fast operations where ordering and immediate visibility are more important than parallelism
 

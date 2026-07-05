@@ -82,6 +82,8 @@ springdoc:
 - **Base config**: Application name, logging, management, datasource/broker, app properties
 - **Dev config**: Lower ports, verbose output
 - **Prod config**: Strict output, explicit non-standard ports (e.g., 9443 instead of defaulting)
+- Profile templates use fixed port defaults (`8080` in development and `9443` in production)
+- For environment-driven port overrides, replace fixed profile values with Spring placeholders (`${SERVER_PORT:8080}` and `${SERVER_PORT:9443}`); keep this section aligned with `spring-boot-container.instructions.md` (`## Profile and Port Strategy`)
 - **Never hardcode** in code: URLs, ports, queue names, endpoints; use `application*.yml` + `@ConfigurationProperties`
 - Use `${VAR_NAME:default}` for environment-dependent values; avoid defaults for credentials, tokens, and keys
 - Virtual threads: Include `spring.threads.virtual.enabled: true` in base config
@@ -124,7 +126,7 @@ When a resource is needed at startup (e.g., connection pooling, cache warming, c
 
 ## Templates
 
-`@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a `@Configuration` class. `@SpringBootApplication` also qualifies because it is composed with `@SpringBootConfiguration`, which itself extends `@Configuration`; a dedicated `@Configuration` class is still preferred for clarity.
+`@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a dedicated `@Configuration` class. `@SpringBootApplication` also qualifies because it is composed with `@SpringBootConfiguration`, which itself extends `@Configuration`.
 
 ```java
 @ConfigurationProperties(prefix = "app.{feature}")
@@ -158,10 +160,12 @@ class {Feature}Configuration {
 @Slf4j
 @Component
 class {Feature}Registry {
-  
+
   private static final String LOG_LOADING = "log.feature.loading";
+  private static final String LOG_INITIALIZATION_COMPLETE = "log.feature.initialization.complete";
+  private static final String ERROR_KEY_NOT_FOUND = "error.feature.key.not.found";
   private static final String ERROR_LOAD_FAILED = "error.feature.load.failed";
-  
+
   private final {Feature}ConfigurationProperties properties;
   private final LogMessages logMessages;
   private final Map<String, String> cache = new HashMap<>();
@@ -174,23 +178,23 @@ class {Feature}Registry {
   @PostConstruct
   void initialize() {
     log.info(logMessages.get(LOG_LOADING));
-    
+
     try {
       // Load and validate critical resources here
       // If any step fails, throw an exception to fail startup immediately
-      
+
       cache.put("key", "value");
     } catch (RuntimeException ex) {
       throw new IllegalStateException(
           logMessages.get(ERROR_LOAD_FAILED, ex.getMessage()), ex);
     }
-    
-    log.info("Initialization complete");
+
+    log.info(logMessages.get(LOG_INITIALIZATION_COMPLETE));
   }
-  
+
   public String get(String key) {
     if (!cache.containsKey(key)) {
-      throw new IllegalStateException("Key not found: " + key);
+      throw new IllegalStateException(logMessages.get(ERROR_KEY_NOT_FOUND, key));
     }
     return cache.get(key);
   }

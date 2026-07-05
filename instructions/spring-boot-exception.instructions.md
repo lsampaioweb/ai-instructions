@@ -12,6 +12,10 @@ applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.ja
 - Handle `MethodArgumentNotValidException` separately; return a list of `{field, message}` records — one per validation failure — not a single `ErrorResponse`
 - Never expose stack traces by default; set `server.error.include-stacktrace: "never"` in `application.yml` and `server.error.include-stacktrace: "always"` in `application-development.yml`
 
+## Exception Types
+- Domain exceptions are HTTP-facing and are translated by `@RestControllerAdvice`
+- Operational exceptions are startup/infrastructure exceptions and are not returned as HTTP error payloads
+
 ## Domain Exceptions
 - All domain exceptions extend a shared abstract base class that extends `RuntimeException`
 - The base class stores three fields: `String messageKey`, `Object[] args`, `HttpStatus status`
@@ -67,12 +71,13 @@ public class VaultSecretService {
 - Every exception handler (except the `MethodArgumentNotValidException` handler) returns the same `ErrorResponse` DTO
 - `ErrorResponse` fields: `timestamp` (LocalDateTime), `status` (int), `error` (HTTP reason phrase), `message` (resolved i18n string), `path` (request URI), `trace` (stack trace string, null when not exposed)
 - The `message` field is locale-aware; the same exception may return different text depending on the `Accept-Language` header
-- Use `LocalDateTime.now(ZoneOffset.UTC)` for the `timestamp` field; never use bare `LocalDateTime.now()` — the architecture rule requiring an explicit `ZoneId` applies here; `LocalDateTime` with UTC is acceptable for this informational, non-cross-service field even though the architecture instruction prefers `OffsetDateTime` for API timestamps
+- Use `LocalDateTime.now(ZoneOffset.UTC)` for the `timestamp` field; never use bare `LocalDateTime.now()`. This `ErrorResponse` timestamp is informational and non-cross-service, so `OffsetDateTime` is not required here.
 - The `trace` field is `null` by default; populate it conditionally based on `server.error.include-stacktrace` — see `## Stacktrace Exposure`
 
 ## Stacktrace Exposure
 
 Inject `Environment` to read `server.error.include-stacktrace` at request time and conditionally populate the `trace` field. This allows toggling between `"never"` (base/production) and `"always"` (development) without code changes.
+Implement a helper method (e.g., `shouldIncludeStackTrace()`) to read this property and return a boolean.
 
 Required dependency on the handler: `private final Environment environment` (constructor-injected alongside `MessageSource`).
 

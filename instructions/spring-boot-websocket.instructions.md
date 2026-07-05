@@ -18,7 +18,7 @@ applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*Session
 ## Configuration Binding
 - Bind WebSocket settings using `@ConfigurationProperties` for grouped values (origins, endpoint roots, destination overrides)
 - Do not hardcode environment-dependent origins in Java code
-- Wildcard origins (`*`) are acceptable only for tutorials/local demos; production profiles should use explicit origin lists
+- Use wildcard origins (`*`) only for tutorials/local demos; production profiles must use explicit origin lists
 
 ## Message Handler Contract
 - Implement STOMP handlers in dedicated `@Controller` endpoint classes with `@MessageMapping`
@@ -28,7 +28,7 @@ applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*Session
 
 ## Lifecycle and Observability
 - Handle connect/disconnect lifecycle events with listener classes and keep connection-state tracking thread-safe
-- Defensively ignore null/blank session IDs before updating state
+- Skip connection-state updates when session ID is null or blank; log this branch at `DEBUG` level before returning
 - Expose operational connection status via typed response DTOs/records when an HTTP status endpoint is required
 - Apply existing logging instructions: use i18n log keys and avoid sensitive data in logs
 
