@@ -8,7 +8,7 @@ Steps:
 1. Inspect changes: Run `git status` and `git diff`.
 1. Group logically: Split files into coherent commits by concern area.
 1. Draft messages: Use Conventional Commits.
-   - Subject: `type(scope): description`, imperative, with period, max 50 characters.
+   - Subject: `type(scope): description`, imperative, max 50 characters (no trailing period unless repository convention requires it).
    - Body only when needed: explain *why*.
    - Add related issue/ticket when relevant.
    - If a commit does not fit Conventional Commits, flag it.
@@ -21,5 +21,4 @@ Output format:
 - Commit N: subject
 - Files: list
 - Message: full commit message
-- Omit commit body when the subject fully captures the change.
 - Do not repeat file lists in the commit body.

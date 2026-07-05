@@ -15,45 +15,35 @@ Inputs:
 Workflow:
 
 ### Pre-Scan Phase (Mandatory)
-1. **List all applicable mandatory components** from `spring-boot-architecture.instructions.md` for the scope's project type
-   - For Spring Boot projects: Configuration, i18n, Logging, Exception handling, Maven/POM, README
-   - For additional components: check if REST API, Thymeleaf, async, security, database, etc. are applicable
-1. **Validate component presence**: verify each mandatory component's required files exist
-   - Example: if i18n is mandatory, verify `src/main/resources/i18n/messages.properties` and `messages_pt_BR.properties` exist
-   - Example: if configuration is mandatory, verify `application.yml`, `application-development.yml`, `application-production.yml` exist
-   - Record missing files as findings (one per missing file)
+1. **List all applicable mandatory components** from `spring-boot-architecture.instructions.md` for the scoped project type.
+1. **Validate component presence**: verify required files for each mandatory component and record missing files as findings (one per missing file).
 
 ### Drift Analysis Phase
+Source of truth control:
 1. Inspect the requested scope first.
 1. Identify the current source of truth based on the selected mode.
 1. Freeze that source of truth for the full run; do not switch source of truth mid-run.
+
+Validation and classification:
 1. Validate each material drift against authoritative references first (official framework docs, standards, or widely accepted community guidance).
 1. If authoritative references are unavailable in local context, record this explicitly in `Verification` with the risk impact.
 1. Decide using `X/Y/Z` logic: keep instruction (`X`), keep code (`Y`), or adopt a third solution (`Z`) when both are suboptimal.
-1. If `Z` is selected, update the true source first (usually instructions), then align code.
+1. If `Z` is selected, update the true source first, then align the other side.
 1. Find concrete drift, not stylistic preference.
 1. Explain why the mismatch happened: missing rule, weak rule, conflicting rule, ignored rule, or code not aligned with an existing rule.
 1. Classify each finding as one of: true contradiction, intentional divergence, or wording ambiguity.
 1. Preserve technical literals: code blocks, inline code, commands, paths, URLs, identifiers, annotation names, config keys, environment variables, versions, and dependency coordinates.
+
+Change policy:
 1. Derive changes from existing patterns, explicit user preferences, or repeated corrections; do not invent new project rules.
-1. Avoid broad rewrites when a narrow correction is enough.
-1. Prefer the smallest correct diff that resolves the identified drift.
-1. Do not silently fix adjacent out-of-scope issues; record them as separate findings when relevant.
+1. Prefer the smallest correct diff that resolves the identified drift; avoid broad rewrites when a narrow correction is enough.
+1. Do not silently fix adjacent out-of-scope issues; record them as separate findings.
 
 Edit policy:
 1. For review-only requests: stop after analysis and proposed changes.
 1. For approval-before-edit: stop after proposed changes and wait for "ok".
 1. Otherwise: apply smallest justified edits in selected scope.
 1. When both code and AI files need changes, change the true source of drift first, then align the other.
-
-Closure policy (mandatory for every run):
-1. Every finding must end in exactly one terminal state:
-	1. `fixed` (implemented and verified)
-	1. `accepted-intentional` (kept by explicit decision with reason)
-	1. `deferred` (not fixed now; include owner and next action)
-1. Never finish with open findings that have no terminal state.
-1. If the request is review-only, still output terminal states as proposed statuses and identify which items require explicit user decision.
-1. If a finding already has a prior accepted-intentional or deferred decision in repository context, reuse that status instead of rediscovering it as a new unresolved drift.
 
 Required output format:
 1. `Findings` list (only concrete drift in scope; include missing mandatory files, missing annotations, hardcoded strings).
@@ -62,6 +52,15 @@ Required output format:
    - All mandatory components checked and their presence/absence status
    - Pattern audits executed (hardcoded strings, missing @Slf4j, etc.) with results
    - Any checks explicitly NOT executed, with reason and risk note
+
+Closure policy (mandatory for every run):
+1. Every finding must end in exactly one terminal state:
+   1. `fixed` (implemented and verified)
+   1. `accepted-intentional` (kept by explicit decision with reason)
+   1. `deferred` (not fixed now; include owner and next action)
+1. Never finish with open findings that have no terminal state.
+1. If the request is review-only, still output terminal states as proposed statuses and identify which items require explicit user decision.
+1. If a finding already has a prior accepted-intentional or deferred decision in repository context, reuse that status instead of rediscovering it as a new unresolved drift.
 
 Guardrails:
 1. Be direct when current instructions are weak, contradictory, or overly vague.

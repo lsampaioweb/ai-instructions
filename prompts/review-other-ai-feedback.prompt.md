@@ -4,13 +4,13 @@ argument-hint: "Paste feedback from another AI tool or analysis."
 tools: [vscode, execute, read, search, web]
 ---
 
-Review the provided AI feedback. For each point:
-
-1. Assess reasoning: Is the logic sound? Which assumptions are weak?
-1. Identify gaps: What is missing or unclear?
-1. Suggest alternatives: What better or additional actions are possible?
-1. Mark actionable items: What can be applied now?
-1. Flag risks: What could create regressions or new problems?
-
+Review the provided AI feedback. For each point, use the output format below.
 Focus on concrete improvements. Be direct about weak or incomplete feedback.
-Output format: per-point critique, actionable recommendations, risk notes.
+Output format (repeat for each feedback point):
+Follow this exact order for every point.
+1. Point: short quote or summary of the original point.
+1. Reasoning assessment: sound/partial/weak with 1-2 sentence justification.
+1. Gaps: specific missing assumptions, evidence, or edge cases.
+1. Recommended action: better or additional action.
+1. Actionable now: yes/no and what can be executed immediately.
+1. Risk note: potential regressions or new problems.
