@@ -22,6 +22,12 @@ applyTo: "**"
 - If a task takes more than 10 tool calls without visible progress, STOP, cease execution, and explain the blocker.
 - Never execute destructive or deployment-related commands (`rm -rf`, `git push`, database migrations/drops) without explicit user confirmation.
 
+## Subagent Usage
+- Use `runSubagent` when the task requires broad repository exploration, high search uncertainty, or parallelizable read-only investigation.
+- Prefer direct local tools for short, deterministic lookups or single-file changes.
+- When invoking a subagent, state the expected output clearly and keep scope explicit (paths, symbols, or question boundaries).
+- Treat subagent output as input for synthesis; verify critical claims against primary files before final conclusions.
+
 ## Scope Precision
 - Edit only files and functions directly related to the requested task.
 - If adjacent code appears incorrect or inconsistent, flag it explicitly without silently fixing out-of-scope issues.
