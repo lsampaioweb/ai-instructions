@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en_US">
+
+<head>
+  <title>Resource Form</title>
+</head>
+
+<body>
+  <form method="POST" th:object="${resource}">
+    <div>
+      <label for="name">Name</label>
+      <input id="name" type="text" th:field="*{name}" />
+    </div>
+    <div>
+      <label for="description">Description</label>
+      <input id="description" type="text" th:field="*{description}" />
+    </div>
+    <input type="submit" value="Submit" />
+  </form>
+</body>
+
+</html>

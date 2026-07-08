@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: "app-name"
+  messages:
+    basename: "i18n/messages"
+  threads:
+    virtual:
+      enabled: true
+  profiles:
+    active:
+      # - "development"
+      - "production"
+
+logging:
+  config: "classpath:log/logback-spring.xml"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics"
+  endpoint:
+    health:
+      show-details: "when-authorized"
+      probes:
+        enabled: true
+
+app:
+  feature:
+    base-url: "${FEATURE_BASE_URL}"
+    timeout: "5s"
+    max-retries: 3

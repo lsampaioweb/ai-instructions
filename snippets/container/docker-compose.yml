@@ -1,0 +1,42 @@
+---
+networks:
+  app-network:
+    external: true
+
+services:
+  app:
+    image: "docker.io/{registry}/app:{version}"
+    container_name: "app"
+    restart: "unless-stopped"
+    read_only: true
+    cap_drop:
+      - "ALL"
+    security_opt:
+      - "no-new-privileges:true"
+    tmpfs:
+      - "/tmp:rw,noexec,nosuid,size=64m"
+    ports:
+      - "8080:8080"
+      # - "9443:9443"
+    volumes:
+      - "./logs/container:/opt/app/logs"
+      - "./ssl/:/opt/app/ssl/:ro"
+    networks:
+      - "app-network"
+    logging:
+      driver: "k8s-file"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=development"
+      # - "SPRING_PROFILES_ACTIVE=production"
+      - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx1024m"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://localhost:8080/actuator/health/liveness || exit 1",
+        ]
+      # test: ["CMD-SHELL", "wget --no-check-certificate -q -O- https://localhost:9443/actuator/health/liveness || exit 1"]
+      start_period: "2s"
+      interval: "10s"
+      timeout: "2s"
+      retries: 2

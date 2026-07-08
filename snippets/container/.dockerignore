@@ -1,0 +1,6 @@
+.mvn/
+.vscode/
+target/
+logs/
+*.env
+*.log
