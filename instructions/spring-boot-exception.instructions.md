@@ -1,6 +1,6 @@
 ---
 description: "Exception handling rules: single @RestControllerAdvice, domain exception hierarchy, ErrorResponse DTO, and stacktrace policy."
-applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.java, **/*ErrorResponse.java"
+applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.java, **/*ErrorResponse.java, **/application*.yml"
 ---
 
 # Exception Handling Rules
@@ -44,9 +44,9 @@ See `snippets/exception/GlobalExceptionHandler.java` for the operational excepti
 
 ## ErrorResponse
 - Every exception handler (except the `MethodArgumentNotValidException` handler) returns the same `ErrorResponse` DTO
-- `ErrorResponse` fields: `timestamp` (LocalDateTime), `status` (int), `error` (HTTP reason phrase), `message` (resolved i18n string), `path` (request URI), `trace` (stack trace string, null when not exposed)
+- `ErrorResponse` fields: `timestamp` (OffsetDateTime), `status` (int), `error` (HTTP reason phrase), `message` (resolved i18n string), `path` (request URI), `trace` (stack trace string, null when not exposed)
 - The `message` field is locale-aware; the same exception may return different text depending on the `Accept-Language` header
-- Use `LocalDateTime.now(ZoneOffset.UTC)` for the `timestamp` field; never use bare `LocalDateTime.now()`. This `ErrorResponse` timestamp is informational and non-cross-service, so `OffsetDateTime` is not required here.
+- Use `OffsetDateTime.now(ZoneOffset.UTC)` for the `timestamp` field; never use bare `now()` without explicit zone context.
 - The `trace` field is `null` by default; populate it conditionally based on `server.error.include-stacktrace` — see `## Stacktrace Exposure`
 
 ## Stacktrace Exposure

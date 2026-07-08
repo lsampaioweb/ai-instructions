@@ -31,4 +31,4 @@ Evaluate performance-level conformance for the provided scope and produce eviden
 
 - Own measurable runtime risks: latency, throughput, memory pressure, and contention.
 - Do not report authn/authz, secrets, or input-validation issues unless they cause runtime degradation.
-- For each High finding, include likely bottleneck mechanism: blocking, contention, allocation pressure, or I/O amplification.
+- For each High finding, identify the bottleneck mechanism type: blocking, contention, allocation pressure, or I/O amplification; include evidence for the identified category.

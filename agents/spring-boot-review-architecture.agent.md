@@ -29,5 +29,5 @@ Evaluate architecture-level conformance for the provided scope and produce evide
 ## Domain Boundaries
 
 - Own only structural and boundary findings: layers, dependency flow, module ownership, and architecture contracts.
-- Do not report pure authn/authz, secrets, CORS, or CSRF issues unless caused by boundary violations.
+- Do not report security configuration (authn/authz rules, CORS/CSRF toggles, secrets policies) unless they violate layer isolation or create cyclic dependencies.
 - Do not report pure runtime tuning issues unless caused by architecture design.

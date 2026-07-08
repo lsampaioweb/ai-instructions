@@ -101,7 +101,7 @@ Include conditional components only when required by requested feature scope and
 - **HTTP client** — when calling external APIs; use `RestClient` → [spring-boot-http-client.instructions.md](./spring-boot-http-client.instructions.md)
 - **REST API controller** — include when exposing HTTP JSON endpoints; DTOs in/out, no business logic in the controller. Dependency: if REST API controller is included, OpenAPI is required → [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md)
 - **OpenAPI** — include when the application exposes REST API endpoints; all REST endpoints documented with springdoc-openapi; UI toggled by profile → [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md)
-- **Security** — when authentication or authorization is required; deny-by-default, `@PreAuthorize` → [spring-boot-security.instructions.md](./spring-boot-security.instructions.md)
+- **Security** — include by default for REST APIs; configure deny-by-default and explicit public endpoints. Exclude only when the user explicitly requests an unauthenticated tutorial/demo scope → [spring-boot-security.instructions.md](./spring-boot-security.instructions.md)
 - **Service layer** — when business logic, transactions, or orchestration is needed → [spring-boot-service.instructions.md](./spring-boot-service.instructions.md)
 - **Tests** — always include when creating or modifying controllers or services → [spring-boot-test.instructions.md](./spring-boot-test.instructions.md)
 - **Thymeleaf (server-side UI)** — when rendering server-side HTML views → [spring-boot-thymeleaf.instructions.md](./spring-boot-thymeleaf.instructions.md)

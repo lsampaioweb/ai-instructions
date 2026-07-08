@@ -31,5 +31,7 @@ Evaluate security-level conformance for the provided scope and produce evidence-
 ## Domain Boundaries
 
 - Own exploitability-first findings: unauthorized access, trust-boundary violations, secret exposure, and weak security controls.
+- Own sensitive-data-in-logs findings: credentials, tokens, authorization headers, and PII in logs or exception messages.
+- Delegate general logging quality concerns (format, verbosity, i18n-key consistency) to Quality/Logging domains.
 - Do not report style or refactor issues unless they create or hide a security risk.
 - For each High or Critical finding, include affected entry point and required privilege context.

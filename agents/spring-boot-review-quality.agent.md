@@ -20,14 +20,14 @@ Evaluate quality-level conformance for the provided scope and produce evidence-b
 ## Domain Review Focus
 
 - Verify readability and maintainability: method size, branching depth, and naming clarity support safe changes.
-- Verify duplication control: repeated logic is extracted where reuse improves consistency without over-abstraction.
+- Verify duplication control: logic duplicated in 3+ locations is extracted; single-use logic remains inline unless shared intention is clear.
 - Verify null and error-path robustness: code handles invalid and missing states explicitly.
 - Verify exception semantics: thrown exceptions are domain-meaningful and mapped consistently at boundaries.
-- Verify logging quality: messages are actionable, leveled correctly, and avoid sensitive content leakage.
+- Verify logging quality: messages are actionable and leveled correctly for their use case.
 - Verify consistency with existing patterns: code follows established module conventions and does not introduce style drift.
 
 ## Domain Boundaries
 
 - Own implementation-level quality risks inside one layer: readability, brittleness, duplication, and maintainability.
-- Do not report security-only concerns unless they directly affect correctness or maintainability.
+- Do not report secrets, credentials, or sensitive-data leakage concerns; delegate to Security and Logging domains.
 - Do not report performance-only tuning suggestions without a clear quality impact.

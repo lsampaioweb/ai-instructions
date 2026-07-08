@@ -1,11 +1,12 @@
 ---
 description: "Security rules: Spring Security 6 Lambda DSL, deny-by-default, @PreAuthorize, CSRF/CORS policy, secrets, and error message hygiene."
-applyTo: "**/*SecurityConfig.java, **/security/**/*.java"
+applyTo: "**/*SecurityConfig.java, **/security/**/*.java, **/pom.xml, **/application*.yml"
 ---
 
 # Security Rules
 
 ## Configuration
+- Include `spring-boot-starter-security` in `pom.xml` whenever Security is selected by architecture scope
 - Use Spring Security 6+ Lambda DSL for `HttpSecurity`; never use chained `.and()` style
 - Deny by default; explicitly permit only required public endpoints
 - The public endpoint list must be minimal and documented in the security config class
@@ -36,10 +37,11 @@ Configure CORS with explicit allowed origins, methods, and headers. Never use wi
 Never implement custom cryptography. Use approved Spring Security password encoders and providers.
 
 ## SSL/TLS
-- Enable HTTPS in production via `server.ssl.*` in `application-production.yml`
+- HTTPS is mandatory in `application-production.yml`; configure `server.ssl.*` with environment-backed values only
 - **Never commit certificate files to the repository.** Store the keystore file outside the codebase (e.g., on the runtime host, in a secrets vault, or mounted as a volume). Reference the keystore path and credentials exclusively from environment variables; do not embed paths or filenames in YAML
 - Use `TLSv1.3` exclusively; do not permit older TLS versions
 - Enable HTTP/2 alongside HTTPS: `server.http2.enabled: true`
+- Use `server.port: ${SERVER_PORT:9443}` in production profile unless an explicit deployment requirement overrides it
 - Do not configure SSL in `application-development.yml` unless specifically required for local testing
 
 When local SSL testing is required:

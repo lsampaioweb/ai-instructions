@@ -1,6 +1,6 @@
 ---
 description: "DTO and mapper rules: immutable records, validation placement, and mapper conventions."
-applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*Request.java, **/*Response.java"
+applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*Request.java, **/*Response.java, **/pom.xml"
 ---
 
 # DTO and Mapper Rules
@@ -26,6 +26,12 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*R
 - Name MapStruct mapper interfaces with suffix `DtoMapper` to avoid overlap with SQL/MyBatis mapper conventions
 - Use package-private visibility by default for mapper interfaces; elevate to `public` only when external callers require it
 - Default to `unmappedTargetPolicy = ReportingPolicy.ERROR` to catch unmapped fields at compile time. For intentional partial mapping (e.g., computed fields not in DTO, differing hierarchies), explicitly set policy to `WARN` or `IGNORE`, add a one-line inline comment, and consider a unit test documenting the unmapped fields.
+
+## MapStruct Build Requirements
+- When DTO mapping exists in scope, `pom.xml` must include `org.mapstruct:mapstruct`
+- `maven-compiler-plugin` must include `org.mapstruct:mapstruct-processor` under `annotationProcessorPaths`
+- If Lombok and MapStruct are both used, `annotationProcessorPaths` must include `org.projectlombok:lombok-mapstruct-binding`
+- Do not finalize generation if mapper interfaces exist but MapStruct dependencies/processors are missing
 
 ## Raw Passthrough Exception
 See [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) for the canonical Raw Passthrough Exception rule.

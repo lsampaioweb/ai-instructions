@@ -16,19 +16,27 @@ argument-hint: "What to build + boundaries (for example: 'generate User CRUD RES
 ## Workflow
 
 1. Understand request and set exact artifact boundaries.
-2. Identify target files to create/update and map required instruction files.
-3. If a required decision is ambiguous and changes generated artifacts, ask one focused clarification question before generating code.
-4. Implement smallest correct change set; avoid unrelated refactors.
-5. Do not add dependencies unless required by scope.
-6. Add or update tests for behavior changes.
-7. Run available validation (build/tests/lint); if it cannot run, report the exact blocker and attempted command.
-8. Report traceability and compliance status, including instruction files used and requirement coverage.
+2. Classify request type: new project, new project slice, or scoped edit in an existing project.
+3. Identify target files to create/update and map required instruction files.
+4. If a required decision is ambiguous and changes generated artifacts, ask one focused clarification question before generating code.
+5. For new projects and new project slices, scaffold all applicable mandatory architecture components first as one coherent step.
+6. Implement smallest correct change set; avoid unrelated refactors.
+7. Add dependencies only when required by selected architecture components and touched artifacts.
+8. Add or update tests for behavior changes.
+9. Run mandatory completion gate checks before reporting done.
+10. Run available validation (build/tests/lint); if it cannot run, report the exact blocker and attempted command.
+11. Report traceability and compliance status, including instruction files used and requirement coverage.
+
+## Mandatory Completion Gate
+
+- Apply [mandatory-completion-gate.instructions.md](../../shared/mandatory-completion-gate.instructions.md).
 
 ## Compliance
 
 - Do not skip mandatory architecture requirements silently; report any blocker explicitly before finalizing.
 - If compliance is partial, mark the result as partial and list each unmet requirement with reason.
 - Flag any conflict with an instruction file; do not bypass safety or mandatory architecture rules.
+- Mandatory completion gate results must be included in every generation result.
 
 ## Output
 
@@ -36,5 +44,6 @@ argument-hint: "What to build + boundaries (for example: 'generate User CRUD RES
 - File-by-file change list
 - Instruction files used
 - Architecture compliance report (mandatory: applied/blocked/not applicable; conditional: included/excluded with reason)
+- Mandatory completion gate report (applied/blocked/not applicable per item)
 - Validation results
 - Open risks or follow-up items

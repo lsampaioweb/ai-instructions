@@ -29,5 +29,5 @@ Evaluate testing-level conformance for the provided scope and produce evidence-b
 ## Domain Boundaries
 
 - Own confidence risks: missing assertions, flaky tests, weak oracles, and uncovered behavior.
-- Do not require production refactors unless needed for deterministic or meaningful tests.
+- Do not require production refactors except when needed to enable deterministic test isolation (for example, replacing hardcoded static dependencies with injectable collaborators).
 - For each High finding, include the behavior currently unverified and minimal missing test intent.

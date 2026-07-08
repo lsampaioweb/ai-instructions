@@ -100,6 +100,8 @@ Apply when consolidating specialist findings in the orchestrator.
 - Merge all specialist findings into one canonical set.
 - De-duplicate overlapping findings using specialist Priority metadata.
 - Resolve overlap by selecting the lower Priority number as the canonical owner.
+- Sensitive-content-leakage priority override: if overlap involves credential, secret, token, or PII leakage in logs or error payloads, Security owns the canonical finding; Quality and other domains contribute supporting evidence only.
+- Performance-caused-by-design priority override: if overlap involves measurable runtime degradation caused by architecture design (for example, repeated round-trips caused by layer misuse), Architecture owns the canonical finding and Performance contributes runtime evidence.
 - If overlap includes a security finding with severity Critical or High, the Security domain owns the canonical finding.
 - If Priority values are equal, keep one canonical finding; retain all contributing domains in traceability.
 - If overlap is partial, merge only shared evidence; keep distinct risk statements as separate findings.

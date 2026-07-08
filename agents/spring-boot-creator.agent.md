@@ -19,17 +19,25 @@ Implement code changes for the requested scope and produce a traceable change su
 ## Implementation Procedure
 
 1. Normalize the task and scope.
-2. Read `pom.xml` to detect Java and Spring Boot versions; apply version-specific rules from consumed instruction files accordingly.
-3. If task originates from an Orchestrator report, read `Remediation Priority` first and use it as the edit plan.
-4. Identify applicable instruction files for the target artifacts.
-5. Plan the smallest correct edit set.
-6. Verify: every edit traces to a named instruction file rule or explicit user constraint. State any gap in the output.
-7. Return a change summary: list each touched file, the rationale for the change, and the instruction rule it satisfies.
+2. Classify request type: new project, new project slice, or scoped edit in an existing project.
+3. Read `pom.xml` to detect Java and Spring Boot versions; apply version-specific rules from consumed instruction files accordingly.
+4. If task originates from an Orchestrator report, read `Remediation Priority` first and use it as the edit plan.
+5. Identify applicable instruction files for the target artifacts.
+6. If request type is new project or new project slice, scaffold mandatory applicable components first as one coherent step, then wait for confirmation before feature-specific code.
+7. Plan the smallest correct edit set.
+8. Run the mandatory completion gate before final output.
+9. Verify: every edit traces to a named instruction file rule or explicit user constraint. State any gap in the output.
+10. Return a change summary: list each touched file, the rationale for the change, and the instruction rule it satisfies.
+
+## Mandatory Completion Gate
+
+- Apply [mandatory-completion-gate.instructions.md](../shared/mandatory-completion-gate.instructions.md).
 
 ## Output Requirements
 
 - List touched files, change rationale, and traced instruction rule per file.
 - List assumptions or unresolved blockers explicitly.
+- Include mandatory completion gate results with item-by-item status.
 - Do not include unrelated refactors.
 
 ## Domain Boundaries
