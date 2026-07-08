@@ -6,12 +6,46 @@ Centralized VS Code Copilot instruction and prompt files for Spring Boot project
 ## Repository structure
 
 ```
-agents/         — reserved for custom agent definitions
+agents/         — .agent.md files for specialized creation and review workflows
 hooks/          — reserved for post-generation hooks
 instructions/   — .instructions.md files; auto-applied by Copilot based on applyTo patterns
 prompts/        — .prompt.md files; invoked explicitly with /prompt-name
+snippets/       — reusable code templates referenced by instruction files
 skills/         — SKILL.md files; domain knowledge loaded on demand
 ```
+
+## Prompt files
+
+Invoke with `/prompt-name` in the Copilot Chat input.
+
+| File | Invoke with | Purpose |
+|---|---|---|
+| [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain the problem cause, verify the root cause, and provide a permanent fix — not a workaround |
+| [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, group logical commits, present commit plan for approval, then commit if approved; keep output concise without redundant bodies or repeated file lists |
+| [compare-code-to-instructions.prompt.md](prompts/compare-code-to-instructions.prompt.md) | `/compare-code-to-instructions` | Compare AI customization files and code, detect drift in either direction, and produce findings with mandatory closure states (`fixed`, `accepted-intentional`, `deferred`) |
+| [review-ai-customization.prompt.md](prompts/review-ai-customization.prompt.md) | `/review-ai-customization` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
+| [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
+| [sync-readme-with-project.prompt.md](prompts/sync-readme-with-project.prompt.md) | `/sync-readme-with-project` | Update the main README.md with meaningful project changes from code, config, and docs |
+
+## Agent files
+
+Used in Agent mode for specialized generation and review flows.
+
+| File | Purpose |
+|---|---|
+| [spring-boot-creator.agent.md](agents/spring-boot-creator.agent.md) | Implements requested Spring Boot changes with minimal, verifiable edits using consumed instruction files |
+| [spring-boot-review-orchestrator.agent.md](agents/spring-boot-review-orchestrator.agent.md) | Coordinates specialist review agents and produces a single severity-ordered decision report |
+| [spring-boot-review-architecture.agent.md](agents/spring-boot-review-architecture.agent.md), [spring-boot-review-quality.agent.md](agents/spring-boot-review-quality.agent.md), [spring-boot-review-testing.agent.md](agents/spring-boot-review-testing.agent.md), [spring-boot-review-performance.agent.md](agents/spring-boot-review-performance.agent.md), [spring-boot-review-security.agent.md](agents/spring-boot-review-security.agent.md) | Domain-specific specialist reviewers used by the orchestrator |
+| [spring-boot-review-protocol.md](agents/spring-boot-review-protocol.md) | Shared output schema and severity/deduplication contract for all reviewer agents |
+
+## Skill files
+
+Loaded automatically by Copilot when the prompt topic matches the skill description. Also invokable with `/skill-name` in Copilot Chat.
+
+| Folder | Invoke with | Purpose |
+|---|---|---|
+| [skills/spring-boot-generate/](skills/spring-boot-generate/SKILL.md) | `/spring-boot-generate` | Generate or implement Spring Boot features in agent mode with strict instruction-file compliance, mandatory traceability, and requirement coverage reporting |
+| [skills/spring-boot-review/](skills/spring-boot-review/SKILL.md) | `/spring-boot-review` | Audit or review Spring Boot code in plan mode with findings-first output, strict instruction traceability, and architecture compliance reporting |
 
 ## Instruction files
 
@@ -47,28 +81,6 @@ skills/         — SKILL.md files; domain knowledge loaded on demand
 - Most instruction files end with `## Templates`; exceptions are `spring-boot-architecture.instructions.md` and `spring-boot-readme.instructions.md`
 - Keep reusable code examples only in `## Templates`; avoid duplicating code blocks inside rule sections
 - All `.instructions.md`, `.prompt.md`, `.agent.md`, and `SKILL.md` files must follow the style contract defined in [ai-customization.instructions.md](instructions/ai-customization.instructions.md)
-
-## Prompt files
-
-Invoke with `/prompt-name` in the Copilot Chat input.
-
-| File | Invoke with | Purpose |
-|---|---|---|
-| [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain the problem cause, verify the root cause, and provide a permanent fix — not a workaround |
-| [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, group logical commits, present commit plan for approval, then commit if approved; keep output concise without redundant bodies or repeated file lists |
-| [reconcile-code-instructions.prompt.md](prompts/reconcile-code-instructions.prompt.md) | `/reconcile-code-instructions` | Reconcile drift between project code and AI customization files in either direction with mandatory closure states (`fixed`, `accepted-intentional`, `deferred`), smallest-correct-diff preference, out-of-scope issue logging, and a drift ledger output |
-| [review-ai-customization.prompt.md](prompts/review-ai-customization.prompt.md) | `/review-ai-customization` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
-| [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
-| [sync-readme-with-project.prompt.md](prompts/sync-readme-with-project.prompt.md) | `/sync-readme-with-project` | Update the main README.md with meaningful project changes from code, config, and docs |
-
-## Skill files
-
-Loaded automatically by Copilot when the prompt topic matches the skill description. Also invokable with `/skill-name` in Copilot Chat.
-
-| Folder | Invoke with | Purpose |
-|---|---|---|
-| [skills/spring-boot-generate/](skills/spring-boot-generate/SKILL.md) | `/spring-boot-generate` | Generate or implement Spring Boot features in agent mode with strict instruction-file compliance, mandatory traceability, and requirement coverage reporting |
-| [skills/spring-boot-review/](skills/spring-boot-review/SKILL.md) | `/spring-boot-review` | Audit or review Spring Boot code in plan mode with findings-first output, strict instruction traceability, and architecture compliance reporting |
 
 ## Contributing
 
