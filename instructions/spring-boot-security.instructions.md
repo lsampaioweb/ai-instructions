@@ -14,6 +14,11 @@ applyTo: "**/*SecurityConfig.java, **/security/**/*.java"
 - Use `@PreAuthorize` for method-level authorization on business-sensitive operations
 - Never disable CSRF globally unless the service is strictly stateless and uses non-cookie authentication (e.g., token-based authentication)
 
+## Actuator Endpoints
+- Protect `/actuator/**` with authentication and authorization in non-development profiles by default
+- Permit unauthenticated access only to probe endpoints required by internal health checks (`/actuator/health`, `/actuator/health/liveness`, `/actuator/health/readiness`)
+- Never expose actuator endpoints through public ingress without access controls
+
 ## CORS
 Configure CORS with explicit allowed origins, methods, and headers. Never use wildcard origins in production.
 
@@ -42,64 +47,3 @@ When local SSL testing is required:
 1. Keep local SSL settings isolated to development profile values only
 1. Never promote self-signed development certificates to production
 
-## Templates
-
-**SecurityFilterChain using Lambda DSL.** Replace public paths, CORS origins, and the auth mechanism with actual project values.
-
-```java
-@Configuration
-@EnableMethodSecurity
-class SecurityConfig {
-
-  @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-      .authorizeHttpRequests(auth -> auth
-        // Public endpoints — keep this list minimal; document each entry
-        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-        .anyRequest().authenticated()
-      )
-      .sessionManagement(session -> session
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      )
-      .csrf(AbstractHttpConfigurer::disable) // stateless API — no session cookie, no CSRF needed
-      .httpBasic(Customizer.withDefaults());
-
-    return http.build();
-  }
-
-  @Bean
-  CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("https://{allowed-origin}")); // replace with actual origin
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept-Language"));
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-
-    return source;
-  }
-}
-```
-
-**Method-level authorization.** Apply `@PreAuthorize` on service methods that require role or permission checks. Use `ROLE_USER` for read operations and `ROLE_ADMIN` for write operations as the baseline; adjust roles to actual project requirements.
-
-```java
-// Read — accessible by any authenticated user
-@PreAuthorize("hasRole('USER')")
-List<UserResponse> findAll() { ... }
-
-@PreAuthorize("hasRole('USER')")
-UserResponse findById(Long id) { ... }
-
-// Write — restricted to admins
-@PreAuthorize("hasRole('ADMIN')")
-UserResponse create(CreateUserRequest request) { ... }
-
-@PreAuthorize("hasRole('ADMIN')")
-UserResponse update(Long id, UpdateUserRequest request) { ... }
-
-@PreAuthorize("hasRole('ADMIN')")
-void delete(Long id) { ... }
-```

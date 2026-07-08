@@ -17,7 +17,7 @@ For HTTP response error rendering and locale-aware user-facing messages, follow 
 - Add `@Slf4j` (Lombok) to a class when it contains at least one `log.*` call; never declare `private static final Logger` manually
 - Never hardcode message text as string literals in log statements; define all log message templates in `messages.properties` and resolve them by key before passing to the logger
 - Resolve log message keys via a project-level `LogMessages` utility; inject it via constructor
-- Logs are always developer-facing and always in English — never resolve log messages with the request locale; see `## Templates` for the implementation
+- Logs are always developer-facing and always in English — never resolve log messages with the request locale; locale-aware rendering applies only to HTTP responses
 - Use `logMessages.get(LOG_CONSTANT, args...)` in log statements; never pass a key string literal directly (e.g. `log.debug(logMessages.get(LOG_USER_NOT_FOUND, id))`, not `log.debug("User {} not found", id)`)
 - Declare i18n key constants as `private static final String` at class top with descriptive names aligned to event intent (e.g., `LOG_USER_CREATED`)
 - Add logs for important lifecycle events (startup, connect/disconnect, external calls, publish/consume)
@@ -52,31 +52,8 @@ Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words
 
 ## Minimum Logging by Component
 
-- Controller: log request handling only when it adds operational value
-- Service: log business milestones and external call boundaries
+- Controller: log 5xx failures and redirect decisions at `INFO`; keep successful request flow at `DEBUG`
+- Service: log state transitions (create/update/delete) at `INFO`; log external call start/end and latency at `INFO`; log payload details at `DEBUG` only when needed for diagnosis
 - Listener/Consumer: log connect/disconnect and consume outcomes
 - Integration client: log target operation, latency, and failures
 
-## Templates
-
-**LogMessages utility.** Same in every project — inject `MessageSource` via constructor.
-
-```java
-@Component
-public class LogMessages {
-
-  private final MessageSource messageSource;
-
-  LogMessages(MessageSource messageSource) {
-    this.messageSource = messageSource;
-  }
-
-  public String get(String key, Object... args) {
-    return get(Locale.ENGLISH, key, args);
-  }
-
-  public String get(Locale locale, String key, Object... args) {
-    return messageSource.getMessage(key, args, locale);
-  }
-}
-```

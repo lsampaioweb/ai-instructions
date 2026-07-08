@@ -7,85 +7,26 @@ applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configurati
 
 ## Files
 - Use only `application.yml`; no `application.properties`
-- **Mandatory three-file structure**:
+- **Three-file configuration structure**:
   - `application.yml`: Shared settings (name, logging, management, messages, datasource, app properties)
   - `application-development.yml`: Dev overrides (port 8080, detailed error/health, swagger enabled)
   - `application-production.yml`: Prod overrides (strict error/health, swagger disabled)
+- For new project slices, create all three files
+- For existing projects, enforce this structure only when the requested change touches configuration concerns
 - Set `spring.profiles.active: production` in base config with `development` commented; override with `SPRING_PROFILES_ACTIVE` environment variable if needed
 
-## application.yml Template
-```yaml
-spring:
-  application:
-    name: "{app-name}"
-  messages:
-    basename: "i18n/messages"
-  threads:
-    virtual:
-      enabled: true
-  profiles:
-    active:
-      # - "development"
-      - "production"
-  datasource: ...  # if project uses DB
-  rabbitmq: ...    # if project uses messaging
+## YAML Skeletons
 
-logging:
-  config: "classpath:log/logback-spring.xml"
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health,info"
-  endpoint:
-    health:
-      show-details: "when-authorized"
-
-app:
-  {feature}: ...
-```
-
-## application-development.yml Template
-```yaml
-server:
-  port: 8080
-  error:
-    include-stacktrace: "always"
-management:
-  endpoint:
-    health:
-      show-details: "always"
-# include only when OpenAPI is part of the project scope
-springdoc:
-  swagger-ui:
-    enabled: true
-```
-
-## application-production.yml Template
-```yaml
-server:
-  port: 9443
-  error:
-    include-stacktrace: "never"
-management:
-  endpoint:
-    health:
-      show-details: "never"
-# include only when OpenAPI is part of the project scope
-springdoc:
-  swagger-ui:
-    enabled: false
-```
+See `snippets/config/application.yml`, `snippets/config/application-development.yml`, and `snippets/config/application-production.yml` for the required profile file structures.
 
 ## Rules
 - **Base config**: Application name, logging, management, datasource/broker, app properties
 - **Dev config**: Lower ports, verbose output
 - **Prod config**: Strict output, explicit non-standard ports (e.g., 9443 instead of defaulting)
 - Profile templates use fixed port defaults (`8080` in development and `9443` in production)
-- For environment-driven port overrides, replace fixed profile values with Spring placeholders (`${SERVER_PORT:8080}` and `${SERVER_PORT:9443}`); keep this section aligned with `spring-boot-container.instructions.md` (`## Profile and Port Strategy`)
+- For environment-driven port overrides, replace fixed profile values with Spring placeholders (`${SERVER_PORT:8080}` and `${SERVER_PORT:9443}`)
 - **Never hardcode** in code: URLs, ports, queue names, endpoints; use `application*.yml` + `@ConfigurationProperties`
-- Use `${VAR_NAME:default}` for environment-dependent values; avoid defaults for credentials, tokens, and keys
+- Use `${VAR_NAME:default}` for non-sensitive infrastructure values (host, port, path, feature flags); never provide fallback defaults for credentials, tokens, and keys
 - Virtual threads: Include `spring.threads.virtual.enabled: true` in base config
 - Never put `spring.profiles.active` in profile files; only in base config
 - Logging config path: `src/main/resources/log/logback-spring.xml`
@@ -95,18 +36,7 @@ springdoc:
 - Keep test overrides isolated to test scope; never reuse production credentials or production endpoints in test profile values
 - Use `@ActiveProfiles("test")` in tests that require these overrides
 
-`application-test.yml` template (adapt fields to project needs):
-
-```yaml
-spring:
-  datasource:
-    url: "jdbc:h2:mem:testdb"
-    driver-class-name: "org.h2.Driver"
-
-app:
-  external-api:
-    base-url: "http://localhost:8089"
-```
+See `snippets/config/` for the YAML skeleton structure to adapt for test overrides.
 
 ## Secrets
 Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instructions.md`.
@@ -114,7 +44,7 @@ Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instru
 ## Organization
 - One `@Configuration` class = one concern (security, messaging, database, web, etc.)
 - Each config class owns its `@Bean` definitions
-- Use `@ConfigurationProperties` for related config groups; `@Value` for single properties only
+- Use `@ConfigurationProperties` (implemented as immutable Java records) for all grouped external configuration; `@Value` is permitted only for single-value constructor parameters where `@RequiredArgsConstructor` cannot be used — see `spring-boot-architecture.instructions.md`
 
 ## Startup Initialization and Validation
 When a resource is needed at startup (e.g., connection pooling, cache warming, configuration validation):
@@ -123,80 +53,3 @@ When a resource is needed at startup (e.g., connection pooling, cache warming, c
 - Example use case: loading secrets from an external service, validating critical configuration dependencies, or prewarming caches required by services
 - Fail-fast startup prevents silent configuration errors from cascading into runtime failures; always prefer immediate failure over deferred/lazy initialization for critical resources
 - Never swallow exceptions in `@PostConstruct`; let them propagate to cause startup failure
-
-## Templates
-
-`@ConfigurationProperties` record. Replace `app.{feature}` with the actual prefix, and adjust fields to match the project's configuration group. Register the class with `@EnableConfigurationProperties` on a dedicated `@Configuration` class. `@SpringBootApplication` also qualifies because it is composed with `@SpringBootConfiguration`, which itself extends `@Configuration`.
-
-```java
-@ConfigurationProperties(prefix = "app.{feature}")
-public record {Feature}ConfigurationProperties(String baseUrl, Duration timeout, int maxRetries) {}
-```
-
-Corresponding YAML block (in `application.yml` or the appropriate profile file):
-
-```yaml
-# Replace feature, property names, and env var names with actual values.
-app:
-  {feature}:
-    base-url: "${FEATURE_BASE_URL}"
-    timeout: "5s"
-    max-retries: 3
-```
-
-Enable the properties class:
-
-```java
-@Configuration
-@EnableConfigurationProperties({Feature}ConfigurationProperties.class)
-class {Feature}Configuration {
-    // @Bean definitions that depend on {Feature}ConfigurationProperties go here
-}
-```
-
-**Startup initialization with fail-fast validation.** Use this pattern when a resource must be initialized at startup and missing/invalid configuration should cause the application to fail immediately.
-
-```java
-@Slf4j
-@Component
-class {Feature}Registry {
-
-  private static final String LOG_LOADING = "log.feature.loading";
-  private static final String LOG_INITIALIZATION_COMPLETE = "log.feature.initialization.complete";
-  private static final String ERROR_KEY_NOT_FOUND = "error.feature.key.not.found";
-  private static final String ERROR_LOAD_FAILED = "error.feature.load.failed";
-
-  private final {Feature}ConfigurationProperties properties;
-  private final LogMessages logMessages;
-  private final Map<String, String> cache = new HashMap<>();
-
-  {Feature}Registry({Feature}ConfigurationProperties properties, LogMessages logMessages) {
-    this.properties = properties;
-    this.logMessages = logMessages;
-  }
-
-  @PostConstruct
-  void initialize() {
-    log.info(logMessages.get(LOG_LOADING));
-
-    try {
-      // Load and validate critical resources here
-      // If any step fails, throw an exception to fail startup immediately
-
-      cache.put("key", "value");
-    } catch (RuntimeException ex) {
-      throw new IllegalStateException(
-          logMessages.get(ERROR_LOAD_FAILED, ex.getMessage()), ex);
-    }
-
-    log.info(logMessages.get(LOG_INITIALIZATION_COMPLETE));
-  }
-
-  public String get(String key) {
-    if (!cache.containsKey(key)) {
-      throw new IllegalStateException(logMessages.get(ERROR_KEY_NOT_FOUND, key));
-    }
-    return cache.get(key);
-  }
-}
-```

@@ -29,32 +29,6 @@ applyTo: "**/*OpenApiConfig*.java, **/*SwaggerConfig*.java, **/*Controller.java,
 - In earliest tutorial/learning samples where brevity is the explicit goal, endpoint annotations may be omitted
 
 ## Profile Visibility
-- Disable Swagger UI in the production profile:
+- Disable Swagger UI in the production profile via `springdoc.swagger-ui.enabled: false`; enable it in development
+- See `snippets/config/application-development.yml` and `snippets/config/application-production.yml` for the placement
 
-```yaml
-springdoc:
-  swagger-ui:
-    enabled: false
-```
-
-- Enable it in the development profile; it does not need to be accessible in production or test environments
-- Configure these profile toggles in `application-development.yml` and `application-production.yml` when profile files are in scope.
-
-## Templates
-
-**OpenAPI bean (required).** Replace project title, version, and description with actual values.
-
-```java
-@Configuration
-public class OpenApiConfig {
-
-  @Bean
-  public OpenAPI customOpenAPI() {
-    return new OpenAPI()
-      .info(new Info()
-        .title("{Project} API")
-        .version("1.0.0")
-        .description("REST API for {project resources}"));
-  }
-}
-```

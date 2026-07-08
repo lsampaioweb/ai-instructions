@@ -23,12 +23,9 @@ Relative paths in `logback-spring.xml` resolve from the JVM working directory. E
 1. **POM configuration**: Set `<workingDirectory>${project.basedir}</workingDirectory>` in `spring-boot-maven-plugin` (required; ensures Maven always uses the project folder, even when run from a parent folder)
 2. **IDE configuration**: Create `.vscode/launch.json` (or IntelliJ Run Configuration) with `cwd` pointing to the project folder:
    - **VSCode**: `"cwd": "${workspaceFolder}/<project-folder>"`
-3. **Logback configuration**: Use `<springProperty>` at the root of `<configuration>` (outside any `<springProfile>`) to declare configurable properties sourced from Spring's environment:
-   ```xml
-   <springProperty scope="context" source="spring.application.name" name="APPLICATION_NAME" />
-   <springProperty scope="context" source="logging.file.path" name="LOG_DIR" defaultValue="./logs" />
-   ```
+3. **Logback configuration**: Use `<springProperty>` at the root of `<configuration>` (outside any `<springProfile>`) to declare configurable properties sourced from Spring's environment. See `snippets/logback/logback-spring.xml` for the required placement.
    - Reference these properties in appender definitions declared once at the root level
    - Use Spring Boot's standard `logging.file.path` property (configurable via `LOGGING_FILE_PATH`); do not introduce a custom `app.*` key for log directory resolution
    - Keep appender definitions outside `<springProfile>`
    - Use `<springProfile>` only to conditionally switch the `<root level>` block
+

@@ -1,5 +1,5 @@
 ---
-description: "Docker and Docker Compose rules: Dockerfile structure, image naming, profile activation, volume mounts, healthcheck, and log directory ownership."
+description: "Podman and Compose container rules: Dockerfile structure, image naming, profile activation, volume mounts, healthcheck, and log directory ownership."
 applyTo: "**/Dockerfile, **/Dockerfile-multi-stage, **/docker-compose.yml, **/.dockerignore"
 ---
 
@@ -31,12 +31,14 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 
 ## Profile and Port Strategy
 - Keep profile defaults aligned with configuration templates: `application-development.yml` uses `server.port: 8080` and `application-production.yml` uses `server.port: 9443` with SSL
-- When runtime port override is required, use Spring placeholder syntax in profile files (e.g., `${SERVER_PORT:8080}` and `${SERVER_PORT:9443}`) and provide `SERVER_PORT` via environment variables; see `spring-boot-config.instructions.md` (`## Rules`) for the canonical port override policy
+- For runtime port override, use Spring placeholder syntax in profile files (e.g., `${SERVER_PORT:8080}` and `${SERVER_PORT:9443}`)
+- Provide `SERVER_PORT` via environment variables when runtime override is required
+- For canonical port override policy, follow `spring-boot-config.instructions.md` (`## Rules`)
 - Never bake ports into `ENTRYPOINT`
 
 ## Log Directory Ownership
 - The container runs as the `app` user with UID 1654; when using rootless Podman, use `podman unshare` to apply correct host-side ownership — never `sudo chown` with a bare UID
-- See `## Templates` for the ownership and permission setup commands
+- Use the ownership and permission setup commands defined in this file
 
 ## docker-compose.yml
 - Declare the network as `external: true`; create it once with `podman network create {app}-network` before first run
@@ -49,11 +51,11 @@ Spring Boot application service containers:
 - Use `logging.driver: k8s-file` for structured log capture
 - Pass `JAVA_TOOL_OPTIONS` to set JVM heap bounds at runtime; do not hardcode memory settings in the image
 - Set `SPRING_PROFILES_ACTIVE` directly (no shell default needed when using Compose); comment out the alternative profile
-- Healthcheck endpoint should use Spring Boot probe groups: liveness (`/actuator/health/liveness`) for restart decisions and readiness (`/actuator/health/readiness`) for traffic routing when applicable; avoid custom `ping` groups by default
+- Healthcheck endpoint must use Spring Boot probe groups: liveness (`/actuator/health/liveness`) for restart decisions and readiness (`/actuator/health/readiness`) for traffic routing when applicable; avoid custom `ping` groups by default
 
 Infrastructure service containers (datastores, brokers, proxies, secret stores):
 - `read_only`, `tmpfs`, `logging.driver: k8s-file`, `JAVA_TOOL_OPTIONS`, and `SPRING_PROFILES_ACTIVE` are optional and service-dependent
-- Healthchecks should use service-native checks/endpoints (e.g., `pg_isready`, `rabbitmq-diagnostics`, `redis-cli ping`, Vault sys health, Traefik ping)
+- Healthchecks must use service-native checks/endpoints (e.g., `pg_isready`, `rabbitmq-diagnostics`, `redis-cli ping`, Vault sys health, Traefik ping)
 
 ## Build and Run Commands
 Use the commands below to build images and run services.
@@ -87,136 +89,3 @@ For any project using environment variables:
 
 Infrastructure-only compose projects may be compose-first and do not require `Dockerfile`/`Dockerfile-multi-stage` when no application image is built in-project.
 
-## Templates
-
-**Dockerfile (single-stage).** Replace `{jdk}`, `{alpine}`, and `{date}` with pinned versions.
-
-```dockerfile
-FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-{date} AS image
-# FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-latest AS image
-# FROM docker.io/lsampaioweb/java-web:{jdk}-alpine-latest AS image
-# FROM docker.io/lsampaioweb/java-web:latest AS image
-
-COPY --chown=${APP_USER_NAME}:${APP_GROUP_NAME} ./target/*.jar app.jar
-
-ENV JAVA_TOOL_OPTIONS=""
-
-EXPOSE 8080 9443
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-**Dockerfile-multi-stage.** Replace `{jdk}`, `{alpine}`, and `{date}` with pinned versions.
-
-```dockerfile
-FROM docker.io/lsampaioweb/java-build:{jdk}-maven-alpine.{alpine}-{date} AS builder
-# FROM docker.io/lsampaioweb/java-build:{jdk}-maven-alpine.{alpine}-latest AS builder
-# FROM docker.io/lsampaioweb/java-build:latest AS builder
-
-COPY . .
-
-RUN --mount=type=cache,target=/root/.m2 \
-  mvn clean package
-
-FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-{date} AS runtime
-# FROM docker.io/lsampaioweb/java-web:{jdk}-alpine.{alpine}-latest AS runtime
-# FROM docker.io/lsampaioweb/java-web:latest AS runtime
-
-COPY --from=builder --chown=${APP_USER_NAME}:${APP_GROUP_NAME} ${APP_HOME}/target/*.jar app.jar
-
-ENV JAVA_TOOL_OPTIONS=""
-
-EXPOSE 8080 9443
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-**docker-compose.yml.** Replace `{app}`, `{registry}`, and `{version}` with actual values.
-
-```yaml
----
-networks:
-  {app}-network:
-    external: true
-
-services:
-  {app}:
-    image: "docker.io/{registry}/{app}:{version}"
-    container_name: "{app}"
-    restart: "unless-stopped"
-    read_only: true
-    cap_drop:
-      - "ALL"
-    security_opt:
-      - "no-new-privileges:true"
-    tmpfs:
-      - "/tmp:rw,noexec,nosuid,size=64m"
-    ports:
-      - "8080:8080"
-      # - "9443:9443"
-    volumes:
-      - "./logs/container:/opt/app/logs"
-      - "./ssl/:/opt/app/ssl/:ro"
-    networks:
-      - "{app}-network"
-    logging:
-      driver: "k8s-file"
-    environment:
-      - "SPRING_PROFILES_ACTIVE=development"
-      # - "SPRING_PROFILES_ACTIVE=production"
-      # - "SERVER_PORT=9443"
-      - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx1024m"
-    healthcheck:
-      # HTTP (development, liveness used for restart decisions)
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/actuator/health/liveness || exit 1"]
-      # HTTPS self-signed cert (production, bypass cert check; readiness may be used for traffic routing)
-      # test: ["CMD-SHELL", "wget --no-check-certificate -q -O- https://localhost:9443/actuator/health/liveness || exit 1"]
-      start_period: "2s"
-      interval: "10s"
-      timeout: "2s"
-      retries: 2
-```
-
-**Log directory ownership (rootless Podman).** Run once per host before first `podman compose up`.
-
-```bash
-# Map the logs and ssl directories to the container's app user (UID/GID 1654).
-podman unshare chown -R :1654 ./logs/container/
-podman unshare chown -R :1654 ./ssl/
-
-# Grant group read/write/traverse on logs; read/traverse on ssl.
-chmod -R g+rwX,g+s ./logs/container/
-chmod -R g+rX ./ssl/
-```
-
-**Build and run commands.** Replace `{registry}`, `{app}`, and `{version}` with actual values.
-
-```bash
-# Build JAR and single-stage image
-mvn clean package -DskipTests
-podman build --tag=docker.io/{registry}/{app}:{version} .
-
-# Multi-stage build (no local Maven required)
-podman build \
-  --tag=docker.io/{registry}/{app}:{version} \
-  --network=host \
-  --http-proxy=false \
-  --isolation chroot \
-  --pull=missing \
-  -f Dockerfile-multi-stage .
-
-# Create the external network (once per host)
-podman network create {app}-network
-
-# Start (background)
-podman compose up -d
-
-# View logs
-podman compose logs -f {app}
-
-# Interactive shell
-podman exec -it {app} sh
-
-# Stop and remove containers
-podman compose down
-```

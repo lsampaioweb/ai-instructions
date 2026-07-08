@@ -1,5 +1,6 @@
 ---
 description: "Project profile and architecture contract for all Spring Boot projects: technology stack, cross-cutting rules, and component catalogue."
+applyTo: "**/*.java, **/pom.xml"
 ---
 
 # Spring Boot Architecture Conventions
@@ -20,7 +21,7 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - Never trust user input; validate format, length, and content explicitly at every API boundary; reject or sanitize by default
 - Ensure every edited file ends with a blank newline character
 - After creating or editing a file, format it using the project's configured formatter; if none is configured, preserve existing style; never claim a file was formatted unless formatting ran successfully
-- Prefer clear names over comments; add comments only for intent, trade-offs, invariants, and non-obvious behavior; never comment obvious assignments or control flow; add short Javadoc to public methods only when behavior is not obvious
+- Use clear, descriptive naming to document intent instead of writing inline comments; add comments only for trade-offs, invariants, and non-obvious behavior; never comment obvious assignments or control flow; add short Javadoc to public methods only when behavior is not obvious
 
 ## Class Structure
 - Use the narrowest visibility: `private` for internal helpers, package-private for intra-feature classes, `public` only when accessible from outside the package
@@ -31,26 +32,6 @@ description: "Project profile and architecture contract for all Spring Boot proj
 - Organize code by feature or domain: `user`, `product`, `order`, `config`, `integration`; never create generic root packages named `controller`, `service`, or `repository`
 - Keep all classes for a feature in one package (e.g. `UserController`, `UserService`, `UserMapper`, `User`, `CreateUserRequest`, and `UserNotFoundException` all belong in `com.example.user`)
 - Non-Java project files belong at the project root, never inside `src/`
-
-Feature package structure example:
-
-```text
-src/main/java/com/example/user/
-  User.java
-  CreateUserRequest.java
-  UserResponse.java
-  UserNotFoundException.java
-  UserController.java
-  UserService.java
-  UserServiceImpl.java
-  UserMapper.java
-  UserRepository.java
-
-src/test/java/com/example/user/
-  UserControllerTest.java
-  UserServiceTest.java
-  UserRepositoryIT.java
-```
 
 ## Architecture Rules
 - Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
@@ -67,14 +48,8 @@ src/test/java/com/example/user/
 ## Domain and Persistence Rules
 - Domain objects are plain Java records or classes with no persistence annotations; use records for immutable objects
 - Field names and types map to SQL result sets via MyBatis result maps in XML; no annotations required on the domain class
-- Never expose domain objects in controller responses or request parameters; always pass DTOs across API boundaries
+- Never expose domain objects in controller responses or request parameters; always pass DTOs across API boundaries; for server-side Thymeleaf views, form-backing objects must be mutable DTOs, never domain entities
 - Never use JPA, Hibernate, or any ORM framework; never annotate domain objects with `@Entity`, `@Table`, or `@Column`; never add ORM dependencies; use MyBatis or Spring JDBC Templates for all data access
-
-## AI Behavior Rules
-- Never claim success for build, test, lint, or runtime validation unless a command was actually executed and completed successfully; if diagnostics still report errors, say so explicitly
-- Never invent or assume API signatures, configuration keys, framework behavior, or codebase conventions not visible in the current context or official documentation; when uncertain, say so
-- When a user requirement conflicts with a style convention: state the conflict explicitly, state the default convention, and ask one targeted clarifying question only if the ambiguity materially changes architecture or generated artifacts; the user requirement always wins
-- Prefer fixing the shared root cause over patching one symptom path; inspect affected callers when changing shared functions
 
 ## Scope Control
 - Only generate files for the specific feature or change requested; never add optional infrastructure or endpoints unless explicitly requested
@@ -88,7 +63,6 @@ src/test/java/com/example/user/
 
 ## Ambiguity and Clarification Protocol
 - If context is sufficient, infer required components and proceed within one coherent implementation step
-- For requests with multiple independent steps, follow `copilot-instructions.md`: complete one independent step at a time and wait for confirmation before continuing
 - If context is insufficient and different interpretations would change generated files, architecture, security, persistence, transport, deployment, or test scope, ask one targeted clarifying question before generating; prioritize the highest-impact unknown first: transport type (REST API, MVC pages, CLI/batch, event-driven) or relational database requirement
 - Do not hardcode fixed question lists in this file; clarification must be contextual
 - Do not hardcode keyword trigger lists in this file; component inclusion decisions must be semantic and contextual
@@ -96,6 +70,7 @@ src/test/java/com/example/user/
 
 ## Delegation Rules
 - This architecture file defines global constraints, component catalogue, and decision protocol only
+- AI behavior rules are defined in `copilot-instructions.md`; do not redefine them here
 - Component-specific implementation details belong exclusively to their referenced instruction files
 - Do not duplicate component internals in this file
 - If a rule in this file conflicts with a component-specific rule for a touched artifact, follow the component-specific file unless the user explicitly overrides it
@@ -122,7 +97,7 @@ Include conditional components only when required by requested feature scope and
 - **Async / event-driven** — when background processing or cross-feature event propagation is needed → [spring-boot-async-events.instructions.md](./spring-boot-async-events.instructions.md)
 - **Container / Compose** — when packaging the application with Docker, Podman or Kubernetes → [spring-boot-container.instructions.md](./spring-boot-container.instructions.md)
 - **Data persistence (SQL, no ORM)** — include only when the requested feature requires persisting to or querying from a relational database; use MyBatis or Spring JDBC Templates, never JPA → [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md)
-- **DTO and mapping** — when crossing layer boundaries (controller ↔ service ↔ repository), enforce a mapper boundary (`toEntity`, `toResponse`, etc.); use MapStruct when already present or explicitly requested, otherwise use a lightweight Spring mapper component → [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md)
+- **DTO and mapping** — when crossing layer boundaries (controller ↔ service ↔ repository), enforce a mapper boundary (`toEntity`, `toResponse`, etc.); strictly use MapStruct for all mapping to avoid manual conversion boilerplate → [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md)
 - **HTTP client** — when calling external APIs; use `RestClient` → [spring-boot-http-client.instructions.md](./spring-boot-http-client.instructions.md)
 - **REST API controller** — include when exposing HTTP JSON endpoints; DTOs in/out, no business logic in the controller. Dependency: if REST API controller is included, OpenAPI is required → [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md)
 - **OpenAPI** — include when the application exposes REST API endpoints; all REST endpoints documented with springdoc-openapi; UI toggled by profile → [spring-boot-openapi.instructions.md](./spring-boot-openapi.instructions.md)

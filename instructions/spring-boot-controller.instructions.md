@@ -11,20 +11,25 @@ applyTo: "**/*Controller.java, **/*Api.java"
 - It does not apply to Thymeleaf MVC handlers returning template names
 - Annotate with `@RestController`
 - Declare the full versioned base path at class level: `@RequestMapping("/api/v1/resource-name")` using lowercase plural resource names
-- Method annotations use only the path suffix relative to the class mapping: `@GetMapping("/")`, `@GetMapping("/{id}")`, `@PostMapping("/")` — never repeat the base path in method annotations
+- Method annotations use only the path suffix relative to the class mapping (e.g., `@GetMapping`, `@GetMapping("/{id}")`, `@PostMapping`) and never repeat the base path in method annotations
 - No business logic; delegate all processing to the service layer
+- Allow only protocol adaptation required by HTTP semantics (e.g., status code, headers, content-type); keep all branching, orchestration, transformations, and domain decisions in the service layer
 - Do not call mapper classes or integration clients directly
 - Accept input via explicit Spring binding annotations (`@RequestBody`, `@PathVariable`, `@RequestParam`, `@RequestHeader`, or `@ModelAttribute`) as required by the endpoint contract
-- When accepting Java Records as `@RequestBody` or `@ModelAttribute`, explicitly annotate the parameter with `@Valid` to trigger DTO-level validation constraints (`@NotNull`, `@NotBlank`, etc.).
-- Do NOT apply `@Valid` to scalar parameters like `@PathVariable Long id` or `@RequestParam String name`; they use framework-level type coercion and Spring's built-in constraints
-- If scalar validation is needed, use class-level `@Validated` on the controller plus parameter-level constraints such as `@NotNull` and `@Pattern`
+- For `@RequestBody` or `@ModelAttribute` record DTOs, explicitly annotate the parameter with `@Valid` to trigger DTO-level validation constraints (`@NotNull`, `@NotBlank`, etc.)
+- Do not apply `@Valid` to scalar `@PathVariable` or `@RequestParam` values; when scalar validation is required, use class-level `@Validated` with parameter constraints such as `@NotNull`, `@Min`, `@Max`, and `@Pattern`
 - Return DTOs only; never return domain objects directly
 - For raw opaque passthrough responses (e.g. file bytes, TOML), return `ResponseEntity<String>` or `ResponseEntity<byte[]>` as defined in the Raw Passthrough Exception section
 - Never return `Map<String, Object>` or `Object`; every JSON response must be a typed Java record
 - When returning a non-JSON response, set the `produces` attribute explicitly on the mapping annotation (e.g. `@PostMapping(value = "/", produces = "application/toml")`); the `produces` attribute sets the HTTP response `Content-Type` header
 - Use specific mapping annotations: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`
-- HTTP status discipline: use 200 (successful read), 201 (creation via `ResponseEntity`), 204 (no-content), 400 (validation errors), 404 (not found), 500 (unexpected errors)
+- HTTP status discipline: use 200 (successful read), 201 (resource creation), 204 (no-content, especially for successful DELETE), 400 (validation errors), 404 (not found), 500 (unexpected errors)
 - Keep handler methods `public`; keep helper methods `private`
+
+## HTTP 201 Created Pattern
+- For POST endpoints that create resources, use `ResponseEntity.created(location).body(responseDto)` whenever a stable resource URI is available
+- Build `location` from the newly created resource identifier using `UriComponentsBuilder`
+- Use `ResponseEntity.status(HttpStatus.CREATED).body(responseDto)` only when a stable resource URI is not available
 
 ## API Versioning
 - Use URL path versioning: `/api/v1/...`
@@ -40,77 +45,3 @@ When the endpoint URL is mandated by an external protocol, hardware system, or v
 ## Raw Passthrough Exception
 When the response body is raw opaque content passed through unchanged (e.g. a file read as text or bytes, with a non-JSON content type such as `application/toml`, `text/plain`, or `application/octet-stream`), skip the response DTO and mapper entirely. The service returns the raw content (`String` or `byte[]`) directly; the controller returns `ResponseEntity<String>` or `ResponseEntity<byte[]>` with an explicit `Content-Type`. Do not create a wrapper DTO with a single `content` field just to satisfy the DTO rule.
 
-## Templates
-
-CRUD controller skeleton. Replace `{Resource}`, `{resource}`, `{resources}`, and all DTO names with actual project values.
-
-```java
-@Slf4j
-@RestController
-@RequestMapping("/api/v1/{resources}")
-@Tag(name = "{Resource}s", description = "Manage {resources}")
-class {Resource}Controller {
-
-  private final {Resource}Service {resource}Service;
-
-  {Resource}Controller({Resource}Service {resource}Service) {
-    this.{resource}Service = {resource}Service;
-  }
-
-  @GetMapping("/")
-  @Operation(summary = "List all {resources}")
-  public ResponseEntity<List<{Resource}Response>> findAll() {
-    return ResponseEntity.ok({resource}Service.findAll());
-  }
-
-  @GetMapping("/{id}")
-  @Operation(summary = "Find a {resource} by id")
-  public ResponseEntity<{Resource}Response> findById(@PathVariable Long id) {
-    return ResponseEntity.ok({resource}Service.findById(id));
-  }
-
-  @PostMapping("/")
-  @Operation(summary = "Create a new {resource}")
-  public ResponseEntity<{Resource}Response> create(
-      @Valid @RequestBody Create{Resource}Request request, UriComponentsBuilder uriBuilder) {
-
-    {Resource}Response response = {resource}Service.create(request);
-    URI location = uriBuilder.path("/api/v1/{resources}/{id}").buildAndExpand(response.id()).toUri();
-
-    return ResponseEntity.created(location).body(response);
-  }
-
-  @PutMapping("/{id}")
-  @Operation(summary = "Update a {resource}")
-  public ResponseEntity<{Resource}Response> update(
-      @PathVariable Long id, @Valid @RequestBody Update{Resource}Request request) {
-
-    return ResponseEntity.ok({resource}Service.update(id, request));
-  }
-
-  @DeleteMapping("/{id}")
-  @Operation(summary = "Delete a {resource}")
-  public ResponseEntity<Void> delete(@PathVariable Long id) {
-    {resource}Service.delete(id);
-
-    return ResponseEntity.noContent().build();
-  }
-}
-```
-
-**Validation examples.** Use `@Valid` for Record payloads. For scalar constraints, use class-level `@Validated` plus parameter-level constraint annotations.
-
-```java
-// DO: @Valid on Record payloads
-@PostMapping("/")
-public ResponseEntity<{Resource}Response> create(@Valid @RequestBody Create{Resource}Request request) {
-  // ...
-}
-
-// DO NOT: @Valid on scalar parameters
-// If scalar validation is needed, annotate the controller with @Validated and use constraints on the scalar parameter.
-@GetMapping("/{id}")
-public ResponseEntity<{Resource}Response> findById(@PathVariable @Min(1) Long id) {
-  // ...
-}
-```

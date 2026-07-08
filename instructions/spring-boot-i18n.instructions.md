@@ -12,13 +12,7 @@ applyTo: "**/i18n/**, **/messages*.properties, **/*LocaleConfig.java"
 - Message text must be linguistically correct for its locale (spelling, accents, grammar); for `pt_BR`, ensure proper Portuguese orthography (e.g. `Conexão`, `Configuração`, `Usuário`)
 
 ## Configuration
-Configure the basename in `application.yml`:
-
-```yaml
-spring:
-  messages:
-    basename: "i18n/messages"
-```
+Configure the basename in `application.yml`: `spring.messages.basename: "i18n/messages"`. See `snippets/config/application.yml` for the full placement.
 
 ## Usage
 - Inject `MessageSource` via constructor; never use field injection
@@ -31,38 +25,3 @@ spring:
 - Register `LocaleResolver` as a `@Bean` inside a dedicated `@Configuration` class configured to read the `Accept-Language` header
 - Do not support `?lang=` query parameter — the header mechanism is sufficient for all environments including testing
 
-## Templates
-
-Custom locale resolver and configuration. These two classes are the same in every project — no substitutions needed.
-
-```java
-class I18nAcceptHeaderLocaleResolver extends AcceptHeaderLocaleResolver {
-
-  @Override
-  public Locale resolveLocale(HttpServletRequest request) {
-    String acceptLanguage = request.getHeader("Accept-Language");
-
-    if (!StringUtils.hasText(acceptLanguage)) {
-      return Locale.ENGLISH;
-    }
-
-    return super.resolveLocale(request);
-  }
-}
-```
-
-```java
-@Configuration
-class I18nLocaleResolverConfig implements WebMvcConfigurer {
-
-  @Bean
-  LocaleResolver localeResolver() {
-    AcceptHeaderLocaleResolver resolver = new I18nAcceptHeaderLocaleResolver();
-
-    resolver.setDefaultLocale(Locale.ENGLISH);
-    resolver.setSupportedLocales(List.of(Locale.ENGLISH, Locale.forLanguageTag("pt-BR")));
-
-    return resolver;
-  }
-}
-```
