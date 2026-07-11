@@ -5,6 +5,10 @@ applyTo: "**/*Controller.java, **/*Api.java"
 
 # Controller Rules
 
+For pagination request/response contracts, parameter limits, and `Link` headers, follow `spring-boot-pagination.instructions.md`.
+For soft-delete endpoint semantics and hard-delete exception paths, follow `spring-boot-soft-delete.instructions.md`.
+For API version evolution, coexistence, and deprecation signaling, follow `spring-boot-api-versioning.instructions.md`.
+
 ## Rules
 
 - Scope boundary: applies to REST HTTP handlers only (JSON/API responses)
@@ -13,6 +17,7 @@ applyTo: "**/*Controller.java, **/*Api.java"
 - Declare the full versioned base path at class level: `@RequestMapping("/api/v1/resource-name")` using lowercase plural resource names
 - Method annotations use only the path suffix relative to the class mapping (e.g., `@GetMapping`, `@GetMapping("/{id}")`, `@PostMapping`) and never repeat the base path in method annotations
 - No business logic; delegate all processing to the service layer
+- **No logging of business operations** — state transitions (create/update/delete), operation results, and business events belong in the service layer only
 - Allow only protocol adaptation required by HTTP semantics (e.g., status code, headers, content-type); keep all branching, orchestration, transformations, and domain decisions in the service layer
 - Do not call mapper classes or integration clients directly
 - Accept input via explicit Spring binding annotations (`@RequestBody`, `@PathVariable`, `@RequestParam`, `@RequestHeader`, or `@ModelAttribute`) as required by the endpoint contract

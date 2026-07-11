@@ -5,6 +5,9 @@ applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configurati
 
 # Configuration Rules
 
+For migration profile behavior and `spring.sql.init` interaction when Flyway or Liquibase is enabled, follow `spring-boot-migrations.instructions.md`.
+For cache backend and TTL configuration conventions, follow `spring-boot-caching.instructions.md`.
+
 ## Files
 - Use only `application.yml`; no `application.properties`
 - **Three-file configuration structure**:

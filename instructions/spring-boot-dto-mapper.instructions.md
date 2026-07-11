@@ -5,6 +5,8 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*R
 
 # DTO and Mapper Rules
 
+For enum wire-format conventions, input validation rules, and migration safety, follow `spring-boot-enum.instructions.md`.
+
 ## Scope
 - Applies to DTO classes and non-SQL feature mappers (e.g., Spring `@Component` mappers used for domain ↔ DTO conversion)
 - SQL/MyBatis persistence mappers follow `spring-boot-repository.instructions.md`

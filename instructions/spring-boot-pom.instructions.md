@@ -5,6 +5,9 @@ applyTo: "**/pom.xml"
 
 # Maven POM Rules
 
+For Flyway/Liquibase dependency policy and migration-tool selection, follow `spring-boot-migrations.instructions.md`.
+For caching dependency and backend selection policy, follow `spring-boot-caching.instructions.md`.
+
 - Target the latest stable Spring Boot and Java versions for new projects. For existing projects, detect the version from `pom.xml` and apply compatible rules without suggesting upgrades unless asked.
 
 ## Project Coordinates

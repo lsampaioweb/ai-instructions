@@ -5,6 +5,10 @@ applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.ja
 
 # Exception Handling Rules
 
+For soft-delete related not-found and inactive-entity behavior, follow `spring-boot-soft-delete.instructions.md`.
+For foreign-key violation to HTTP `409 Conflict` mapping, follow `spring-boot-referential-integrity.instructions.md`.
+For machine-readable `errorCode` contract and mappings, follow `spring-boot-error-code.instructions.md`.
+
 ## @RestControllerAdvice
 - One single `@RestControllerAdvice` class handles all exceptions for the entire application
 - Always include a catch-all `@ExceptionHandler(Exception.class)` handler mapped to HTTP 500
@@ -44,7 +48,7 @@ See `snippets/exception/GlobalExceptionHandler.java` for the operational excepti
 
 ## ErrorResponse
 - Every exception handler (except the `MethodArgumentNotValidException` handler) returns the same `ErrorResponse` DTO
-- `ErrorResponse` fields: `timestamp` (OffsetDateTime), `status` (int), `error` (HTTP reason phrase), `message` (resolved i18n string), `path` (request URI), `trace` (stack trace string, null when not exposed)
+- `ErrorResponse` fields: `timestamp` (OffsetDateTime), `status` (int), `error` (HTTP reason phrase), `errorCode` (machine-readable string code), `message` (resolved i18n string), `path` (request URI), `trace` (stack trace string, null when not exposed)
 - The `message` field is locale-aware; the same exception may return different text depending on the `Accept-Language` header
 - Use `OffsetDateTime.now(ZoneOffset.UTC)` for the `timestamp` field; never use bare `now()` without explicit zone context.
 - The `trace` field is `null` by default; populate it conditionally based on `server.error.include-stacktrace` — see `## Stacktrace Exposure`
