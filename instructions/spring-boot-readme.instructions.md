@@ -24,6 +24,5 @@ Include the sections that are relevant; omit sections that do not apply to the t
 ## Documentation Standards
 - Use `1.` for all numbered lists (let Markdown auto-increment)
 - Sort lists, tables, and enumerations alphabetically only when order is not semantic (e.g., references, variable tables)
-- One command per code block with a description above it
-- Always include `<!-- filepath: ... -->` at the top of every Markdown file
-
+- Prefer one command per code block with a description above it
+- Group multiple shell commands in one code block only when they form a single setup workflow (for example environment exports followed by one run command)

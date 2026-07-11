@@ -71,8 +71,10 @@ Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words
 - This is the ONLY layer where business operation logging happens
 
 **Repository / Data Access**
-- **Never log** — repositories have no logging; delegate all operation tracking to the service layer
-- No @Slf4j; no LogMessages injection
+- Do not log business events or state transitions in repositories; keep those logs in the service layer
+- Log only technical persistence diagnostics when needed (query intent, row count, retry/failure context)
+- Keep repository logs low-noise: prefer `DEBUG`; use `INFO` only for lifecycle-level operational events explicitly required by the feature
+- If a repository emits logs, use @Slf4j with i18n keys resolved through LogMessages
 
 **Listener/Consumer/Integration Client**
 - Log lifecycle: connect/disconnect events
