@@ -55,19 +55,7 @@ Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instru
 1. Annotate the `@SpringBootApplication` class with `@ConfigurationPropertiesScan` (import: `org.springframework.boot.context.properties.ConfigurationPropertiesScan`)
 2. Annotate each record with `@ConfigurationProperties(prefix = "...")` only — no `@Component`
 
-```java
-// GeographyApplication.java (or any @SpringBootApplication class)
-@SpringBootApplication
-@ConfigurationPropertiesScan        // ← discovers all @ConfigurationProperties records
-public class GeographyApplication { ... }
-
-// AnyConfigurationProperties.java
-@ConfigurationProperties(prefix = "app.my-feature")   // ← no @Component
-record AnyConfigurationProperties(String host, int port) { }
-```
-
 **Spring Boot 3.x:** `@Component` + `@ConfigurationProperties` on records works correctly; `@ConfigurationPropertiesScan` is also supported and preferred for explicit intent.
-
 
 ## Startup Initialization and Validation
 When a resource is needed at startup (e.g., connection pooling, cache warming, configuration validation):
