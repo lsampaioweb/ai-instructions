@@ -5,9 +5,9 @@ applyTo: "**/*Controller.java, **/*Api.java"
 
 # Controller Rules
 
-For pagination request/response contracts, parameter limits, and `Link` headers, follow `spring-boot-pagination.instructions.md`.
-For soft-delete endpoint semantics and hard-delete exception paths, follow `spring-boot-soft-delete.instructions.md`.
-For API version evolution, coexistence, and deprecation signaling, follow `spring-boot-api-versioning.instructions.md`.
+For pagination request/response contracts, parameter limits, and `Link` headers, see `spring-boot-pagination.instructions.md`.
+For soft-delete endpoint semantics and hard-delete exception paths, see `spring-boot-soft-delete.instructions.md`.
+For API version evolution, coexistence, and deprecation signaling, see `spring-boot-api-versioning.instructions.md`.
 
 ## Rules
 

@@ -5,8 +5,8 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 
 # Service Rules
 
-For cache annotation strategy, key naming, and invalidation behavior, follow `spring-boot-caching.instructions.md`.
-For logging scope, message i18n, and component-specific log levels, follow `spring-boot-logging.instructions.md`.
+For cache annotation strategy, key naming, and invalidation behavior, see `spring-boot-caching.instructions.md`.
+For logging scope, message i18n, and component-specific log levels, see `spring-boot-logging.instructions.md`.
 
 ## Rules
 
@@ -24,5 +24,5 @@ For logging scope, message i18n, and component-specific log levels, follow `spri
 - Never catch and silently swallow an exception
 - Do not wrap every method body in a `try/catch` as boilerplate; let unchecked exceptions propagate to `@RestControllerAdvice`
 - When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
-- For API error-response shape and stacktrace exposure policy, follow `spring-boot-exception.instructions.md`
+- For API error-response shape and stacktrace exposure policy, see `spring-boot-exception.instructions.md`
 

@@ -31,7 +31,7 @@ Configure CORS with explicit allowed origins, methods, and headers. Never use wi
 - Do not log credentials, tokens, raw authorization headers, or full security exceptions with sensitive payloads
 - Return generic messages for auth failures; never expose internal details
 - Never include user input, request parameters, or any dynamic values in exception message text; use i18n keys with parameterized placeholders instead
-- For shared operator-facing message-key and HTTP error rendering conventions, follow `spring-boot-logging.instructions.md` and `spring-boot-exception.instructions.md`
+- For shared operator-facing message-key and HTTP error rendering conventions, see `spring-boot-logging.instructions.md` and `spring-boot-exception.instructions.md`
 
 ## Cryptography
 Never implement custom cryptography. Use approved Spring Security password encoders and providers.

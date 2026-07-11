@@ -5,19 +5,19 @@ applyTo: "**/*Repository.java, **/*RepositoryImpl.java, **/*Mapper.java, **/mapp
 
 # Repository Rules
 
-For pagination SQL strategy (`LIMIT`/`OFFSET`, count query parity, deterministic ordering), follow `spring-boot-pagination.instructions.md`.
-For enum persistence conventions (string-based storage and migration safety), follow `spring-boot-enum.instructions.md`.
-For SQL schema naming, type sizing, and constraint defaults, follow `spring-boot-database-schema.instructions.md`.
-For versioned schema evolution with Flyway or Liquibase, follow `spring-boot-migrations.instructions.md`.
-For soft-delete schema and query behavior, follow `spring-boot-soft-delete.instructions.md`.
-For foreign-key integrity policy and delete-conflict behavior, follow `spring-boot-referential-integrity.instructions.md`.
+For pagination SQL strategy (`LIMIT`/`OFFSET`, count query parity, deterministic ordering), see `spring-boot-pagination.instructions.md`.
+For enum persistence conventions (string-based storage and migration safety), see `spring-boot-enum.instructions.md`.
+For SQL schema naming, type sizing, and constraint defaults, see `spring-boot-database-schema.instructions.md`.
+For versioned schema evolution with Flyway or Liquibase, see `spring-boot-migrations.instructions.md`.
+For soft-delete schema and query behavior, see `spring-boot-soft-delete.instructions.md`.
+For foreign-key integrity policy and delete-conflict behavior, see `spring-boot-referential-integrity.instructions.md`.
 
 ## Scope
 - Applies only to persistence repositories and SQL/MyBatis mappers
-- Does not apply to feature mappers for domain ↔ DTO conversion (e.g., Spring `@Component` mapper); for those, follow `spring-boot-dto-mapper.instructions.md`
+- Does not apply to feature mappers for domain ↔ DTO conversion (e.g., Spring `@Component` mapper); for those, see `spring-boot-dto-mapper.instructions.md`
 
 ## No ORM
-For canonical ORM prohibition policy, follow `spring-boot-architecture.instructions.md` (`## Domain and Persistence Rules`).
+For canonical ORM prohibition policy, see `spring-boot-architecture.instructions.md` (`## Domain and Persistence Rules`).
 
 ## MyBatis
 - Define repositories as interfaces annotated with `@Mapper`
@@ -37,7 +37,7 @@ For canonical ORM prohibition policy, follow `spring-boot-architecture.instructi
 - **No logging in repositories** — all operation tracking and state-transition logging belongs in the service layer
 - Use package-private visibility by default for repository and mapper classes; elevate to `public` only when external callers require it
 - Place schema and seed SQL files under `src/main/resources/sql/`; do not place them in the root of `src/main/resources/`
-- Do not introduce migration dependencies by default; add Flyway or Liquibase only when migrations are in scope and follow `spring-boot-migrations.instructions.md`
+- Do not introduce migration dependencies by default; add Flyway or Liquibase only when migrations are in scope. See `spring-boot-migrations.instructions.md`
 
 ## Repository Interface and Implementation
 - Apply this section to Spring JDBC repositories and filesystem repositories.

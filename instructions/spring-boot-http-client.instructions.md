@@ -7,7 +7,7 @@ applyTo: "**/*Client.java, **/*ApiClient.java, **/*HttpClient.java"
 
 ## Message i18n
 HTTP client error handling must follow i18n principles: if an error message is shown to operators (logged or thrown as an exception), define it as an i18n key in `messages.properties` and resolve it via `LogMessages`; never hardcode error message text in client classes.
-For shared operator-facing message-key conventions, follow `spring-boot-logging.instructions.md`.
+For shared operator-facing message-key conventions, see `spring-boot-logging.instructions.md`.
 
 ## RestClient
 - Use `RestClient` (Spring 6.1+) as the HTTP client for all outbound API calls; never use `RestTemplate` or third-party HTTP clients unless `RestClient` cannot provide a required capability

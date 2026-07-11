@@ -11,7 +11,7 @@ For MDC key contracts and HTTP correlation propagation, see `spring-boot-observa
 ## Scope: All Operator-Facing Text
 - Apply this i18n rule to operator-facing logs, operational exception messages, and human-readable string constants
 - Define all such text as i18n keys in `messages.properties`; never hardcode English text
-For HTTP response error rendering and locale-aware user-facing messages, follow `spring-boot-exception.instructions.md` and `spring-boot-i18n.instructions.md`.
+For HTTP response error rendering and locale-aware user-facing messages, see `spring-boot-exception.instructions.md` and `spring-boot-i18n.instructions.md`.
 
 ## Rules
 

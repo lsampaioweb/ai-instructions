@@ -5,8 +5,8 @@ applyTo: "**/sql/**/*.xml, **/mapper/**/*.xml, **/src/main/resources/sql/**/*.sq
 
 # Database Schema Rules
 
-For entity lifecycle rules based on soft delete columns and restore semantics, follow `spring-boot-soft-delete.instructions.md`.
-For foreign-key delete behavior and conflict policy, follow `spring-boot-referential-integrity.instructions.md`.
+For entity lifecycle rules based on soft delete columns and restore semantics, see `spring-boot-soft-delete.instructions.md`.
+For foreign-key delete behavior and conflict policy, see `spring-boot-referential-integrity.instructions.md`.
 
 ## Scope
 - Use this file as the canonical source for relational schema naming and type-sizing conventions.

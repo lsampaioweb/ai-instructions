@@ -5,11 +5,11 @@ applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*R
 
 # DTO and Mapper Rules
 
-For enum wire-format conventions, input validation rules, and migration safety, follow `spring-boot-enum.instructions.md`.
+For enum wire-format conventions, input validation rules, and migration safety, see `spring-boot-enum.instructions.md`.
 
 ## Scope
 - Applies to DTO classes and non-SQL feature mappers (e.g., Spring `@Component` mappers used for domain ↔ DTO conversion)
-- SQL/MyBatis persistence mappers follow `spring-boot-repository.instructions.md`
+- For SQL/MyBatis persistence mappers, see `spring-boot-repository.instructions.md`
 
 ## DTOs
 - Use Java records for DTOs; use a mutable class only when the framework explicitly requires it (e.g., Thymeleaf form-backing objects)

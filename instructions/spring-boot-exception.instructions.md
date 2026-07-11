@@ -5,9 +5,9 @@ applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.ja
 
 # Exception Handling Rules
 
-For soft-delete related not-found and inactive-entity behavior, follow `spring-boot-soft-delete.instructions.md`.
-For foreign-key violation to HTTP `409 Conflict` mapping, follow `spring-boot-referential-integrity.instructions.md`.
-For machine-readable `errorCode` contract and mappings, follow `spring-boot-error-code.instructions.md`.
+For soft-delete related not-found and inactive-entity behavior, see `spring-boot-soft-delete.instructions.md`.
+For foreign-key violation to HTTP `409 Conflict` mapping, see `spring-boot-referential-integrity.instructions.md`.
+For machine-readable `errorCode` contract and mappings, see `spring-boot-error-code.instructions.md`.
 
 ## @RestControllerAdvice
 - One single `@RestControllerAdvice` class handles all exceptions for the entire application
@@ -29,7 +29,7 @@ For machine-readable `errorCode` contract and mappings, follow `spring-boot-erro
 
 ## Operational Exceptions
 Not all exceptions are domain exceptions caught by `@RestControllerAdvice`. Integration clients, utilities, and startup validators may throw operational exceptions (e.g., `IllegalStateException`, `IllegalArgumentException`) that are **never** intended for HTTP response handling. These exceptions are logged or cause startup failure.
-For shared operator-facing message-key conventions, follow `spring-boot-logging.instructions.md`.
+For shared operator-facing message-key conventions, see `spring-boot-logging.instructions.md`.
 
 ### Pattern for Operational Exception Messages
 Operational exception messages follow the same i18n principle as logs:

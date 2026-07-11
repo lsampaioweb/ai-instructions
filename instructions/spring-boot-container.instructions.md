@@ -33,7 +33,7 @@ Tag format: `{jdk}-alpine.{alpine}-{date}` (e.g. `25-alpine.3.23-2026.05`). Alwa
 - Keep profile defaults aligned with configuration templates: `application-development.yml` uses `server.port: 8080` and `application-production.yml` uses `server.port: 9443` with SSL
 - For runtime port override, use Spring placeholder syntax in profile files (e.g., `${SERVER_PORT:8080}` and `${SERVER_PORT:9443}`)
 - Provide `SERVER_PORT` via environment variables when runtime override is required
-- For canonical port override policy, follow `spring-boot-config.instructions.md` (`## Rules`)
+- For canonical port override policy, see `spring-boot-config.instructions.md` (`## Rules`)
 - Never bake ports into `ENTRYPOINT`
 
 ## Log Directory Ownership

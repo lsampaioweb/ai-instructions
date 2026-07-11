@@ -27,7 +27,7 @@ Include `spring-boot-starter-actuator` in every project.
 - Secure actuator endpoints in production; allow unauthenticated access only to internal probe endpoints when required by platform health checks
 - Use a dedicated management port (`management.server.port`) only when one of these conditions applies: compliance boundary separation, network-plane isolation, or restricted operator-only ingress
 - Do not route actuator endpoints through a public API gateway
-- For authentication and authorization rules, follow `spring-boot-security.instructions.md`
+- For authentication and authorization rules, see `spring-boot-security.instructions.md`
 
 ## Custom Health Indicators
 - Implement a custom `HealthIndicator` for each critical external dependency that affects traffic readiness (database, message broker, external API)

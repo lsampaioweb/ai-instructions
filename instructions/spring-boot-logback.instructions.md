@@ -5,7 +5,7 @@ applyTo: "**/src/main/resources/log/logback-spring.xml, **/src/main/resources/lo
 
 # Logback Configuration Rules
 
-For backend portability, structured JSON field contracts, and MDC correlation requirements, follow `spring-boot-observability.instructions.md`.
+For backend portability, structured JSON field contracts, and MDC correlation requirements, see `spring-boot-observability.instructions.md`.
 
 ## Scope
 - Applies to Logback output, rotation, and working-directory path resolution for Spring Boot applications
