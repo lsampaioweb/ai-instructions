@@ -46,6 +46,26 @@ Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instru
 - Each config class owns its `@Bean` definitions
 - Use `@ConfigurationProperties` (implemented as immutable Java records) for all grouped external configuration; `@Value` is permitted only for single-value constructor parameters where `@RequiredArgsConstructor` cannot be used — see `spring-boot-architecture.instructions.md`
 
+### `@ConfigurationProperties` on records — Spring Boot version rules
+
+**Spring Boot 4.x (verified on 4.1.0):** Do NOT annotate `@ConfigurationProperties` records with `@Component`. In Spring Boot 4.x, the combination of `@Component` + `@ConfigurationProperties` on a record causes Spring to attempt constructor DI injection (looking for `String` beans) instead of property binding, resulting in a `NoSuchBeanDefinitionException` at startup. The correct pattern:
+1. Annotate the `@SpringBootApplication` class with `@ConfigurationPropertiesScan` (import: `org.springframework.boot.context.properties.ConfigurationPropertiesScan`)
+2. Annotate each record with `@ConfigurationProperties(prefix = "...")` only — no `@Component`
+
+```java
+// GeographyApplication.java (or any @SpringBootApplication class)
+@SpringBootApplication
+@ConfigurationPropertiesScan        // ← discovers all @ConfigurationProperties records
+public class GeographyApplication { ... }
+
+// AnyConfigurationProperties.java
+@ConfigurationProperties(prefix = "app.my-feature")   // ← no @Component
+record AnyConfigurationProperties(String host, int port) { }
+```
+
+**Spring Boot 3.x:** `@Component` + `@ConfigurationProperties` on records works correctly; `@ConfigurationPropertiesScan` is also supported and preferred for explicit intent.
+
+
 ## Startup Initialization and Validation
 When a resource is needed at startup (e.g., connection pooling, cache warming, configuration validation):
 - Create a `@Component` class with a `@PostConstruct` method to initialize the resource
