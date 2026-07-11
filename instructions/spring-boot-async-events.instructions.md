@@ -29,49 +29,7 @@ applyTo: "**/*Event.java, **/*Listener.java, **/*Publisher.java"
 - Use synchronous listeners for simple, fast operations where ordering and immediate visibility are more important than parallelism
 
 ## Templates
-
-```java
-public record UserCreatedEvent(Long userId, String localeTag, String role) {
-}
-```
-
-```java
-@Component
-class UserEventPublisher {
-
-	private final ApplicationEventPublisher eventPublisher;
-
-	UserEventPublisher(ApplicationEventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-	}
-
-	void publishUserCreated(Long userId) {
-		String localeTag = LocaleContextHolder.getLocale().toLanguageTag();
-		eventPublisher.publishEvent(new UserCreatedEvent(userId, localeTag, "ROLE_USER"));
-	}
-}
-```
-
-```java
-@Component
-class UserCreatedListener {
-
-	@EventListener
-	@Async
-	void onUserCreated(UserCreatedEvent event) {
-		// Use event.localeTag() instead of LocaleContextHolder inside async listeners.
-	}
-}
-```
-
-```java
-@Component
-class UserCreatedAfterCommitListener {
-
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	void onUserCreatedAfterCommit(UserCreatedEvent event) {
-		// Execute only after transaction commit.
-	}
-}
-```
+- See `snippets/async/ResourceCreatedEvent.java` for immutable event payload structure
+- See `snippets/async/ResourceEventPublisher.java` for publisher structure and locale propagation
+- See `snippets/async/ResourceEventListener.java` for async and after-commit listener structure
 
