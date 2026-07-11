@@ -17,7 +17,7 @@ For foreign-key integrity policy and delete-conflict behavior, follow `spring-bo
 - Does not apply to feature mappers for domain ↔ DTO conversion (e.g., Spring `@Component` mapper); for those, follow `spring-boot-dto-mapper.instructions.md`
 
 ## No ORM
-Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend `JpaRepository`, `CrudRepository`, or any Spring Data interface. Do not use JPQL or any ORM query language.
+For canonical ORM prohibition policy, follow `spring-boot-architecture.instructions.md` (`## Domain and Persistence Rules`).
 
 ## MyBatis
 - Define repositories as interfaces annotated with `@Mapper`

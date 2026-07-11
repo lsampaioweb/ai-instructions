@@ -47,7 +47,8 @@ Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instru
 ## Organization
 - One `@Configuration` class = one concern (security, messaging, database, web, etc.)
 - Each config class owns its `@Bean` definitions
-- Use `@ConfigurationProperties` (implemented as immutable Java records) for all grouped external configuration; `@Value` is permitted only for single-value constructor parameters where `@RequiredArgsConstructor` cannot be used — see `spring-boot-architecture.instructions.md`
+- Use `@ConfigurationProperties` (implemented as immutable Java records) for all grouped external configuration
+- Use `@Value` only for single-value constructor parameters where `@RequiredArgsConstructor` cannot be used; see `spring-boot-architecture.instructions.md`
 
 ### `@ConfigurationProperties` on records — Spring Boot version rules
 

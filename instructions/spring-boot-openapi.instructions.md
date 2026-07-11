@@ -31,6 +31,7 @@ For versioned endpoint documentation and migration notes, follow `spring-boot-ap
 - For production APIs or explicit API-contract scopes, annotate each endpoint with `@Operation` and relevant `@ApiResponse` entries
 - Add `@Parameter` only when parameter description or constraints are not clear from the method signature
 - In earliest tutorial/learning samples where brevity is the explicit goal, endpoint annotations may be omitted
+- Precedence: this omission applies only to tutorial/learning sample scope. For production or professional API-contract scope, endpoint annotations are mandatory.
 
 ## Profile Visibility
 - Disable Swagger UI in the production profile via `springdoc.swagger-ui.enabled: false`; enable it in development

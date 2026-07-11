@@ -34,7 +34,8 @@ applyTo: "**/*.java, **/pom.xml"
 - Non-Java project files belong at the project root, never inside `src/`
 
 ## Architecture Rules
-- Use constructor injection for all Spring-managed dependencies; never use `@Autowired` on fields
+- Use constructor injection for all Spring-managed dependencies
+- Never use `@Autowired` on fields
 - Lombok's `@RequiredArgsConstructor` generates a constructor for all `final` fields and is the default approach for constructor injection; use an explicit constructor when any parameter requires a `@Value` annotation, since Lombok cannot apply method-level annotations to generated constructor parameters
 - Enforce one-way dependency: `controller → service → repository` or `service → integration client`; skip-layer calls are not allowed
 - Controllers call only services; services call mappers, repositories, and integration clients; mappers have no web-layer knowledge

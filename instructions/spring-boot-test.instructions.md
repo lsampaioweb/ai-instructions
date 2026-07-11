@@ -10,6 +10,8 @@ For version-coexistence regression tests (`v1`, `v2`) and deprecation-window cov
 
 ## Spring Boot Version Compatibility
 
+Apply only the section matching the target project's Spring Boot version. Do not mix Spring Boot 3.x and 4.x test guidance in the same module.
+
 ### Spring Boot 4.x (verified on 4.1.0)
 
 Spring Boot 4.x reorganized test slice infrastructure. Several annotations moved or were removed:

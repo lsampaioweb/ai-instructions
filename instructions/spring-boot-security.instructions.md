@@ -13,7 +13,7 @@ applyTo: "**/*SecurityConfig.java, **/security/**/*.java, **/pom.xml, **/applica
 
 ## Authorization
 - Use `@PreAuthorize` for method-level authorization on business-sensitive operations
-- Never disable CSRF globally unless the service is strictly stateless and uses non-cookie authentication (e.g., token-based authentication)
+- Disable CSRF globally only when both conditions are true: (1) the service is strictly stateless and (2) authentication is non-cookie-based (for example, token-based authentication). Otherwise, do not disable CSRF globally.
 
 ## Actuator Endpoints
 - Protect `/actuator/**` with authentication and authorization in non-development profiles by default

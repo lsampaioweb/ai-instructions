@@ -48,6 +48,10 @@ Edit policy:
 Required output format:
 1. `Findings` list (only concrete drift in scope; include missing mandatory files, missing annotations, hardcoded strings).
 1. `Drift ledger` table with columns: `id`, `type`, `source-of-truth`, `recommended-solution`, `action`, `status`, `owner`, `evidence`.
+   Use Markdown table format:
+   | id | type | source-of-truth | recommended-solution | action | status | owner | evidence |
+   | --- | --- | --- | --- | --- | --- | --- | --- |
+   | D-001 | contradiction | instructions | keep instruction and align code | update service mapping | fixed | platform-team | class/method path |
 1. `Verification` section must explicitly list:
    - All mandatory components checked and their presence/absence status
    - Pattern audits executed (hardcoded strings, missing @Slf4j, etc.) with results

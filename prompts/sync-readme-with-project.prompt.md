@@ -13,7 +13,7 @@ Requirements:
 - Keep the text concise, factual, and actionable.
 - Use a todo list only when the request requires more than 3 distinct README updates.
 
-Verification:
+Verification Checklist:
 - Commands and paths are accurate.
 - New environment variables, flags, endpoints, and setup steps are documented.
 - Removed or deprecated behavior is no longer documented as active.
