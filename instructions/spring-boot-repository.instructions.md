@@ -1,9 +1,16 @@
 ---
 description: "Repository rules: MyBatis and Spring JDBC Templates, SQL in XML files, no ORM, and no business logic."
-applyTo: "**/*Repository.java, **/*Mapper.java, **/mapper/**/*.xml, **/sql/**/*.xml"
+applyTo: "**/*Repository.java, **/*RepositoryImpl.java, **/*Mapper.java, **/mapper/**/*.xml, **/sql/**/*.xml"
 ---
 
 # Repository Rules
+
+For pagination SQL strategy (`LIMIT`/`OFFSET`, count query parity, deterministic ordering), follow `spring-boot-pagination.instructions.md`.
+For enum persistence conventions (string-based storage and migration safety), follow `spring-boot-enum.instructions.md`.
+For SQL schema naming, type sizing, and constraint defaults, follow `spring-boot-database-schema.instructions.md`.
+For versioned schema evolution with Flyway or Liquibase, follow `spring-boot-migrations.instructions.md`.
+For soft-delete schema and query behavior, follow `spring-boot-soft-delete.instructions.md`.
+For foreign-key integrity policy and delete-conflict behavior, follow `spring-boot-referential-integrity.instructions.md`.
 
 ## Scope
 - Applies only to persistence repositories and SQL/MyBatis mappers
@@ -27,9 +34,22 @@ Never use JPA, Hibernate, Spring Data JPA, or any ORM abstraction. Do not extend
 
 ## General
 - No business logic in repositories; data access only
+- **No logging in repositories** — all operation tracking and state-transition logging belongs in the service layer
 - Use package-private visibility by default for repository and mapper classes; elevate to `public` only when external callers require it
 - Place schema and seed SQL files under `src/main/resources/sql/`; do not place them in the root of `src/main/resources/`
-- Never add Flyway or Liquibase dependencies unless explicitly requested; assume SQL files are executed manually or via `spring.sql.init` properties
+- Do not introduce migration dependencies by default; add Flyway or Liquibase only when migrations are in scope and follow `spring-boot-migrations.instructions.md`
+
+## Repository Interface and Implementation
+- Apply this section to Spring JDBC repositories and filesystem repositories.
+- Do not apply this section to MyBatis mapper interfaces; MyBatis rules in `## MyBatis` take precedence.
+- Use a repository interface plus implementation only when at least one condition is true:
+  - The repository is injected into a service and must be mocked in unit tests
+  - Multiple persistence backends are expected (for example: JDBC, MyBatis, in-memory)
+  - The repository is consumed across package boundaries
+- Keep a single concrete repository class when none of the conditions above apply
+- Name the interface `XxxRepository` and the implementation `XxxRepositoryImpl`
+- Services depend only on the `XxxRepository` interface; never depend directly on `XxxRepositoryImpl`
+- Keep the implementation class package-private by default; elevate to `public` only when required by external callers
 
 ## Schema Initialization
 - Development: keep DDL in `src/main/resources/sql/schema.sql` and optional seed data in `src/main/resources/sql/data.sql`

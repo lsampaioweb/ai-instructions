@@ -6,6 +6,7 @@ applyTo: "**/*.java"
 # Logging Rules
 
 For logback configuration guidance, see `spring-boot-logback.instructions.md`.
+For MDC key contracts and HTTP correlation propagation, see `spring-boot-observability.instructions.md`.
 
 ## Scope: All Operator-Facing Text
 - Apply this i18n rule to operator-facing logs, operational exception messages, and human-readable string constants
@@ -50,10 +51,32 @@ Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words
 - Stack traces at `INFO` or `DEBUG` level; reserve those for `ERROR`
 - Expensive debug message construction inside tight loops or high-throughput paths without a level guard: `if (log.isDebugEnabled())`
 
-## Minimum Logging by Component
+## Logging Layers: Where to Log
 
-- Controller: log 5xx failures and redirect decisions at `INFO`; keep successful request flow at `DEBUG`
-- Service: log state transitions (create/update/delete) at `INFO`; log external call start/end and latency at `INFO`; log payload details at `DEBUG` only when needed for diagnosis
-- Listener/Consumer: log connect/disconnect and consume outcomes
-- Integration client: log target operation, latency, and failures
+**Logging belongs ONLY in the service layer for business operations.** Controllers and repositories do not log business events.
+
+### By Component
+
+**Controller (REST Handlers)**
+- Log HTTP-level concerns only: unexpected 5xx errors (at `ERROR`), redirect decisions (at `DEBUG`)
+- **Never log** state transitions (create/update/delete), business events, or operation results — these belong in the service layer
+- Keep successful request flow logging at `DEBUG` or omit if not needed for HTTP diagnostics
+- No @Slf4j; no LogMessages injection
+
+**Service Layer**
+- Log ALL state transitions: create/update/delete operations at `INFO` with i18n message keys
+- Log external integration calls: start, latency, outcome (success/failure) at `INFO`
+- Log payload details only at `DEBUG` level when needed for diagnosis
+- Use @Slf4j and LogMessages for all logging
+- This is the ONLY layer where business operation logging happens
+
+**Repository / Data Access**
+- **Never log** — repositories have no logging; delegate all operation tracking to the service layer
+- No @Slf4j; no LogMessages injection
+
+**Listener/Consumer/Integration Client**
+- Log lifecycle: connect/disconnect events
+- Log operation outcomes: success/failure at `INFO`
+- Log latency for external calls at `INFO`
+- Use @Slf4j and LogMessages
 
