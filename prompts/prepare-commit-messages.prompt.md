@@ -1,24 +1,42 @@
 ---
-description: "Review uncommitted changes, draft logical commit messages, present for approval, then commit if approved."
-argument-hint: "Optional scope, files, or folders to include."
-tools: [vscode, execute, read, search]
+description: "Analyzes uncommitted changes to cluster logical, feature-scoped Conventional Commits and execute only after approval."
+argument-hint: "Input: optional path or feature-scope filter."
+tools: [execute, read, agent, edit, search, web]
 ---
 
-Steps:
-1. Inspect changes: Run `git status` and `git diff`.
-1. Group logically: Split files into coherent commits by concern area.
-1. Draft messages: Use Conventional Commits.
-   - Subject: `type(scope): description`, imperative, max 50 characters (no trailing period unless repository convention requires it).
-   - Body only when needed: explain *why*.
-   - Add related issue/ticket when relevant.
-   - If a commit does not fit Conventional Commits, flag it.
-1. Present for review: Show each proposed commit and planned `git add` command.
-1. Wait for approval: Do not run `git commit` before approval.
-1. Execute: Run commits in sequence after approval.
+# Logical Git Commit Engine
 
-Output format:
-- Order commits by dependency/risk (foundational changes first).
-- Commit N: subject
-- Files: list
-- Message: full commit message
-- Do not repeat file lists in the commit body.
+## 1. Scope & Analysis
+1. Inspect uncommitted changes (`git status`, `git diff`).
+2. Cluster files into atomic, reversible commits.
+3. **Sort Order:** Foundational changes (config, schemas, deps) must be committed before feature layers.
+4. **Grouping Boundary:** Group files strictly by **feature package** (e.g., `auth`, `payment`). Grouping by technical layer (e.g., `controller`, `service`) is strictly prohibited.
+
+## 2. Resolution Rules
+- **Format:** `type(scope): description`
+- **Allowed Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`, `style`, `revert`.
+- **Scope:** Feature package name or infrastructure area. **Forbidden:** `controller`, `service`, `repository`, `dto`, `db`.
+- **Description:** Imperative, present tense, max 50 characters, no trailing period.
+- **Body:** Document the *why* (rationale/impact) only. **Do not** list files or repeat diff content.
+- **Footer:** Append `Closes #123` or tracking IDs if detected in branch or context.
+- **Safety Gate:** If a cluster contains mixed/unclear concerns, flag it for manual review.
+
+## 3. Review Plan Layout
+Present the proposed sequence as a read-only plan:
+```
+Commit N: <type(scope): description>
+
+Files:
+- path/to/file1
+- path/to/file2
+
+Message:
+type(scope): description
+
+Extended body if present.
+```
+
+## 4. Safety Guards
+- Print exactly: **"Ready to proceed with these commits. Confirm to continue, or request changes."**
+- **Hard Stop:** Wait for explicit user confirmation. Do not execute any Git commands before approval.
+- Post-approval: Run `git add` and `git commit` sequentially for each cluster. Verify success at each step.
