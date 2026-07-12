@@ -5,8 +5,8 @@ applyTo: "**/*.java"
 
 # Logging Rules
 
-For logback configuration guidance, see `spring-boot-logback.instructions.md`.
-For MDC key contracts and HTTP correlation propagation, see `spring-boot-observability.instructions.md`.
+See `spring-boot-logback.instructions.md` for logback configuration guidance.
+See `spring-boot-observability.instructions.md` for MDC key contracts and HTTP correlation propagation.
 
 ## Scope: All Operator-Facing Text
 - Apply this i18n rule to operator-facing logs, operational exception messages, and human-readable string constants
@@ -53,7 +53,7 @@ Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words
 
 ## Logging Layers: Where to Log
 
-**Logging belongs ONLY in the service layer for business operations.** Controllers and repositories do not log business events.
+Business operation logging belongs in the service layer. Controllers and repositories do not log business events.
 
 ### By Component
 
@@ -68,10 +68,9 @@ Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words
 - Log external integration calls: start, latency, outcome (success/failure) at `INFO`
 - Log payload details only at `DEBUG` level when needed for diagnosis
 - Use @Slf4j and LogMessages for all logging
-- This is the ONLY layer where business operation logging happens
 
 **Repository / Data Access**
-- Do not log business events or state transitions in repositories; keep those logs in the service layer
+- Do not log business events or state transitions in repositories
 - Log only technical persistence diagnostics when needed (query intent, row count, retry/failure context)
 - Keep repository logs low-noise: prefer `DEBUG`; use `INFO` only for lifecycle-level operational events explicitly required by the feature
 - If a repository emits logs, use @Slf4j with i18n keys resolved through LogMessages

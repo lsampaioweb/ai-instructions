@@ -5,9 +5,9 @@ applyTo: "**/*OpenApiConfig*.java, **/*SwaggerConfig*.java, **/*Controller.java,
 
 # OpenAPI Rules
 
-For enum OpenAPI schema conventions (`@Schema(enumAsRef = true)` and enum value contract consistency), see `spring-boot-enum.instructions.md`.
-For `ErrorResponse.errorCode` schema and error-code documentation conventions, see `spring-boot-error-code.instructions.md`.
-For versioned endpoint documentation and migration notes, see `spring-boot-api-versioning.instructions.md`.
+See `spring-boot-enum.instructions.md` for enum OpenAPI schema conventions (`@Schema(enumAsRef = true)` and enum value contract consistency).
+See `spring-boot-error-code.instructions.md` for `ErrorResponse.errorCode` schema and error-code documentation conventions.
+See `spring-boot-api-versioning.instructions.md` for versioned endpoint documentation and migration notes.
 
 ## Scope
 - Applies to REST API OpenAPI documentation generation and Swagger UI visibility by profile

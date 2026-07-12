@@ -5,12 +5,11 @@ applyTo: "**/*Repository.java, **/*RepositoryImpl.java, **/*Mapper.java, **/mapp
 
 # Repository Rules
 
-For pagination SQL strategy (`LIMIT`/`OFFSET`, count query parity, deterministic ordering), see `spring-boot-pagination.instructions.md`.
-For enum persistence conventions (string-based storage and migration safety), see `spring-boot-enum.instructions.md`.
-For SQL schema naming, type sizing, and constraint defaults, see `spring-boot-database-schema.instructions.md`.
-For versioned schema evolution with Flyway or Liquibase, see `spring-boot-migrations.instructions.md`.
-For soft-delete schema and query behavior, see `spring-boot-soft-delete.instructions.md`.
-For foreign-key integrity policy and delete-conflict behavior, see `spring-boot-referential-integrity.instructions.md`.
+See `spring-boot-pagination.instructions.md` for pagination SQL strategy (`LIMIT`/`OFFSET`, count query parity, deterministic ordering).
+See `spring-boot-enum.instructions.md` for enum persistence conventions (string-based storage and migration safety).
+See `spring-boot-migrations.instructions.md` for versioned schema evolution with Flyway or Liquibase.
+See `spring-boot-soft-delete.instructions.md` for soft-delete schema and query behavior.
+See `spring-boot-referential-integrity.instructions.md` for foreign-key integrity policy and delete-conflict behavior.
 
 ## Scope
 - Applies only to persistence repositories and SQL/MyBatis mappers

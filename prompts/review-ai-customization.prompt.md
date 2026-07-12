@@ -1,6 +1,6 @@
 ---
 description: "Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording."
-argument-hint: "Required: file, file list, folder, or glob to review."
+argument-hint: "Required: file, file list, folder, or glob to review; output must use sections: Scope, Findings, Scorecard, Quick Wins, Final Verdict."
 ---
 
 Review only the user-provided scope.

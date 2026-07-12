@@ -5,9 +5,9 @@ applyTo: "**/*Controller.java, **/*Api.java"
 
 # Controller Rules
 
-For pagination request/response contracts, parameter limits, and `Link` headers, see `spring-boot-pagination.instructions.md`.
-For soft-delete endpoint semantics and hard-delete exception paths, see `spring-boot-soft-delete.instructions.md`.
-For API version evolution, coexistence, and deprecation signaling, see `spring-boot-api-versioning.instructions.md`.
+See `spring-boot-pagination.instructions.md` for pagination request/response contracts, parameter limits, and `Link` headers.
+See `spring-boot-soft-delete.instructions.md` for soft-delete endpoint semantics and hard-delete exception paths.
+See `spring-boot-api-versioning.instructions.md` for API version evolution, coexistence, and deprecation signaling.
 
 ## Rules
 
@@ -48,5 +48,7 @@ When the endpoint URL is mandated by an external protocol, hardware system, or v
 - Only ask a clarifying question if the external mandate AND the user's stated requirement are themselves contradictory or ambiguous; if the external protocol is clear, apply it directly
 
 ## Raw Passthrough Exception
-When the response body is raw opaque content passed through unchanged (e.g. a file read as text or bytes, with a non-JSON content type such as `application/toml`, `text/plain`, or `application/octet-stream`), skip the response DTO and mapper entirely. The service returns the raw content (`String` or `byte[]`) directly; the controller returns `ResponseEntity<String>` or `ResponseEntity<byte[]>` with an explicit `Content-Type`. Do not create a wrapper DTO with a single `content` field just to satisfy the DTO rule.
+- When the response body is raw opaque content passed through unchanged (e.g. file text or bytes with `application/toml`, `text/plain`, or `application/octet-stream`), skip response DTOs and mappers
+- Return raw content from the service (`String` or `byte[]`) and `ResponseEntity<String>` or `ResponseEntity<byte[]>` from the controller with explicit `Content-Type`
+- Do not create a wrapper DTO with a single `content` field just to satisfy the DTO rule
 

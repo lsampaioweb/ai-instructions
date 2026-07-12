@@ -5,8 +5,8 @@ applyTo: "**/*Test.java, **/*IT.java, **/test/**/*.java"
 
 # Testing Rules
 
-For cache behavior testing scope and deterministic TTL test setup, see `spring-boot-caching.instructions.md`.
-For version-coexistence regression tests (`v1`, `v2`) and deprecation-window coverage, see `spring-boot-api-versioning.instructions.md`.
+See `spring-boot-caching.instructions.md` for cache behavior testing scope and deterministic TTL test setup.
+See `spring-boot-api-versioning.instructions.md` for version-coexistence regression tests (`v1`, `v2`) and deprecation-window coverage.
 
 ## Spring Boot Version Compatibility
 

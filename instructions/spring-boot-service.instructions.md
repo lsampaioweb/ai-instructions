@@ -5,13 +5,13 @@ applyTo: "**/*Service.java, **/*ServiceImpl.java"
 
 # Service Rules
 
-For cache annotation strategy, key naming, and invalidation behavior, see `spring-boot-caching.instructions.md`.
-For logging scope, message i18n, and component-specific log levels, see `spring-boot-logging.instructions.md`.
+See `spring-boot-caching.instructions.md` for cache annotation strategy, key naming, and invalidation behavior.
+See `spring-boot-logging.instructions.md` for logging scope, message i18n, and component-specific log levels.
 
 ## Rules
 
 - All business logic lives in the service layer; never in controllers, repositories, or entities
-- **Log all state transitions here**: create/update/delete operations must log at `INFO` level with i18n message keys via `LogMessages` injection; controllers and repositories do NOT log business events
+- Follow `spring-boot-logging.instructions.md` for state-transition logging scope, levels, and `LogMessages` usage
 - Define a service interface; provide a single implementation class suffixed with `Impl` per interface
 - Apply `@Transactional` at the method level, not on the class; read-only methods use `@Transactional(readOnly = true)`
 - Throw domain-specific exceptions extending the project's base exception class; do not throw raw Spring infrastructure exceptions

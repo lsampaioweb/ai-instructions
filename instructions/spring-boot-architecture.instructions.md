@@ -7,7 +7,11 @@ applyTo: "**/*.java, **/pom.xml"
 
 ## Code and Style Rules
 - 2 spaces for indentation; never use tabs
-- All Java identifiers follow standard naming: `camelCase` for variables and methods, `UPPER_SNAKE_CASE` for constants, `PascalCase` for class and interface names; never use underscores or hyphens in identifiers; map external formats (e.g., JSON `snake_case`) via `@JsonProperty` or `@JsonNaming`
+- Use `camelCase` for variables and methods
+- Use `UPPER_SNAKE_CASE` for constants
+- Use `PascalCase` for class and interface names
+- Never use underscores or hyphens in Java identifiers
+- Map external formats (e.g., JSON `snake_case`) via `@JsonProperty` or `@JsonNaming`
 - Import order: `java.*` → `jakarta.*` → third-party (`org.*`, `com.*`) → project-internal; blank line between groups; never use wildcard imports
 - Stack annotations one per line; class-level annotations before method-level and field-level
 - Use explicit type declarations for all variable declarations; do not use `var` — type clarity is required for code readability and maintainability; use modern Java features such as records and sealed classes where applicable
@@ -70,11 +74,9 @@ applyTo: "**/*.java, **/pom.xml"
 - If ambiguity is low-impact and does not change architecture or generated artifact boundaries, proceed with the safest minimal assumption and state it briefly
 
 ## Delegation Rules
-- This architecture file defines global constraints, component catalogue, and decision protocol only
-- AI behavior rules are defined in `copilot-instructions.md`; do not redefine them here
-- Component-specific implementation details belong exclusively to their referenced instruction files
-- Do not duplicate component internals in this file
-- If a rule in this file conflicts with a component-specific rule for a touched artifact, follow the component-specific file unless the user explicitly overrides it
+- This architecture file defines only global constraints, component catalogue, and decision protocol
+- AI behavior rules belong in `copilot-instructions.md`; component details belong in their referenced instruction files
+- If a rule here conflicts with a component-specific rule for a touched artifact, follow the component-specific file unless the user explicitly overrides it
 
 ---
 
