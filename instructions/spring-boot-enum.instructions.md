@@ -1,42 +1,34 @@
 ---
-description: "Enum conventions: naming, DB storage, API serialization, validation, OpenAPI docs, and migration safety."
-applyTo: "**/*.java, **/mapper/**/*.xml, **/sql/**/*.xml"
+description: "Spring Boot enum contract for deterministic closed-set domain values and security role mappings in production-grade projects."
+applyTo: "**/src/main/java/**/*Enum.java, **/src/main/java/**/security/Role.java"
 ---
 
-# Enum Rules
+# Spring Boot Enum Contract
+Use this file to enforce stable enum usage and role authority mapping.
 
 ## Scope
-- Use this file as the canonical source for enum conventions across API, service, and persistence layers.
+1. Apply to domain enums and security role enums.
+2. Use enums only for closed and stable value sets.
 
-## Naming
-- Use `UPPER_SNAKE_CASE` for enum constants.
-- Use singular enum type names that describe one domain concept (for example: `CountryStatus`).
-- Do not encode transport or storage concerns in enum type names.
+## Determinism Rules
+1. Keep one enum type per file.
+2. Keep enum constant names immutable after release.
+3. Forbid ordinal-based persistence, serialization, or API contracts.
+4. Keep external representations string-based and explicitly controlled.
+5. Forbid silently accepting unknown enum values and throw IllegalArgumentException including enum type and offending value.
 
-## Database Storage
-- Prefer storing enum values as `VARCHAR` names.
-- Keep SQL columns and mapper configuration aligned to string-based enum values.
-- Accept ordinal storage only when the user explicitly requests it and provides a clear reason.
-- When ordinal storage is accepted, document the reason and migration risks in the change summary.
+## Security Role Rules
+1. Keep role names centralized in security Role enum as single source of truth.
+2. Keep authority conversion deterministic by deriving from enum constant name.
+3. Forbid hardcoded ROLE_* strings outside role or permission utilities.
+4. Keep authorization checks bound to role constants, not duplicated literals.
 
-## API Serialization
-- Keep API enum serialization stable and explicit.
-- Use `@JsonValue` only when API wire values must differ from enum constant names.
-- Use `@JsonCreator` or explicit conversion logic when accepting custom wire values.
-- Do not expose ordinal values in JSON payloads.
+## Boundary Rules
+1. Keep user-facing localized labels outside enum constants.
+2. Keep transport and persistence mapping logic outside enum declarations.
+3. Keep enum evolution backward-compatible for published API payloads.
 
-## Input Validation
-- Validate incoming enum text at the request boundary.
-- Return HTTP 400 for unknown enum values.
-- Keep validation error responses aligned with `spring-boot-exception.instructions.md`.
-
-## OpenAPI Contract
-- Document enum fields with OpenAPI schema metadata.
-- Use `@Schema(enumAsRef = true)` for reusable enum schema components.
-- Keep enum value documentation synchronized with runtime accepted values.
-
-## Migration Safety
-- Treat enum value renames and removals as breaking changes.
-- Add new enum values in backward-compatible order and keep old values accepted during migration windows when required.
-- For persisted enums, plan data migration scripts before removing or renaming values.
-- Document enum lifecycle changes in release notes and API versioning notes when they affect clients.
+## Quality Gates
+1. Forbid introducing enum values without verifying security and API impact.
+2. Forbid duplicate semantic values split across multiple enum types.
+3. Keep tests covering authority mapping and unknown-value handling.

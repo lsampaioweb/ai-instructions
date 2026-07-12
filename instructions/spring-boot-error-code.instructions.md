@@ -1,39 +1,52 @@
 ---
-description: "Error code rules: machine-readable API error codes, ErrorResponse contract, and OpenAPI documentation."
-applyTo: "**/*Exception.java, **/*ControllerAdvice.java, **/*ExceptionHandler.java, **/*ErrorResponse.java, **/*Controller.java, **/*Api.java, **/*OpenApiConfig*.java, **/*SwaggerConfig*.java"
+description: "Spring Boot error-code contract for deterministic machine-readable API error semantics and stable message-key mapping."
+applyTo: "**/src/main/java/**/*ErrorCode.java, **/src/main/java/**/*AppException.java, **/src/main/java/**/*GlobalExceptionHandler.java, **/src/main/resources/i18n/messages*.properties"
 ---
 
-# Error Code Rules
+# Spring Boot Error Code Contract
+Use this file to enforce deterministic machine-readable error-code behavior.
 
-## Scope
-- Use this file as the canonical source for machine-readable error codes in API responses.
+## Ownership Boundary
+1. Keep only error-code taxonomy, naming, and mapping rules in this file.
+2. Do not define generic exception-handling flow rules in this file.
+3. Apply [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) before this file.
 
-## ErrorResponse Contract
-- Include `errorCode` in `ErrorResponse` for every error response that uses the standard error payload.
-- Keep `errorCode` stable and machine-readable (for example: `COUNTRY_NOT_FOUND`, `VALIDATION_FAILED`, `FOREIGN_KEY_CONFLICT`).
-- Keep `errorCode` independent from localized user-facing message text.
-- Do not derive `errorCode` by parsing `message` text.
+## Read Order
+1. Apply [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) first for AppException and GlobalExceptionHandler structure.
+2. Apply this file second to supplement exception behavior with error-code taxonomy and messageKey-to-errorCode mapping.
+
+## Canonical Artifacts
+1. Keep all error-code definitions in src/main/java/<base-package>/<feature-or-common>/ErrorCode.java.
+2. Keep ErrorCode as a single enum named ErrorCode.
+3. Keep API error payload field named errorCode.
+
+## Naming Rules
+1. Keep machine-readable codes in UPPER_SNAKE_CASE.
+2. Keep i18n message keys in lower.dot.case.
+3. Keep one error code mapped to one semantic failure category.
+4. Do not reuse one error code for unrelated failure semantics.
 
 ## Mapping Rules
-- Define one deterministic `errorCode` per domain exception type.
-- Keep mapping logic centralized in the global exception handler.
-- For unknown exceptions, return a generic fallback code (for example: `INTERNAL_ERROR`).
-- Keep fallback behavior consistent across environments.
+1. Map AppException messageKey to ErrorCode in one centralized resolver in GlobalExceptionHandler.
+2. Keep fallback mapping to ErrorCode.INTERNAL_ERROR for unmapped failures.
+3. Keep transport-level failures mapped to stable transport error codes.
+4. Do not generate error codes dynamically at runtime.
 
-## Naming Conventions
-- Use uppercase snake case for `errorCode` values.
-- Keep codes domain-oriented and action-neutral.
-- Avoid embedding transport details (HTTP status numbers) into code names.
+## Exception Integration
+1. Keep GlobalExceptionHandler responsible for converting messageKey to errorCode.
+2. Rely on [spring-boot-exception.instructions.md](./spring-boot-exception.instructions.md) for AppException shape and generic handler behavior.
 
-## Validation Errors
-- Return a dedicated top-level code for request validation failures (for example: `VALIDATION_FAILED`).
-- Keep field-level validation details separate from `errorCode`.
+## i18n Alignment
+1. Keep every error.* message key used by exceptions present in all supported locale bundles.
+2. Do not expose unresolved i18n keys in API error messages.
+3. Keep message-key evolution backward-compatible for active API versions.
 
-## OpenAPI Documentation
-- Document `errorCode` in the `ErrorResponse` schema.
-- For explicitly annotated endpoints, include representative error codes in response examples.
-- Keep documented codes synchronized with actual exception mappings.
+## Determinism and Stability
+1. Keep existing published error codes immutable once released.
+2. Introduce new codes for new error semantics instead of mutating existing meanings.
+3. Keep error-code documentation synchronized with API behavior.
 
-## Compatibility Policy
-- Treat removal or renaming of published error codes as a breaking change.
-- Prefer additive evolution: introduce new codes while preserving existing codes when possible.
+## Testing Requirements
+1. Validate each mapped AppException resolves to the expected ErrorCode.
+2. Validate unmapped exceptions resolve to ErrorCode.INTERNAL_ERROR.
+3. Validate ErrorResponse always includes errorCode for handled API failures.

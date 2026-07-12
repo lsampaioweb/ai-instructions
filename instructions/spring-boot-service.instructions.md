@@ -1,30 +1,41 @@
 ---
-description: "Service layer rules: business logic ownership, @Transactional, domain exceptions, and interface+impl pattern."
-applyTo: "**/*Service.java, **/*ServiceImpl.java"
+description: "Spring Boot service contract for deterministic business orchestration, transaction boundaries, and feature-local application behavior in production-grade projects."
+applyTo: "**/src/main/java/**/*Service.java, **/src/main/java/**/*ServiceImpl.java, **/src/main/java/**/service/**/*.java"
 ---
 
-# Service Rules
+# Spring Boot Service Contract
+Use this file to enforce deterministic service-layer behavior.
 
-See `spring-boot-caching.instructions.md` for cache annotation strategy, key naming, and invalidation behavior.
-See `spring-boot-logging.instructions.md` for logging scope, message i18n, and component-specific log levels.
+## Scope
+1. Apply to feature service interfaces and service implementations.
+2. Keep business orchestration and transactional intent in service layer boundaries.
 
-## Rules
+## Boundary Rules
+1. Keep controllers limited to transport concerns and delegate business orchestration to services.
+2. Keep repository and mapper coordination in services, not in controllers.
+3. Keep service contracts focused on application use cases, not persistence primitives.
+4. Keep service classes package-private unless another feature package must invoke the service through a documented cross-feature contract.
 
-- All business logic lives in the service layer; never in controllers, repositories, or entities
-- Service layer is the canonical owner of business-operation logs (state transitions, operation outcomes, business events)
-- Follow `spring-boot-logging.instructions.md` for level selection, state-transition scope, and `LogMessages` usage
-- Do not duplicate the same business-event log across controller, service, and repository layers; emit it once in the service flow
-- Define a service interface; provide a single implementation class suffixed with `Impl` per interface
-- Apply `@Transactional` at the method level, not on the class; read-only methods use `@Transactional(readOnly = true)`
-- Throw domain-specific exceptions extending the project's base exception class; do not throw raw Spring infrastructure exceptions
-- If throwing operational exceptions (e.g., `IllegalStateException` for startup/validation), use i18n message keys resolved via `LogMessages`, never hardcode message text
-- Services call repositories, mappers, and integration clients; they do not call controllers
-- Use package-private visibility by default for service classes and methods; elevate to `public` only when external callers require it
+## Transaction Rules
+1. Keep transaction demarcation explicit on service operations.
+2. Keep read operations marked read-only when no state mutation is expected.
+3. Keep write operations transactional and bounded to one deterministic business outcome.
+4. Keep retry-sensitive operations idempotent when external retries are expected.
 
-## Exception Handling
-- Only catch an exception when you can meaningfully recover from it, translate it into a domain exception, or must release a resource
-- Never catch and silently swallow an exception
-- Do not wrap every method body in a `try/catch` as boilerplate; let unchecked exceptions propagate to `@RestControllerAdvice`
-- When catching a checked exception from an external library, wrap it in the appropriate domain exception before rethrowing
-- For API error-response shape and stacktrace exposure policy, see `spring-boot-exception.instructions.md`
+## Business Rule Rules
+1. Keep invariant checks explicit before state mutation.
+2. Keep not-found and invalid-state handling mapped to deterministic application exceptions.
+3. Keep monetary, inventory, and lifecycle transitions validated before persistence updates.
+4. Keep time and randomness dependencies injectable for deterministic behavior.
 
+## Integration Rules
+1. Keep external HTTP, messaging, or cache calls behind feature-local abstractions.
+2. Keep integration side effects ordered after mandatory local validation.
+3. Keep outbound request and response mapping isolated from core business decisions.
+4. When cross-system consistency is required, document recovery strategy at method boundary with trigger condition and expected terminal failure behavior.
+
+## Quality Gates
+1. Forbid persistence SQL orchestration directly in service methods.
+2. Forbid transport concerns such as HTTP status construction in services.
+3. Keep tests covering success paths, business failure paths, and transactional boundary behavior.
+4. Keep logging aligned with operation boundary semantics without leaking sensitive data.

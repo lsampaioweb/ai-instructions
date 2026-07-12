@@ -1,35 +1,47 @@
 ---
-description: "Async processing and internal event rules: Spring Application Events for cross-package communication and @Async for heavy I/O listeners."
-applyTo: "**/*Event.java, **/*Listener.java, **/*Publisher.java"
+description: "Spring Boot async-events contract for deterministic event publication, consumer processing, and resilient delivery semantics in production-grade projects."
+applyTo: "**/src/main/java/**/*Event*.java, **/src/main/java/**/*Publisher*.java, **/src/main/java/**/*Consumer*.java, **/src/main/java/**/*Listener*.java, **/src/main/java/**/*Configuration*.java, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
 ---
 
-# Async and Event Rules
+# Spring Boot Async Events Contract
+Use this file to enforce deterministic asynchronous event behavior.
 
-## Application Events
-- Use Spring Application Events (`ApplicationEventPublisher`) for cross-package communication to avoid circular service dependencies
-- Event payloads must be immutable Java records
-- Publish events from dedicated `*Publisher` components; do not publish directly from repositories
-- If an async listener requires the user's locale, identity, or security context (e.g., for i18n emails or audit logging), the publisher must extract these values from `LocaleContextHolder`/`SecurityContextHolder` and pass them explicitly inside the immutable event record payload; never access `ThreadLocal` context directly inside an `@Async` listener
+## Scope
+1. Apply to in-process event publication, message broker producers and consumers, and event-related runtime configuration.
+2. Keep asynchronous orchestration feature-local and explicitly bounded.
 
-## Listeners
-- Annotate listeners with `@EventListener`
-- Use `@TransactionalEventListener` instead when the listener must run after the publishing transaction has committed (e.g. sending a notification after a record is persisted)
-- Annotate listeners that perform heavy I/O with `@Async` to avoid blocking the publishing thread
-- Keep fast in-memory listeners synchronous when strict ordering or immediate visibility is required
+## Event Contract Rules
+1. Keep event payload schemas explicit, versioned, and backward-compatible during rollout windows.
+2. Keep event identity explicit with deterministic event id and event timestamp fields.
+3. Keep routing metadata explicit for exchange, topic, queue, or channel selection.
+4. Keep event serialization format explicit and stable across producers and consumers.
 
-## @Async Configuration
-- Do not configure custom `ThreadPoolTaskExecutor` beans for `@Async`; virtual threads are enabled globally, so Spring Boot uses the default virtual thread executor
-- Ensure `@EnableAsync` is present on a configuration class when any `@Async` listener exists
-- Verify virtual thread execution by checking startup logs or thread names that include `VirtualThread`
+## Producer Rules
+1. Keep producer publish paths explicit for exchange and routing-key selection.
+2. Keep producer failures mapped to deterministic application exceptions.
+3. Keep publish operation logging bounded and correlated with event id.
+4. Keep producer configuration externalized for exchange, queue, and routing settings.
 
-## When to Use @Async
-- Use `@Async` for listeners that perform blocking I/O operations expected to exceed 100ms (e.g., external API calls, file I/O, messaging, or email sending)
-- Use measured latency from local profiling, integration tests, or staging to justify `@Async`; do not guess thresholds
-- Do not use `@Async` for CPU-bound in-memory transformations or short non-blocking logic
-- Use synchronous listeners for simple, fast operations where ordering and immediate visibility are more important than parallelism
+## Consumer Rules
+1. Keep consumer bindings explicit with queue names externalized in configuration.
+2. Keep consumer processing idempotent for duplicate-delivery safety.
+3. Keep consumer failure handling explicit for retry, dead-letter, or discard policy.
+4. Keep interruption handling explicit and restore thread interruption state when interrupted.
 
-## Templates
-- See `snippets/async/ResourceCreatedEvent.java` for immutable event payload structure
-- See `snippets/async/ResourceEventPublisher.java` for publisher structure and locale propagation
-- See `snippets/async/ResourceEventListener.java` for async and after-commit listener structure
+## Delivery and Consistency Rules
+1. Keep delivery guarantees explicit as at-most-once, at-least-once, or exactly-once-equivalent with idempotency.
+2. Keep retry policies bounded by max attempts, backoff strategy, and terminal failure path.
+3. Keep dead-letter destination and reprocessing policy explicit as terminal failure behavior.
+4. Keep database state transitions and external publication consistency explicit through transactional or outbox strategy.
 
+## Security and Safety Rules
+1. Keep broker credentials and connection settings externalized in secret-backed configuration.
+2. Forbid sensitive payload fields in event logs unless redacted by policy.
+3. Keep allowed broker endpoints bounded by explicit configuration.
+4. Keep deserialization types constrained to trusted event classes.
+
+## Quality Gates
+1. Forbid ad-hoc broker topology creation inside business services.
+2. Forbid silent event publication failures.
+3. Keep tests covering publish success, publish failure, consumer retry behavior, and poison-message terminal handling.
+4. Keep profile-specific messaging behavior deterministic across development, test, and production.

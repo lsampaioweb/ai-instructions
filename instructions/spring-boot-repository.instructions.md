@@ -1,75 +1,39 @@
 ---
-description: "Repository rules: MyBatis and Spring JDBC Templates, SQL in XML files, no ORM, and no business logic."
-applyTo: "**/*Repository.java, **/*RepositoryImpl.java, **/*Mapper.java, **/mapper/**/*.xml, **/sql/**/*.xml"
+description: "Spring Boot persistence contract for deterministic data-access boundaries using MyBatis XML mappers or Spring JDBC in production-grade projects."
+applyTo: "**/src/main/java/**/*Repository.java, **/src/main/java/**/*RepositoryImpl.java, **/src/main/java/**/*Jdbc*.java, **/src/main/java/**/*Mapper.java, **/src/main/resources/mapper/**/*.xml"
 ---
 
-# Repository Rules
-
-See `spring-boot-pagination.instructions.md` for pagination SQL strategy (`LIMIT`/`OFFSET`, count query parity, deterministic ordering).
-See `spring-boot-enum.instructions.md` for enum persistence conventions (string-based storage and migration safety).
-See `spring-boot-migrations.instructions.md` for versioned schema evolution with Flyway or Liquibase.
-See `spring-boot-soft-delete.instructions.md` for soft-delete schema and query behavior.
-See `spring-boot-referential-integrity.instructions.md` for foreign-key integrity policy and delete-conflict behavior.
+# Spring Boot Repository Contract
+Use this file to enforce deterministic persistence-layer behavior.
 
 ## Scope
-- Applies only to persistence repositories and SQL/MyBatis mappers
-- Does not apply to feature mappers for domain ↔ DTO conversion (e.g., Spring `@Component` mapper); for those, see `spring-boot-dto-mapper.instructions.md`
+1. Apply to feature-local repository classes, mapper interfaces, and persistence adapters.
+2. Keep persistence logic within feature package boundaries.
+3. Do not apply repository mapper rules to DTO mapper classes named *DtoMapper.java; apply [spring-boot-dto-mapper.instructions.md](./spring-boot-dto-mapper.instructions.md) for those files.
 
-## No ORM
-For canonical ORM prohibition policy, see `spring-boot-architecture.instructions.md` (`## Domain and Persistence Rules`).
+## Access Pattern Rules
+1. Restrict data access to MyBatis mapper XML or Spring JDBC abstractions.
+2. Keep SQL statement ownership explicit in XML mapper files or SQL configuration properties.
+3. Keep repository methods deterministic and side-effect scoped to persistence operations.
+4. Keep repository classes package-private unless an explicit boundary requires broader visibility.
 
-## MyBatis
-- Define repositories as interfaces annotated with `@Mapper`
-- SQL statements live in XML mapper files under `src/main/resources/mapper/`; never inline SQL as string literals
-- Reference statements by their XML ID; the mapper interface method name must match the XML `id`
-- Use MyBatis result maps in XML to map SQL result sets to domain objects; no annotations on domain classes
-- Use package-private visibility by default for mapper interfaces; elevate to `public` only when external callers require it
+## Query Safety Rules
+1. Use named parameters only for query binding.
+2. Forbid positional parameter binding and unsafe string concatenation for query values.
+3. Keep paging queries explicit with limit and offset derived from validated inputs.
+4. Keep count queries explicit for paginated reads.
 
-## Spring JDBC (JdbcClient)
-- Use `JdbcClient` for JDBC access; keep named parameters and never use positional `?` parameters
-- SQL statements live in external XML files referenced by key; never inline SQL as string literals in Java
-- Map result sets with explicit row mapping (`RowMapper`) or mapped classes; keep mapping helpers package-private
-- For batch operations, use `NamedParameterJdbcTemplate.batchUpdate()` alongside `JdbcClient`; `JdbcClient` does not have a batch API
+## Transaction and Error Rules
+1. Keep transactional boundaries at service layer entry points, not inside repository interfaces.
+2. Keep persistence exceptions translated to deterministic application exceptions at feature boundary.
+3. Keep generated key behavior explicit and validated for insert operations that return identifiers.
 
-## General
-- No business logic in repositories; data access only
-- Do not log business operations, state transitions, or business-event outcomes in repositories; service layer owns these logs
-- Log only technical persistence diagnostics when needed (query intent, row count mismatch, retry/failure context)
-- Keep repository diagnostics low-noise: default to `DEBUG`; use `INFO` only for explicitly required lifecycle operational events
-- Use package-private visibility by default for repository and mapper classes; elevate to `public` only when external callers require it
-- Place schema and seed SQL files under `src/main/resources/sql/`; do not place them in the root of `src/main/resources/`
-- Do not introduce migration dependencies by default; add Flyway or Liquibase only when migrations are in scope. See `spring-boot-migrations.instructions.md`
+## Forbidden Stack Rules
+1. Forbid jakarta.persistence.*, org.hibernate.*, and org.springframework.data.* usage.
+2. Forbid Spring Data Repository patterns and JPA entity manager access.
+3. Forbid persistence logic in controller methods.
 
-## Repository Interface and Implementation
-- Apply this section to Spring JDBC repositories and filesystem repositories.
-- Do not apply this section to MyBatis mapper interfaces; MyBatis rules in `## MyBatis` take precedence.
-- Use a repository interface plus implementation only when at least one condition is true:
-  - The repository is injected into a service and must be mocked in unit tests
-  - Multiple persistence backends are expected (for example: JDBC, MyBatis, in-memory)
-  - The repository is consumed across package boundaries
-- Keep a single concrete repository class when none of the conditions above apply
-- Name the interface `XxxRepository` and the implementation `XxxRepositoryImpl`
-- Services depend only on the `XxxRepository` interface; never depend directly on `XxxRepositoryImpl`
-- Keep the implementation class package-private by default; elevate to `public` only when required by external callers
-
-## Schema Initialization
-- Development: keep DDL in `src/main/resources/sql/schema.sql` and optional seed data in `src/main/resources/sql/data.sql`
-- Development startup: when automatic initialization is required, configure `spring.sql.init` in profile-specific YAML files
-- Production: apply DDL before deployment using deployment tooling; do not rely on implicit runtime schema creation
-- Keep SQL files as the source of truth for schema shape; do not store database state snapshots in the repository
-
-## Filesystem Repositories
-Use when the feature has no database and data is stored as files on disk identified by a key.
-
-- Define a plain Java interface (no `@Mapper`, no Spring Data annotations)
-- Implement the interface as a package-private class; inject the base directory as a `Path` from a `@ConfigurationProperties` class — never hardcode the path
-- **Security: Validate and normalize the lookup key** — treat all keys as untrusted input:
-  - Validate the key format against an allowlist (e.g., regex pattern for MAC addresses: `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$`); reject invalid formats immediately with a domain bad-request exception
-  - Normalize to a canonical form (e.g., lowercase, colon-separated)
-  - Construct the file path by resolving the normalized key against the base directory
-- **Security: Prevent path traversal**:
-  - Enforce that the resolved path is within the base directory: `filePath.normalize().startsWith(baseDir.normalize())`
-  - If the check fails, throw a domain bad-request exception and do not attempt file access; see `snippets/repository/filesystem/ResourceFilesystemRepository.java` for the guard pattern
-- Use `Files.readString(path, StandardCharsets.UTF_8)` to read file contents; catch `NoSuchFileException` and rethrow as the domain `NotFoundException`
-- Keep the implementation class package-private when used only within the same feature package
-
+## Quality Gates
+1. Keep tests covering success and failure paths for repository operations.
+2. Keep SQL and mapper contracts aligned with current schema migrations.
+3. Keep README and service assumptions aligned with repository method semantics.

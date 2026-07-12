@@ -1,67 +1,53 @@
 ---
-description: "Configuration rules: mandatory profile files, @ConfigurationProperties, @Value policy, secrets pointer, and @Bean organization."
-applyTo: "**/application*.yml, **/*ConfigurationProperties.java, **/*Configuration.java"
+description: "Spring Boot configuration contract for profile-aware, secure, and externalized runtime settings in production-grade projects."
+applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml"
 ---
 
-# Configuration Rules
+# Spring Boot Config Contract
+Use this file to enforce configuration consistency across environments.
 
-See `spring-boot-migrations.instructions.md` for migration profile behavior and `spring.sql.init` interaction when Flyway or Liquibase is enabled.
-See `spring-boot-caching.instructions.md` for cache backend and TTL configuration conventions.
+## Configuration Baseline
+1. Keep a base application.yml for shared defaults.
+2. Use profile-specific files for environment overrides.
+3. Keep spring.application.name defined.
+4. Keep logging configuration explicit when custom logback configuration is used.
+5. When i18n is in scope, keep spring.messages.basename set to i18n/messages.
+6. When i18n is in scope, keep spring.messages.encoding set to UTF-8 when MessageSource defaults are overridden.
 
-## Files
-- Use only `application.yml`; no `application.properties`
-- **Three-file configuration structure**:
-  - `application.yml`: Shared settings (name, logging, management, messages, datasource, app properties)
-  - `application-development.yml`: Dev overrides (port 8080, detailed error/health, swagger enabled)
-  - `application-production.yml`: Prod overrides (strict error/health, swagger disabled)
-- For new project slices, create all three files
-- For existing projects, enforce this structure only when the requested change touches configuration concerns
-- Set `spring.profiles.active: production` in base config with `development` commented; override with `SPRING_PROFILES_ACTIVE` environment variable if needed
+## Profiles and Environment Separation
+1. Use development and production profiles for runtime-specific behavior.
+2. Keep production-safe defaults in production profile settings.
+3. Keep debug-friendly settings limited to development profile.
+4. Do not duplicate unchanged values across profile files.
 
-## YAML Skeletons
+## Externalization Rules
+1. Externalize secrets, credentials, and host-specific values with environment placeholders.
+2. Use safe defaults only for non-sensitive values.
+3. Do not hardcode passwords, tokens, keys, or private certificates.
+4. Keep configuration keys stable and descriptive.
 
-See `snippets/config/application.yml`, `snippets/config/application-development.yml`, and `snippets/config/application-production.yml` for the required profile file structures.
+## Security Rules
+1. Disable stacktrace disclosure in production responses.
+2. Restrict actuator health detail exposure in production.
+3. Disable OpenAPI and Swagger UI in production when API docs are not explicitly required.
+4. Use TLS settings in production profiles when HTTPS is in scope.
 
-## Rules
-- **Base config**: Application name, logging, management, datasource/broker, app properties
-- **Dev config**: Lower ports, verbose output
-- **Prod config**: Strict output, explicit non-standard ports (e.g., 9443 instead of defaulting)
-- Profile templates use fixed port defaults (`8080` in development and `9443` in production)
-- For environment-driven port overrides, replace fixed profile values with Spring placeholders (`${SERVER_PORT:8080}` and `${SERVER_PORT:9443}`)
-- **Never hardcode** in code: URLs, ports, queue names, endpoints; use `application*.yml` + `@ConfigurationProperties`
-- Use `${VAR_NAME:default}` for non-sensitive infrastructure values (host, port, path, feature flags); never provide fallback defaults for credentials, tokens, and keys
-- Virtual threads: Include `spring.threads.virtual.enabled: true` in base config
-- Never put `spring.profiles.active` in profile files; only in base config
-- Logging config path: `src/main/resources/log/logback-spring.xml`
+## Observability and Runtime Rules
+1. Keep management endpoint exposure explicit and minimal.
+2. Keep health and metrics visibility aligned with operational requirements.
+3. Keep server port and transport settings configurable by environment.
 
-## Test Configuration
-- Create `application-test.yml` when tests need profile-specific overrides (e.g., in-memory datasource, mock URLs, reduced timeouts)
-- Keep test overrides isolated to test scope; never reuse production credentials or production endpoints in test profile values
-- Use `@ActiveProfiles("test")` in tests that require these overrides
+## Data and Performance Rules
+1. Configure datasource and pool settings explicitly when database access is enabled.
+2. Keep timeout and retry settings configurable for external integrations.
+3. Avoid unbounded resource settings.
 
-See `snippets/config/` for the YAML skeleton structure to adapt for test overrides.
+## Custom App Properties
+1. Namespace custom keys under a dedicated top-level prefix.
+2. Provide defaults only when behavior is safe and deterministic.
 
-## Secrets
-Never hardcode credentials, tokens, or secrets. See `spring-boot-security.instructions.md`.
-
-## Organization
-- One `@Configuration` class = one concern (security, messaging, database, web, etc.)
-- Each config class owns its `@Bean` definitions
-- Use `@ConfigurationProperties` (implemented as immutable Java records) for all grouped external configuration
-- Use `@Value` only for single-value constructor parameters where `@RequiredArgsConstructor` cannot be used; see `spring-boot-architecture.instructions.md`
-
-### `@ConfigurationProperties` on records — Spring Boot version rules
-
-**Spring Boot 4.x (verified on 4.1.0):** Do NOT annotate `@ConfigurationProperties` records with `@Component`. In Spring Boot 4.x, the combination of `@Component` + `@ConfigurationProperties` on a record causes Spring to attempt constructor DI injection (looking for `String` beans) instead of property binding, resulting in a `NoSuchBeanDefinitionException` at startup. The correct pattern:
-1. Annotate the `@SpringBootApplication` class with `@ConfigurationPropertiesScan` (import: `org.springframework.boot.context.properties.ConfigurationPropertiesScan`)
-2. Annotate each record with `@ConfigurationProperties(prefix = "...")` only — no `@Component`
-
-**Spring Boot 3.x:** `@Component` + `@ConfigurationProperties` on records works correctly; `@ConfigurationPropertiesScan` is also supported and preferred for explicit intent.
-
-## Startup Initialization and Validation
-When a resource is needed at startup (e.g., connection pooling, cache warming, configuration validation):
-- Create a `@Component` class with a `@PostConstruct` method to initialize the resource
-- Use `@PostConstruct` to fail fast: if initialization fails, throw an exception (typically `IllegalStateException` with an i18n message key) so the application cannot start with incomplete/invalid configuration
-- Example use case: loading secrets from an external service, validating critical configuration dependencies, or prewarming caches required by services
-- Fail-fast startup prevents silent configuration errors from cascading into runtime failures; always prefer immediate failure over deferred/lazy initialization for critical resources
-- Never swallow exceptions in `@PostConstruct`; let them propagate to cause startup failure
+## Coordination Order
+1. Apply this file first as the generic baseline for application*.yml and application*.yaml files.
+2. Apply feature-specific configuration contracts after this file only when their feature scope is active.
+3. Treat feature-specific configuration rules as supplements unless explicit precedence is declared.
+4. For Java-side binding annotations such as @ConfigurationProperties and @Value, apply [spring-boot-architecture.instructions.md](./spring-boot-architecture.instructions.md) and Java-scoped component contracts.

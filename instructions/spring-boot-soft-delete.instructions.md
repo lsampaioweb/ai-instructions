@@ -1,41 +1,50 @@
 ---
-description: "Soft-delete rules: schema columns, query filtering, endpoint semantics, and restore behavior."
-applyTo: "**/*Controller.java, **/*Api.java, **/*Repository.java, **/*RepositoryImpl.java, **/*Service.java, **/*ServiceImpl.java, **/*Exception.java, **/*ControllerAdvice.java, **/src/main/resources/sql/**/*.sql, **/mapper/**/*.xml, **/sql/**/*.xml"
+description: "Spring Boot soft-delete contract for deterministic lifecycle state management, retention windows, and archive-safe data handling in production-grade systems."
+applyTo: "**/src/main/resources/db/migration/*.sql, **/src/main/resources/sql/**/*.sql, **/src/main/resources/mapper/**/*.xml, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml"
 ---
 
-# Soft Delete Rules
+# Spring Boot Soft Delete Contract
+Use this file to enforce deterministic soft-delete and data lifecycle behavior.
 
 ## Scope
-- Use this file as the canonical source for soft-delete behavior in reference-data and relationally linked aggregates.
+1. Apply to tables and queries that retain records beyond active operational usage.
+2. Keep lifecycle policy explicit for each dataset: active, history, and archive or purge.
+3. Treat this file as lifecycle policy source of truth, then align with referential-integrity and migrations contracts for implementation.
 
-## Data Model
-- Prefer soft delete for entities referenced by foreign keys.
-- Use `deleted_at TIMESTAMP WITH TIME ZONE NULL` to record deletion time.
-- Use `is_active BOOLEAN NOT NULL DEFAULT TRUE` for active-state filtering.
-- Keep hard delete only for entities explicitly approved for physical removal.
+## Coordination Order
+1. Define lifecycle policy in this file.
+2. Validate constraints and foreign-key behavior with spring-boot-referential-integrity.instructions.md.
+3. Implement SQL execution steps with spring-boot-migrations.instructions.md.
 
-## Repository and SQL Behavior
-- Replace physical delete operations with updates that set `is_active = FALSE` and `deleted_at` to the current UTC timestamp.
-- Add `is_active = TRUE` filter predicates to list and lookup queries by default.
-- Keep dedicated admin or restore queries explicit when including inactive rows.
-- Keep uniqueness checks aligned with soft-delete policy so inactive rows do not create false conflicts unless intended.
+## Lifecycle Policy Rules
+1. Define lifecycle stages explicitly for aging data: active window, history window, and archive or purge window.
+2. Keep retention windows externalized in configuration, not hardcoded in SQL or Java.
+3. Keep retention execution deterministic with explicit schedule and cutoff timestamp source.
+4. Keep lifecycle policy documented per table or aggregate.
 
-## Service Behavior
-- Treat delete operations as deactivation unless the endpoint is explicitly defined as hard delete.
-- Keep delete operations idempotent: deleting an already inactive entity should not fail unexpectedly.
-- Provide restore operations only when business scope requires reactivation.
+## Soft Delete State Rules
+1. Keep soft-delete state explicit with deterministic marker columns.
+2. Keep delete timestamp and delete actor fields explicit when auditability is required.
+3. Keep default reads excluding soft-deleted rows unless endpoint purpose is recovery or audit.
+4. Reject updates to soft-deleted rows with deterministic not-found or lifecycle-state semantics.
 
-## API Semantics
-- Keep `DELETE` endpoints documented as soft delete when this policy is active.
-- Return `204 No Content` for successful soft delete operations.
-- Use explicit endpoint naming for hard delete operations when they exist (for example: `DELETE /resource/{id}/hard`).
+## History and Archive Rules
+1. Move expired active data to history storage before purge when configured history window is greater than zero.
+2. Keep history retention bounded by configured duration.
+3. Purge or archive history records only after retention window is reached.
+4. Keep archive and purge operations idempotent and resumable.
 
-## Exception Handling
-- Return `404` for missing entities.
-- For inactive entities hidden by default filters, return `404` unless business requirements mandate `409` or explicit inactive-state errors.
-- Keep violation handling consistent with foreign-key and delete-policy rules.
+## Exception Class Rules
+1. Classify immutable identity data and compliance-required records as lifecycle exceptions.
+2. Forbid automatic purge for lifecycle-exception data classes.
+3. Keep exception list explicit in policy configuration and documentation.
 
-## Auditing and Recovery
-- Keep `deleted_at` immutable once set, except during explicit restore flows.
-- On restore, set `is_active = TRUE` and clear `deleted_at`.
-- Log delete and restore actions at `INFO` with entity identifier and correlation context.
+## Query and Integrity Rules
+1. Keep repository and mapper queries lifecycle-aware with explicit active-state filters.
+2. Keep foreign key and referential rules compatible with soft-delete and archive flow.
+3. Keep unique constraints designed to avoid collisions across active and archived records.
+
+## Quality Gates
+1. Forbid lifecycle jobs without dry-run validation and deterministic cutoff criteria.
+2. Keep tests covering active-to-history transition, history-to-purge transition, and exception-class protection.
+3. Keep audit logs for lifecycle transitions and purge actions.

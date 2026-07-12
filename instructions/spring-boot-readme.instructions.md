@@ -1,28 +1,45 @@
 ---
-description: "README structure rules: recommended sections and no-filler-prose policy for Spring Boot project documentation."
+description: "Spring Boot README contract for accurate runbook, API usage, environment setup, and operational guidance in production-grade projects."
 applyTo: "**/README.md"
 ---
 
-# Spring Boot README Guidelines
+# Spring Boot README Contract
+Use this file to enforce executable and production-safe project documentation.
 
-## Recommended Sections
+## Scope
+1. Apply to repository root README and deployable module README files.
+2. Keep README content aligned with active profiles and runtime configuration.
 
-Include the sections that are relevant; omit sections that do not apply to the topic. Suggested order:
+## Required Sections
+1. Provide overview with capability and boundary summary.
+2. Provide prerequisites with explicit Java, Maven, and infrastructure versions.
+3. Provide local run steps with profile-aware commands.
+4. Provide environment variable table with required and optional markers.
+5. Provide API usage section when HTTP endpoints exist.
+6. Provide security/auth section when security is enabled.
+7. Provide observability section when actuator/metrics are enabled.
+8. Provide production section with TLS and operational constraints when production profile exists.
 
-1. **Overview** — what the feature/integration does and its role in Spring Boot development
-1. **Prerequisites** — required tools, Java version, and environment setup
-1. **Running locally** — steps to start the sample or test the feature
-1. **Environment variables** (if applicable) — table of required and optional variables with descriptions
-1. **API summary** (if applicable) — endpoints, HTTP method, brief description, and required auth
+## Command and Config Accuracy
+1. Keep commands copy-pastable and profile-explicit.
+2. Keep documented ports, paths, and endpoint URLs aligned with application*.yml.
+3. Keep variable names in README identical to configuration keys and placeholders.
+4. Keep profile names in README identical to declared Spring profiles.
+5. Keep API version paths aligned with controller mappings.
 
-## Rules
+## API and Security Documentation
+1. Document pagination defaults and limits when pagination is enabled.
+2. Document request and response examples for create and update operations.
+3. Document authentication mechanism and authorization matrix by operation type.
+4. Document machine-readable error behavior and expected status codes.
 
-- No filler prose, marketing language, or section padding
-- Document every required environment variable when the Environment variables section is present
-- The API summary is a quick reference; it is not a replacement for full API documentation
+## Operability Requirements
+1. Document health, info, and metrics endpoints only when exposed.
+2. Document Swagger/OpenAPI availability by profile when openapi is enabled.
+3. Document startup dependencies and failure troubleshooting steps.
+4. Do not publish secrets, real credentials, or internal-only endpoints.
 
-## Documentation Standards
-- Use `1.` for all numbered lists (let Markdown auto-increment)
-- Sort lists, tables, and enumerations alphabetically only when order is not semantic (e.g., references, variable tables)
-- Prefer one command per code block with a description above it
-- Group multiple shell commands in one code block only when they form a single setup workflow (for example environment exports followed by one run command)
+## Quality Gates
+1. Forbid stale commands or endpoints that do not match current code and config.
+2. Forbid placeholder sections without actionable runbook content.
+3. Keep troubleshooting steps deterministic and bounded.

@@ -1,46 +1,42 @@
 ---
-description: "Thymeleaf rules: controller conventions, template layout, model attributes, form binding, and static resource references."
-applyTo: "**/*PageController.java, **/*Routes.java, **/templates/**/*.html"
+description: "Spring Boot Thymeleaf contract for deterministic server-rendered UI behavior, template safety, and maintainable view composition in production-grade projects."
+applyTo: "**/src/main/java/**/*PageController.java, **/src/main/java/**/*Page*Controller.java, **/src/main/resources/templates/**/*.html, **/src/main/resources/static/**/*.js, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
 ---
 
-# Thymeleaf Rules
+# Spring Boot Thymeleaf Contract
+Use this file to enforce deterministic Thymeleaf MVC and template behavior.
 
-## Dependency
+## Scope
+1. Apply to server-rendered page controllers, Thymeleaf templates, and related static assets.
+2. Keep page rendering responsibilities separate from API and persistence boundaries.
+3. Exclude REST API controllers from this file scope.
 
-- Add `spring-boot-starter-thymeleaf` alongside `spring-boot-starter-web`; Spring Boot auto-configures the Thymeleaf view resolver with no additional configuration required
+## Controller and Model Rules
+1. Keep page controllers limited to view orchestration and model assembly.
+2. Keep business logic delegated to feature services.
+3. Keep model attribute names explicit and stable per template contract.
+4. Keep redirects explicit for successful post operations when full-page refresh is required.
 
-## Controller
-- Scope boundary: applies to MVC/view handlers returning template names
-- It does not apply to REST JSON API handlers
-- Annotate with `@Controller`, not `@RestController`; name the class `*PageController` or `*Routes` (never `*Controller` for view handlers; that name is reserved for REST API handlers)
-- Use package-private visibility by default for Thymeleaf controllers; elevate to `public` only when external callers require it
-- Return view name strings from handler methods; never return `ResponseEntity` or JSON from a Thymeleaf controller
-- Declare the base path at class level with `@RequestMapping`; use only the path suffix on method annotations
-- Inject `Model` as a method parameter when the handler needs to pass data to the template
-- Add model attributes with `model.addAttribute("key", value)` before returning the view name
-- On form GET handlers, always seed an empty domain object into the model so the template can bind against it
-- On form POST handlers, accept the form-backing object via `@ModelAttribute("key")`; the key must match the one used in the template's `th:object`
+## Form and Validation Rules
+1. Keep form objects bound with explicit model attributes.
+2. Keep validation errors handled deterministically with BindingResult in the same request cycle.
+3. Keep invalid form submissions returning the original view with populated model state.
+4. Keep field-level error rendering explicit with Thymeleaf field error expressions.
 
-## Template Files
-- Store all templates under `src/main/resources/templates/`; group feature templates in sub-directories (e.g. `templates/ops/form.html`)
-- Always declare the Thymeleaf XML namespace: `<html xmlns:th="http://www.thymeleaf.org" lang="en_US">`
-- Reference static resources (CSS, JS, images) exclusively through Thymeleaf URL expressions (`@{/css/style.css}`, `@{/js/script.js}`) — never use plain relative paths; URL expressions are context-path-safe
+## Template Composition Rules
+1. Keep template paths and fragment names explicit and stable.
+2. Keep fragment responses explicit when returning partial HTML for AJAX flows.
+3. Keep list-empty and list-populated states explicitly rendered.
+4. Keep message and i18n key usage aligned with the i18n contract.
 
-## Static Resources
-- Place CSS files under `src/main/resources/static/css/`
-- Place JavaScript files under `src/main/resources/static/js/`
-- Place images under `src/main/resources/static/img/`
+## Security and Output Safety Rules
+1. Keep user-provided content rendered through escaped output expressions.
+2. Forbid inline script construction with untrusted data in templates.
+3. Keep state-changing form and AJAX operations aligned with active security and CSRF policy.
+4. Keep template resource references deterministic through Thymeleaf URL expressions.
 
-## Thymeleaf Expressions
-- `${variable}` — renders a model attribute
-- `@{/path}` — generates a context-path-safe URL
-- `#{key}` — resolves a message from `messages.properties` (i18n)
-- `*{field}` — selection expression inside a `th:object` scope (form binding only)
-- `th:each="item : ${list}"` — iterates a collection; the iteration variable name is arbitrary
-
-## Form Binding
-- Bind a form to a domain object with `th:object="${modelKey}"` on the `<form>` element
-- Bind individual fields with `th:field="*{fieldName}"` on `<input>`, `<select>`, or `<textarea>` elements
-- The form-backing object must be a mutable class (not a record); use Lombok `@Data` for brevity
-- Use `method="POST"` on the form element; Spring MVC maps it to the `@PostMapping` handler
-
+## Quality Gates
+1. Forbid repository and SQL operations directly in controllers or templates.
+2. Forbid duplicated business-rule decisions across template and controller layers.
+3. Keep tests covering full-page render, validation failure render, and success redirect or fragment response behavior.
+4. Keep profile-specific UI behavior deterministic across development, test, and production.

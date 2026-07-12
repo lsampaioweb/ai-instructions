@@ -1,96 +1,47 @@
 ---
-description: "Testing rules: slice vs full-context tests, @MockitoBean (Spring Boot 3.4+), naming conventions, AssertJ, and profile activation."
-applyTo: "**/*Test.java, **/*IT.java, **/test/**/*.java"
+description: "Spring Boot testing contract for deterministic coverage of feature behavior, failure paths, and security boundaries in production-grade projects."
+applyTo: "**/src/test/java/**/*Test.java, **/src/test/java/**/*Tests.java"
 ---
 
-# Testing Rules
+# Spring Boot Test Contract
+Use this file to enforce deterministic and architecture-aligned testing.
 
-See `spring-boot-caching.instructions.md` for cache behavior testing scope and deterministic TTL test setup.
-See `spring-boot-api-versioning.instructions.md` for version-coexistence regression tests (`v1`, `v2`) and deprecation-window coverage.
+## Scope
+1. Apply to unit, slice, and integration tests in src/test/java.
+2. Keep tests organized by feature package, not top-level technical package.
+3. Keep assertions focused on externally observable behavior.
 
-## Spring Boot Version Compatibility
+## Test Type Selection
+1. Use plain unit tests with mocked collaborators for feature logic.
+2. Use @WebMvcTest only for HTTP transport behavior and request validation.
+3. Use persistence integration tests for mapper XML and JDBC query behavior.
+4. Use @SpringBootTest only when full-context behavior is required.
+5. Do not use context-load tests as primary evidence for feature correctness.
+6. In Spring Boot 4.x test slices, use @MockitoBean for Spring-managed bean overrides.
+7. Do not rely on @WebMvcTest for unauthenticated or forbidden-path assertions when SecurityFilterChain behavior requires full context.
 
-Apply only the section matching the target project's Spring Boot version. Do not mix Spring Boot 3.x and 4.x test guidance in the same module.
+## Determinism Rules
+1. Keep test data explicit, local, and repeatable.
+2. Keep tests independent and order-agnostic.
+3. Mock or stub external systems unless integration behavior is the explicit target.
+4. Control clock, random, and async boundaries through deterministic test doubles.
+5. Fail tests on ambiguous timing by using bounded waits and explicit completion checks.
 
-### Spring Boot 4.x (verified on 4.1.0)
+## Coverage Requirements
+1. Cover success and failure paths for each public feature behavior.
+2. Cover validation failure and exception translation behavior at boundary tests.
+3. Cover authorization and forbidden access paths when security is enabled.
+4. Cover pagination bounds and default behavior when pagination is enabled.
+5. Cover locale fallback and message resolution when i18n is enabled.
+6. Cover transactional rollback behavior for multi-step feature operations.
 
-Spring Boot 4.x reorganized test slice infrastructure. Several annotations moved or were removed:
+## Architecture Alignment
+1. Validate feature-level behavior without enforcing top-level technical package splits.
+2. Keep persistence tests aligned with MyBatis mapper XML or JDBC adapters.
+3. Forbid tests that depend on JPA, Hibernate, or Spring Data repository abstractions.
+4. Keep test visibility and helper scope minimal to reduce cross-feature coupling.
 
-**`@WebMvcTest`**
-- Moved to a separate module: add `spring-boot-starter-webmvc-test` (test scope) to `pom.xml`
-- New import: `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest`
-- Use `@AutoConfigureMockMvc` (`org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`) to get `MockMvc` injected
-- `ObjectMapper` is NOT auto-configured in the `@WebMvcTest` limited context; instantiate directly: `ObjectMapper objectMapper = new ObjectMapper()`
-- Spring Security's `SecurityFilterChain` is NOT auto-applied to MockMvc; 401/403 tests cannot be verified with `@WebMvcTest` alone — use `@SpringBootTest(webEnvironment = RANDOM_PORT)` with `TestRestTemplate` for security integration tests
-
-**`@JdbcTest`**
-- Removed from Spring Boot 4.x
-- Replacement: `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)` + `@ActiveProfiles("test")` + `@Transactional`
-- `@Transactional` on the test class rolls back each test automatically, providing isolation without manual `DELETE` cleanup
-
-**`@AutoConfigureTestDatabase`**
-- Removed from Spring Boot 4.x
-- Configure the test datasource directly in `application-test.yml`; H2 with `MODE=PostgreSQL` works for PostgreSQL-dialect schemas
-
-**`@MockBean`**
-- Deprecated in Spring Boot 4.x
-- Use `@MockitoBean` exclusively (available since Spring Boot 3.4+)
-
-### Spring Boot 3.x
-
-**`@WebMvcTest`**
-- Import: `org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest`
-- Spring Security is auto-applied when `spring-boot-starter-security` is on the classpath
-- `ObjectMapper` is auto-configured and can be `@Autowired`
-
-**`@JdbcTest`**
-- Import: `org.springframework.boot.test.autoconfigure.jdbc.JdbcTest`
-- Combine with `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` when using a configured embedded datasource
-
----
-
-## Test Types
-
-### Controller tests (`@WebMvcTest`)
-- Spring Boot 3.x: `@WebMvcTest(XxxController.class)` — loads only the web layer
-- Spring Boot 4.x: `@WebMvcTest(XxxController.class)` + `@AutoConfigureMockMvc` from the `spring-boot-starter-webmvc-test` module
-- Use `@MockitoBean` to stub all service dependencies
-- Use `@WithMockUser(roles = "ROLE_NAME")` for tests that require an authenticated principal
-- Do NOT test 401/403 in `@WebMvcTest` on Spring Boot 4.x — security filters are not applied
-
-### Repository tests
-- Spring Boot 3.x: `@JdbcTest` + `@AutoConfigureTestDatabase(replace = NONE)` + `@Import` for the repository class
-- Spring Boot 4.x: `@SpringBootTest(webEnvironment = NONE)` + `@ActiveProfiles("test")` + `@Transactional`
-- Configure an in-memory H2 datasource in `src/test/resources/application-test.yml` with `MODE=PostgreSQL` to support PostgreSQL-specific SQL syntax
-
-### Service unit tests
-- `@ExtendWith(MockitoExtension.class)` — no Spring context, pure Mockito
-- `@Mock` for dependencies; `@InjectMocks` for the class under test
-- Use BDDMockito (`given`/`willReturn`/`willThrow`) for stubbing
-
-### Smoke test
-- `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)` + `@ActiveProfiles("test")`
-- Assert at least one key bean is non-null: `assertThat(applicationContext).isNotNull()`
-- Never use `@ActiveProfiles("development")` in tests — it requires a live external service
-
-## Naming
-Name test methods using the pattern: `{method}_when{Condition}_should{Outcome}`
-
-Example: `findById_whenUserNotFound_shouldReturn404`
-
-Test type examples:
-- Slice test (`@WebMvcTest`): `findById_whenUserNotFound_shouldReturn404`
-- Integration test (`@SpringBootTest`): `create_whenValidRequest_shouldPersistAndReturn201`
-- Unit test (pure JUnit/Mockito): `validateEmail_whenFormatInvalid_shouldThrowException`
-- Repository test: `insert_whenNewUser_shouldGenerateId`
-
-## Assertions and Fixtures
-- Use AssertJ (`assertThat`) for all assertions; do not use raw JUnit `assertEquals`
-- Use `@ActiveProfiles("test")` when tests need to isolate from production configuration
-- Set up fixtures in `@BeforeEach`; keep each fixture minimal and scoped to the test class
-- Do not share mutable state between tests; reset mocks in `@BeforeEach` when needed
-
-## Focus
-- Assert on response status, body, and headers; do not assert on internal implementation details
-- Keep each test focused on a single behavior
-
+## Quality Gates
+1. Forbid placeholder tests with no domain assertions.
+2. Require explicit assertions for status, payload, and machine-readable error code where applicable.
+3. Keep test profile configuration isolated from production secrets and production endpoints.

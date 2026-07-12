@@ -1,33 +1,45 @@
 ---
-description: "Logback configuration rules: file location, profile-based appenders, rotation, and working-directory path resolution."
-applyTo: "**/src/main/resources/log/logback-spring.xml, **/src/main/resources/logback-spring.xml, **/pom.xml, **/.vscode/launch.json"
+description: "Spring Boot Logback contract for sink routing, structured output, and resilient transport configuration in production-grade projects."
+applyTo: "**/src/main/resources/logback-spring.xml, **/src/main/resources/log/logback-spring.xml"
 ---
 
-# Logback Configuration Rules
+# Spring Boot Logback Contract
+Use this file to enforce log transport and formatting configuration.
 
-See `spring-boot-observability.instructions.md` for backend portability, structured JSON field contracts, and MDC correlation requirements.
+## Sink Routing and Portability
+1. Keep sink selection externalized by profile and configuration.
+2. Keep default file logging available as safe fallback.
+3. Keep sink changes (text, JSON, Datadog, Loki, or equivalent) in Logback/config only.
+4. Keep sink-specific endpoints, credentials, and appender wiring in Logback or environment-backed configuration only.
 
-## Scope
-- Applies to Logback output, rotation, and working-directory path resolution for Spring Boot applications
+## Appenders and Encoders
+1. Use explicit appender names for console, file, and remote sinks.
+2. Use structured encoders when log consumers require machine parsing.
+3. Keep plain text encoder support when human-readable local debugging is required.
+4. Keep pattern and field definitions deterministic across environments.
 
-## Logback Configuration
-- Place `logback-spring.xml` under `src/main/resources/log/`.
-- Add all profile-based appenders.
-- `development` profile: use console appender + async file appender at `INFO` level.
-- `production` and default profiles: use async file appender only at `INFO` level.
-- Set `maxFileSize` to `10MB`.
-- Set `totalSizeCap` to `1GB`.
-- Set `maxHistory` to `7` days.
+## Async and Reliability
+1. Wrap remote or high-latency appenders with async buffering.
+2. Configure queue size and discard strategy explicitly.
+3. Keep backpressure behavior explicit to avoid hidden application stalls.
+4. Do not block request-processing threads on remote sink unavailability.
 
-## Working Directory & Path Resolution
-Relative paths in `logback-spring.xml` resolve from the JVM working directory. Ensure consistent log placement across Maven and IDE launches:
+## Profile Strategy
+1. Keep development profile with console visibility and developer-friendly detail.
+2. Keep production profile focused on durable sinks and minimal console noise.
+3. Keep root level and appender mapping explicit per profile.
 
-1. **POM configuration**: Set `<workingDirectory>${project.basedir}</workingDirectory>` in `spring-boot-maven-plugin` (required; ensures Maven always uses the project folder, even when run from a parent folder)
-2. **IDE configuration**: Create `.vscode/launch.json` (or IntelliJ Run Configuration) with `cwd` pointing to the project folder:
-   - **VSCode**: `"cwd": "${workspaceFolder}/<project-folder>"`
-3. **Logback configuration**: Use `<springProperty>` at the root of `<configuration>` (outside any `<springProfile>`) to declare configurable properties sourced from Spring's environment. See `snippets/logback/logback-spring.xml` for the required placement.
-   - Reference these properties in appender definitions declared once at the root level
-   - Use Spring Boot's standard `logging.file.path` property (configurable via `LOGGING_FILE_PATH`); do not introduce a custom `app.*` key for log directory resolution
-   - Keep appender definitions outside `<springProfile>`
-   - Use `<springProfile>` only to conditionally switch the `<root level>` block
+## Security and Data Protection
+1. Mask or exclude sensitive fields at encoder/layout level.
+2. Keep stacktrace and exception rendering policy aligned with security requirements.
+3. Avoid logging transport credentials in configuration or status logs.
 
+## Performance and Retention
+1. Keep rolling policy explicit for file sinks.
+2. Bound retention by age and total size.
+3. Keep log format and payload size efficient for high-throughput paths.
+
+## Operational Verification
+1. Validate startup with each supported sink profile.
+2. Validate fallback behavior when remote sink is unreachable.
+3. Validate structured output schema when JSON logging is enabled.

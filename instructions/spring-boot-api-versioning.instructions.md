@@ -1,43 +1,40 @@
 ---
-description: "API versioning rules: coexistence strategy, deprecation headers, and DTO evolution across versions."
-applyTo: "**/*Controller.java, **/*Api.java, **/*Request.java, **/*Response.java, **/*OpenApiConfig*.java, **/*SwaggerConfig*.java, **/*Test.java, **/*IT.java, **/README.md"
+description: "Spring Boot API versioning contract for deterministic path-based versioning and controlled evolution of breaking changes in production-grade projects."
+applyTo: "**/src/main/java/**/*Controller.java"
 ---
 
-# API Versioning Rules
+# Spring Boot API Versioning Contract
+Use this file to enforce deterministic API version path governance.
 
 ## Scope
-- Use this file as the canonical source for REST API version evolution and coexistence behavior.
+1. Apply to REST API controllers under /api/* paths.
+2. Apply these rules only to controller methods mapped under /api/*.
+3. Mark page-rendering routes and non-API UI routes as not-applicable for this contract.
+4. Treat API versioning scope as active when controller mappings contain /api/vN paths or project documentation explicitly requires versioned API routing.
 
-## Versioning Strategy
-- Use URL path versioning (`/api/v1/...`, `/api/v2/...`) as the default strategy.
-- Keep existing major versions available during migration windows unless explicitly decommissioned.
-- Introduce `v2` only for backward-incompatible changes.
+## Coordination Order
+1. Evaluate [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) first for baseline controller behavior.
+2. Apply this contract only when versioned API routing is in scope for the matched controller file.
 
-## Controller Structure
-- Keep one controller class per versioned contract (for example: `CountryControllerV1`, `CountryControllerV2`).
-- Do not retrofit breaking behavior into existing `v1` endpoints.
-- Keep shared business logic in services; version differences stay at API contract boundaries.
+## Versioning Rules
+1. When API versioning is in scope, use path-based versioning with /api/vN prefix for every public API route.
+2. Keep one API version per controller class.
+3. Keep version token explicit in class-level request mapping constants.
+4. Keep nested resource routes within the same version prefix.
 
-## DTO Evolution
-- Use version-specific request/response DTOs when contracts diverge.
-- Reuse shared DTOs only when fields and semantics are identical across versions.
-- Avoid cross-version DTO mutation that changes old-client behavior.
+## Evolution Rules
+1. Introduce a new /api/vN controller for breaking contract changes.
+2. Keep existing published versions backward-compatible during support window.
+3. Keep request and response schema differences explicit by version.
+4. Keep deprecation notices documented before version removal.
 
-## Deprecation Signaling
-- When a version is planned for retirement, include `Deprecation` and `Sunset` headers in responses.
-- Document deprecation timeline and replacement version in API docs.
-- Keep deprecation headers consistent across all endpoints in the deprecated version.
+## Cross-Component Alignment
+1. Keep security route matchers aligned with active /api/vN prefixes.
+2. Keep OpenAPI endpoint documentation grouped by API version.
+3. Keep README endpoint examples aligned with current versioned routes.
+4. Keep tests asserting versioned paths for success and failure routing.
 
-## OpenAPI Documentation
-- Publish versioned endpoint groups clearly in OpenAPI.
-- Keep `v1` and `v2` schemas and examples separate when payloads differ.
-- Document migration notes from older versions to newer versions.
-
-## Testing
-- Keep regression tests for active versions (`v1`, `v2`, etc.) while they coexist.
-- Add contract tests for version-specific behavior differences.
-- Do not remove prior-version tests until that version is formally decommissioned.
-
-## Retirement Policy
-- Remove a deprecated version only after announced sunset criteria are met.
-- Record version retirement decisions in release notes and README migration sections.
+## Quality Gates
+1. Forbid mixed v1 and v2 mappings in the same controller class.
+2. Forbid unversioned public API mappings under /api/*.
+3. Keep redirects between versions explicit and temporary only when migration policy requires them.

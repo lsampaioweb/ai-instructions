@@ -1,41 +1,53 @@
 ---
-description: "WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience."
-applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*SessionEventsListener.java, **/*ConnectionTracker.java, **/*StompMessage.java, **/*SocketMessage.java, **/*WebSocketMessage.java, **/static/js/*websocket*.js, **/static/js/*socket*.js"
+description: "Spring Boot WebSocket contract for deterministic real-time messaging, secure endpoint exposure, and operable connection lifecycle behavior in production-grade projects."
+applyTo: "**/src/main/java/**/*WebSocket*.java, **/src/main/java/**/*Socket*.java, **/src/main/java/**/*Stomp*.java, **/src/main/java/**/*Configuration*.java, **/src/main/resources/static/js/**/*.js, **/src/main/resources/templates/**/*.html, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
 ---
 
-# WebSocket and STOMP Rules
+# Spring Boot WebSocket Contract
+Use this file to enforce deterministic WebSocket and STOMP behavior.
 
 ## Scope
-- Use this file for WebSocket/STOMP transport concerns only (broker setup, endpoint contract, messaging flow, lifecycle events, and browser socket state)
-- Keep business rules in service/domain instructions; do not move domain workflows into WebSocket endpoint classes
+1. Apply to WebSocket endpoints, STOMP message mappings, broker configuration, and client handshake settings.
+2. Keep real-time messaging boundaries explicit and separated from synchronous REST workflows.
 
-## Endpoint and Broker Topology
-- Use a dedicated `@Configuration` class implementing `WebSocketMessageBrokerConfigurer` for WebSocket setup
-- Define destination prefixes and endpoint paths as constants, not inline literals spread across methods
-- Configure clear destination domains: application/inbound prefix (e.g., `/app`) for messages sent from clients to server handlers, and broker/outbound prefixes (e.g., `/topic`, `/queue`) for server-to-client delivery
-- Register a STOMP endpoint and enable SockJS fallback when browser compatibility is required
+## Protocol and Routing Rules
+1. Keep WebSocket handshake endpoint paths explicit and stable.
+2. Keep STOMP application destination prefixes explicit for client-to-server messages.
+3. Keep broker destination prefixes explicit for server-to-client topics and queues.
+4. Keep message payload contracts explicit, versioned, and backward-compatible across rollout windows.
 
-## Configuration Binding
-- Bind WebSocket settings using `@ConfigurationProperties` for grouped values (origins, endpoint roots, destination overrides)
-- Do not hardcode environment-dependent origins in Java code
-- Use wildcard origins (`*`) only for tutorials/local demos; production profiles must use explicit origin lists
+## Broker and Delivery Rules
+1. Keep broker mode explicit as simple broker or external broker relay per environment.
+2. Keep destination naming deterministic by feature and event purpose.
+3. Keep message ordering and duplicate-delivery handling explicit when business flows require it.
+4. Keep publish and subscription paths aligned with deterministic authorization policy.
 
-## Message Handler Contract
-- Implement STOMP handlers in dedicated `@Controller` endpoint classes with `@MessageMapping`
-- Publish broadcast responses using explicit broker destinations (e.g., via `@SendTo`)
-- Keep payload and response models as immutable records unless mutability is required
-- Do not trust client-generated timestamps or metadata for canonical server events; set canonical server values in the handler or delegated service
+## Endpoint and Handler Rules
+1. Keep @MessageMapping handlers focused on message orchestration and validation only.
+2. Keep business logic delegated to feature services and publishers.
+3. Keep outbound destinations explicit through @SendTo or messaging template routing.
+4. Keep handler error semantics explicit and mapped to deterministic client-visible behavior.
 
-## Lifecycle and Observability
-- Handle connect/disconnect lifecycle events with listener classes and keep connection-state tracking thread-safe
-- Skip connection-state updates when session ID is null or blank; log this branch at `DEBUG` level before returning
-- Expose operational connection status via typed response DTOs/records when an HTTP status endpoint is required
-- Apply existing logging instructions: use i18n log keys and avoid sensitive data in logs
+## Security and Handshake Rules
+1. Keep allowed origins explicitly configured and profile-aware.
+2. Forbid wildcard allowed origins in production.
+3. Keep authentication and authorization policy explicit for connect, subscribe, and send operations.
+4. Keep CSRF, token, or session strategy explicit for the selected WebSocket/STOMP security model.
 
-## Browser Client Behavior
-- Keep socket lifecycle in a single JS module with one active client reference and explicit connection-state flags
-- Enforce reconnect safety: detect stale connections, reset state on close/error, and guard duplicate connect attempts
-- Keep send and subscribe destinations explicit and aligned with server mapping conventions
-- Disable message actions while disconnected and re-enable only after successful connection
-- Externalize user-facing runtime text through server-rendered i18n values or configurable runtime strings
+## Transport and Client Rules
+1. Keep SockJS fallback enabled only when required by target client compatibility.
+2. Keep reconnect, disconnect, and subscription lifecycle behavior explicit in client code.
+3. Keep client destination paths centralized and consistent with server routing constants.
+4. Keep browser-facing message rendering safe from untrusted content injection.
 
+## Operability Rules
+1. Keep connection lifecycle events observed through explicit connect and disconnect listeners.
+2. Keep active connection metrics or status endpoints explicit for runtime diagnostics.
+3. Keep heartbeat, timeout, and resource-bound settings explicit for production stability.
+4. Keep logs correlated with session id, user identity, or message id where available.
+
+## Quality Gates
+1. Forbid blocking operations inside message handlers on high-frequency paths.
+2. Forbid persistence or repository calls directly inside transport handlers when feature services exist.
+3. Keep tests covering handshake, authorized and unauthorized messaging flows, and disconnect lifecycle behavior.
+4. Keep profile-specific WebSocket behavior deterministic across development, test, and production.

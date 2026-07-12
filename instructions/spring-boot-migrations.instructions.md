@@ -1,40 +1,44 @@
 ---
-description: "Database migration rules: Flyway/Liquibase selection, versioned scripts, profile behavior, and test integration."
-applyTo: "**/pom.xml, **/application*.yml, **/src/main/resources/db/migration/**/*.sql, **/*Test.java, **/*IT.java, **/test/**/*.java"
+description: "Spring Boot migrations contract for deterministic versioned SQL changes, safe roll-forward strategy, and environment-consistent schema evolution in production-grade projects."
+applyTo: "**/src/main/resources/db/migration/*.sql, **/src/main/resources/sql/**/*.sql, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
 ---
 
-# Database Migration Rules
+# Spring Boot Migrations Contract
+Use this file to enforce deterministic schema evolution and retention transition execution.
 
 ## Scope
-- Use this file when schema changes must be versioned and tracked across environments.
-- Keep this file as the canonical source for migration-tool behavior.
+1. Apply to SQL schema scripts, migration scripts, and migration-related runtime configuration.
+2. Keep migration behavior aligned across development, test, and production profiles.
 
-## Tool Selection
-- Prefer Flyway as the default migration tool.
-- Use Liquibase only when the user explicitly requests it or existing project standards require it.
-- Do not enable Flyway and Liquibase in the same application unless the user explicitly requests a dual-tool strategy.
+## Coordination Order
+1. Apply [spring-boot-database-schema.instructions.md](./spring-boot-database-schema.instructions.md) first for table, key, and constraint design rules.
+2. Apply this file second for migration versioning, sequencing, roll-forward strategy, and runtime execution behavior.
 
-## Script Location and Naming
-- Store Flyway SQL migrations under `src/main/resources/db/migration/`.
-- Use Flyway naming format `V<version>__<description>.sql`.
-- Keep migration descriptions lowercase with underscores.
-- Never edit an already applied migration in shared environments; add a new migration instead.
+## Script Design Rules
+1. Keep migration and schema scripts idempotent where repeated execution is possible.
+2. Keep table and index creation guarded to avoid duplicate-object failures.
+3. Keep seed and baseline data inserts idempotent.
+4. Keep migration steps ordered deterministically by dependency and foreign key constraints.
 
-## Environment Behavior
-- Keep migrations enabled for development and production when migration tooling is in scope.
-- Avoid relying on `spring.sql.init` DDL execution when Flyway or Liquibase is active.
-- Keep schema evolution in migration scripts, not in ad-hoc startup SQL execution.
+## Evolution Rules
+1. Keep schema evolution backward-compatible before destructive transitions.
+2. Keep destructive changes isolated behind explicit compatibility windows.
+3. Keep rollback strategy explicit through forward-fix migrations when direct rollback is unsafe.
+4. Keep migration changes aligned with repository and mapper SQL contracts.
 
-## Rollback and Safety
-- Treat rollback as forward-fix by default: create a new migration that restores intended state.
-- For destructive schema changes, require explicit user confirmation and clear impact notes.
-- Keep data backfill and schema changes in ordered, reviewable steps.
+## Runtime Configuration Rules
+1. Keep migration or schema-init mode explicit per profile.
+2. Keep test profile schema initialization deterministic for isolated test execution.
+3. Keep production initialization mode least-privilege and operationally controlled.
+4. Keep migration execution source paths explicit and version-controlled.
 
-## Test Profile
-- Ensure tests execute migrations against an isolated test database profile when persistence behavior is under test.
-- Keep test schema creation aligned with migration scripts to prevent drift.
-- Do not depend on production databases for migration-related tests.
+## Data Lifecycle Transition Rules
+1. Keep lifecycle transitions from active to history and history to archive or purge executed by explicit migration or batch routines.
+2. Keep lifecycle cutoff windows externalized in configuration.
+3. Keep lifecycle migration jobs idempotent and resumable across failures.
+4. Keep lifecycle exception data classes excluded from automated purge routines.
 
-## Documentation and Review
-- Record migration intent and impact in change summaries.
-- When introducing migrations into a project that previously used `schema.sql`, document the transition plan.
+## Quality Gates
+1. Forbid editing previously released migration scripts without explicit repair strategy.
+2. Forbid non-deterministic migration scripts that depend on environment-local side effects.
+3. Keep verification tests for schema initialization, migration ordering, and lifecycle transitions.

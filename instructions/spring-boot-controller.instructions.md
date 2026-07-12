@@ -1,56 +1,49 @@
 ---
-description: "REST controller rules: no business logic, @Valid inputs, DTO responses, API versioning, and HTTP status conventions."
-applyTo: "**/*Controller.java, **/*Api.java"
+description: "Spring Boot controller contract for deterministic HTTP boundaries, validation, status semantics, and thin transport behavior in production-grade projects."
+applyTo: "**/src/main/java/**/*Controller.java"
 ---
 
-# Controller Rules
+# Spring Boot Controller Contract
+Use this file to enforce deterministic HTTP boundary behavior.
 
-See `spring-boot-pagination.instructions.md` for pagination request/response contracts, parameter limits, and `Link` headers.
-See `spring-boot-soft-delete.instructions.md` for soft-delete endpoint semantics and hard-delete exception paths.
-See `spring-boot-api-versioning.instructions.md` for API version evolution, coexistence, and deprecation signaling.
+## Scope
+1. Apply to REST controllers and page controllers.
+2. Keep controller behavior limited to transport concerns.
 
-## Rules
+## Coordination Order
+1. Apply [spring-boot-api-versioning.instructions.md](./spring-boot-api-versioning.instructions.md) for /api/* version-routing behavior when API versioning is in scope.
+2. Apply [spring-boot-pagination.instructions.md](./spring-boot-pagination.instructions.md) for list-endpoint pagination shape and Link header behavior when pagination is in scope.
 
-- Scope boundary: applies to REST HTTP handlers only (JSON/API responses)
-- It does not apply to Thymeleaf MVC handlers returning template names
-- Annotate with `@RestController`
-- Declare the full versioned base path at class level: `@RequestMapping("/api/v1/resource-name")` using lowercase plural resource names
-- Method annotations use only the path suffix relative to the class mapping (e.g., `@GetMapping`, `@GetMapping("/{id}")`, `@PostMapping`) and never repeat the base path in method annotations
-- No business logic; delegate all processing to the service layer
-- Do not add `@Slf4j` in controllers
-- Do not inject `MessageSource` or `LogMessages` into controllers
-- Do not log request success flow, business events, operation results, or state transitions in controllers; these logs belong in the service layer
-- Allow only protocol adaptation required by HTTP semantics (e.g., status code, headers, content-type); keep all branching, orchestration, transformations, and domain decisions in the service layer
-- Do not call mapper classes or integration clients directly
-- Accept input via explicit Spring binding annotations (`@RequestBody`, `@PathVariable`, `@RequestParam`, `@RequestHeader`, or `@ModelAttribute`) as required by the endpoint contract
-- For `@RequestBody` or `@ModelAttribute` record DTOs, explicitly annotate the parameter with `@Valid` to trigger DTO-level validation constraints (`@NotNull`, `@NotBlank`, etc.)
-- Do not apply `@Valid` to scalar `@PathVariable` or `@RequestParam` values; when scalar validation is required, use class-level `@Validated` with parameter constraints such as `@NotNull`, `@Min`, `@Max`, and `@Pattern`
-- Return DTOs only; never return domain objects directly
-- For raw opaque passthrough responses (e.g. file bytes, TOML), return `ResponseEntity<String>` or `ResponseEntity<byte[]>` as defined in the Raw Passthrough Exception section
-- Never return `Map<String, Object>` or `Object`; every JSON response must be a typed Java record
-- When returning a non-JSON response, set the `produces` attribute explicitly on the mapping annotation (e.g. `@PostMapping(value = "/", produces = "application/toml")`); the `produces` attribute sets the HTTP response `Content-Type` header
-- Use specific mapping annotations: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`
-- HTTP status discipline: use 200 (successful read), 201 (resource creation), 204 (no-content, especially for successful DELETE), 400 (validation errors), 404 (not found), 500 (unexpected errors)
-- Keep handler methods `public`; keep helper methods `private`
+## Conflict Resolution
+1. Apply this file first for baseline HTTP boundary and status semantics.
+2. Apply API versioning rules second for /api/vN routing behavior.
+3. Apply pagination rules third for list-endpoint response shape and Link headers.
+4. Apply OpenAPI rules last for documentation alignment only.
 
-## HTTP 201 Created Pattern
-- For POST endpoints that create resources, use `ResponseEntity.created(location).body(responseDto)` whenever a stable resource URI is available
-- Build `location` from the newly created resource identifier using `UriComponentsBuilder`
-- Use `ResponseEntity.status(HttpStatus.CREATED).body(responseDto)` only when a stable resource URI is not available
+## Transport Boundary Rules
+1. Keep request mapping paths explicit and versioned for API controllers.
+2. Keep request validation at the controller boundary using Jakarta Validation annotations.
+3. Keep controller methods delegating business decisions to feature services.
+4. Keep response models separated from persistence and mapper internals.
+5. Keep exception-to-response translation centralized in global exception handling.
 
-## API Versioning
-- Use URL path versioning: `/api/v1/...`
-- The version segment belongs on the class-level `@RequestMapping`, never on individual method annotations
-- When introducing a new incompatible version, create a new controller class (e.g. `UserV2Controller`) with `@RequestMapping("/api/v2/users")`; do not modify the existing controller
+## Response Semantics Rules
+1. Return 200 for successful read and update operations with response body.
+2. Return 201 with Location header for successful create operations.
+3. Return 204 for successful delete operations with empty body.
+4. Return deterministic machine-readable error payloads through exception contracts.
+5. Keep pagination responses explicit and include Link header semantics when pagination is enabled.
 
-## External Protocol Exception
-When the endpoint URL is mandated by an external protocol, hardware system, or vendor integration (e.g., a device installer that calls a fixed path such as `/answer`), **the external mandate takes absolute precedence over API versioning rules**. Use the exact path specified by the external system; never force it into the `/api/v1/` pattern.
-- Place the mandated path on the class-level `@RequestMapping`
-- Add a comment on `@RequestMapping` that names the external system and documents the external constraint
-- Only ask a clarifying question if the external mandate AND the user's stated requirement are themselves contradictory or ambiguous; if the external protocol is clear, apply it directly
+## Security and Authorization Rules
+1. Keep write operations protected by authentication and authorization rules.
+2. Keep controller-level role and permission requirements aligned with security configuration.
+3. Do not encode security rules as hardcoded role literals when role constants exist.
 
-## Raw Passthrough Exception
-- When the response body is raw opaque content passed through unchanged (e.g. file text or bytes with `application/toml`, `text/plain`, or `application/octet-stream`), skip response DTOs and mappers
-- Return raw content from the service (`String` or `byte[]`) and `ResponseEntity<String>` or `ResponseEntity<byte[]>` from the controller with explicit `Content-Type`
-- Do not create a wrapper DTO with a single `content` field just to satisfy the DTO rule
+## Spring Boot 4.x Testability Rules
+1. Keep controller dependencies override-friendly for @WebMvcTest via @MockitoBean in tests.
+2. Keep security negative-path assertions in full-context tests when @WebMvcTest does not apply the full SecurityFilterChain behavior.
 
+## Quality Gates
+1. Forbid business-rule orchestration in controller methods.
+2. Forbid inline SQL, repository calls, or persistence decisions in controllers.
+3. Keep URI building deterministic for created-resource Location headers.

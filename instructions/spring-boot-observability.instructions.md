@@ -1,41 +1,41 @@
 ---
-description: "Observability rules: pluggable log appenders, structured logging fields, and MDC correlation propagation."
-applyTo: "**/src/main/resources/log/logback-spring.xml, **/src/main/resources/logback-spring.xml, **/*Filter.java, **/*Interceptor.java, **/*Configuration.java, **/application*.yml, **/pom.xml"
+description: "Spring Boot observability contract for health, metrics, and operational visibility with secure production defaults."
+applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/README.md"
 ---
 
-# Observability Rules
+# Spring Boot Observability Contract
+Use this file to enforce runtime visibility and operational safety.
 
-## Scope
-- Use this file as the canonical source for log backend portability, structured logging, and MDC correlation propagation.
-- Keep Java log message wording and log levels in `spring-boot-logging.instructions.md`.
-- Keep base Logback placement and rotation rules in `spring-boot-logback.instructions.md`.
+## Health and Endpoint Baseline
+1. Apply [spring-boot-actuator.instructions.md](./spring-boot-actuator.instructions.md) as canonical source for health endpoint exposure and detail visibility behavior.
+2. Keep observability-specific endpoint documentation aligned with actuator configuration.
 
-## Appender Portability
-- Define appenders once and switch by profile or configuration properties.
-- Use stable appender aliases (`CONSOLE_TEXT`, `FILE_JSON`, `LOKI_JSON`, `DATADOG_JSON`) so backend switches do not change logger usage.
-- Reference only appender aliases from `<root>` and package-level logger blocks.
-- Do not require service or controller code changes when changing log destination backends.
+## Metrics Baseline
+1. Enable metrics exposure only for required operational consumers.
+2. Keep metric export configuration explicit when external monitoring backends are enabled.
+3. Keep metric naming and tags stable to preserve dashboard and alert compatibility.
 
-## Structured Logging
-- Use JSON logging in production and default profiles.
-- Include these fields in structured output: `timestamp`, `level`, `logger`, `thread`, `message`, `correlationId`, `userId`, `service`, `environment`.
-- Keep field names stable across appenders so downstream queries do not break during backend swaps.
-- If `logstash-logback-encoder` is used, define the dependency in `pom.xml` and keep the version source aligned with `spring-boot-pom.instructions.md`.
+## Security and Access Control
+1. Protect management endpoints with network and/or application-level access controls.
+2. Keep production settings aligned with least-privilege observability access.
+3. Do not expose sensitive runtime metadata in unauthenticated endpoints.
 
-## Correlation and MDC
-- Use `X-Correlation-ID` as the inbound and outbound HTTP header name.
-- Use MDC keys `correlationId` and `userId`.
-- Generate a correlation ID when the request header is absent.
-- Put MDC values at request start and clear them in a `finally` block.
-- Return `X-Correlation-ID` in the HTTP response headers for every handled request.
-- Never place secrets or tokens in MDC fields.
+## Configuration Discipline
+1. Keep observability settings profile-aware.
+2. Keep development diagnostics higher than production diagnostics.
+3. Externalize environment-specific observability endpoints and credentials.
 
-## HTTP Propagation Component
-- Implement correlation propagation in a `OncePerRequestFilter` for REST applications.
-- Keep the filter stateless and thread-safe.
-- Apply the filter before request handling so all downstream logs include MDC context.
+## Reliability and Performance
+1. Keep observability overhead bounded and non-blocking for request handling.
+2. Avoid unbounded cardinality in metric labels or dimensions.
+3. Keep scrape/export intervals and payload size aligned with system capacity.
 
-## Backend Swap Procedure
-- Change only appender definitions and backend destination properties when moving between file, Loki, Datadog, or other sinks.
-- Keep application logging calls unchanged during backend swaps.
-- Verify that required structured fields and MDC keys remain present after each swap.
+## Instrumentation (When Adopted)
+1. Instrument critical business and integration paths with consistent metric conventions.
+2. Ensure instrumentation failures do not break business operations.
+3. Keep instrumentation libraries isolated from business logic where possible.
+
+## Operational Verification
+1. Validate health endpoint behavior in development and production profiles.
+2. Validate expected metrics availability for enabled monitoring integrations.
+3. Validate observability behavior during dependency degradation and recovery.

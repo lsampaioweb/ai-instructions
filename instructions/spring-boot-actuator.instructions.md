@@ -1,38 +1,39 @@
 ---
-description: "Actuator and health check rules: dependency setup, endpoint exposure, security, and custom health indicators."
-applyTo: "**/*ActuatorConfig*.java, **/*HealthIndicator.java, **/management/**/*.java, **/application*.yml, **/pom.xml"
+description: "Spring Boot actuator contract for minimal, secure, and operationally useful management endpoint exposure in production-grade projects."
+applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
 ---
 
-# Actuator and Health Check Rules
+# Spring Boot Actuator Contract
+Use this file to enforce deterministic management endpoint behavior.
 
-## Dependency
-Include `spring-boot-starter-actuator` in every project.
+## Scope
+1. Apply when spring-boot-starter-actuator dependency is present or management.endpoints.web.exposure.include is configured.
+2. Keep actuator settings profile-aware across development and production.
 
-## Endpoint Exposure
-- Expose only `health`, `info`, and `metrics` via `management.endpoints.web.exposure.include: "health,info,metrics"`
-- Serve exposed actuator endpoints on the default management port unless a dedicated management port is explicitly required
-- Keep all other actuator endpoints disabled by default
-- Never use `management.endpoints.web.exposure.include: "*"`
-- Enable additional endpoints in `application.yml` only when operationally required and documented in the same file
-- For container probes, use Spring Boot built-in probe groups (`/actuator/health/liveness` and `/actuator/health/readiness`) instead of a custom `ping` group
-- Enable `management.endpoint.health.probes.enabled: true` when the service runs in containers or behind an orchestrator/load balancer health check
-- Allow probes to be omitted for local-only or non-containerized runtimes
-- Keep liveness independent from external dependencies; include external checks in readiness only when the dependency is truly required to serve traffic
-- Use `management.endpoint.health.show-details: "when-authorized"` in base `application.yml`
-- Use `management.endpoint.health.show-details: "always"` only in `application-development.yml`
-- Use `management.endpoint.health.show-details: "never"` in `application-production.yml` unless operator-approved diagnostics require otherwise
-- See `snippets/config/application.yml` for the required management endpoint YAML structure
+## Dependency and Exposure Rules
+1. Include spring-boot-starter-actuator when project requirements explicitly include health, metrics, or info operational endpoints.
+2. Keep management endpoint exposure allowlisted.
+3. Forbid wildcard exposure in production profiles.
+4. Keep exposed endpoint set minimal and explicit.
+5. Keep health, info, and metrics exposure aligned with documented operational needs.
 
-## Security
-- Secure actuator endpoints in production; allow unauthenticated access only to internal probe endpoints when required by platform health checks
-- Use a dedicated management port (`management.server.port`) only when one of these conditions applies: compliance boundary separation, network-plane isolation, or restricted operator-only ingress
-- Do not route actuator endpoints through a public API gateway
-- For authentication and authorization rules, see `spring-boot-security.instructions.md`
+## Health Endpoint Rules
+1. Keep health endpoint enabled for platform and load balancer checks.
+2. Keep health detail visibility restricted in production.
+3. Keep development diagnostics stricter than production diagnostics.
+4. Keep liveness and readiness paths available when container orchestration healthchecks are in scope.
 
-## Custom Health Indicators
-- Implement a custom `HealthIndicator` for each critical external dependency that affects traffic readiness (database, message broker, external API)
-- Return `Health.down()` with a stable detail key (e.g., `reason`) and descriptive value when the dependency is unavailable
-- Do not expose raw internal error text in health details unless the value is explicitly reviewed and documented as operator-safe
-- Keep health indicator classes package-private; register them as `@Component`
-- Custom dependency indicators must influence readiness semantics; do not couple external dependency state to liveness
+## Security Rules
+1. Keep non-health actuator endpoints authenticated or network-restricted.
+2. Keep health detail access restricted to authorized principals when details are enabled.
+3. Forbid exposing sensitive runtime metadata to unauthenticated callers.
 
+## Configuration Accuracy Rules
+1. Keep management endpoint configuration consistent between pom dependency set and application profiles.
+2. Keep README actuator endpoint documentation aligned with actual exposure configuration.
+3. Keep stacktrace and error detail behavior profile-aware and least-privilege in production.
+
+## Quality Gates
+1. Forbid actuator enablement without explicit endpoint exposure policy.
+2. Forbid production profiles that expose broad management surfaces.
+3. Keep container healthcheck paths aligned with configured actuator health routes.

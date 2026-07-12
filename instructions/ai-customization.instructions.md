@@ -48,6 +48,14 @@ When rules conflict, apply this order:
    - `argument-hint` (for prompts) must describe required input.
    - Avoid vague descriptors that do not improve routing.
 
+## Shared Terminology
+
+Use these meanings across all customization files:
+1. stable: does not change during runtime or within the same released version without explicit versioned migration.
+2. deterministic: same input and state produce the same output and behavior.
+3. explicit: represented in code, configuration, or documentation as a concrete literal, rule, or mapping.
+4. aligned: code, configuration, tests, and docs reflect the same contract intent.
+
 ## Review Rubric (0-10)
 
 Score each file using five dimensions:

@@ -1,40 +1,43 @@
 ---
-description: "DTO and mapper rules: immutable records, validation placement, and mapper conventions."
-applyTo: "**/*DTO.java, **/*Dto.java, **/*DtoMapper.java, **/*Mapper.java, **/*Request.java, **/*Response.java, **/pom.xml"
+description: "Spring Boot DTO mapper contract for deterministic boundary mapping, explicit field coverage, and compile-time safety in production-grade projects."
+applyTo: "**/src/main/java/**/*DtoMapper.java, **/pom.xml"
 ---
 
-# DTO and Mapper Rules
-
-See `spring-boot-enum.instructions.md` for enum wire-format conventions, input validation rules, and migration safety.
+# Spring Boot DTO Mapper Contract
+Use this file to enforce deterministic DTO and domain mapping boundaries.
 
 ## Scope
-- Applies to DTO classes and non-SQL feature mappers (e.g., Spring `@Component` mappers used for domain ↔ DTO conversion)
-- For SQL/MyBatis persistence mappers, see `spring-boot-repository.instructions.md`
+1. Apply to DTO mapper interfaces and classes named *DtoMapper that convert between transport DTOs and domain models.
+2. Keep mapping behavior isolated from service orchestration and repository concerns.
+3. For pom.xml, apply this contract only when MapStruct dependency or MapStruct annotation processing is declared.
+4. For generic *Mapper.java persistence artifacts, apply [spring-boot-repository.instructions.md](./spring-boot-repository.instructions.md) instead of this file.
 
-## DTOs
-- Use Java records for DTOs; use a mutable class only when the framework explicitly requires it (e.g., Thymeleaf form-backing objects)
-- Name request DTOs with suffix `Request` (e.g. `CreateUserRequest`), response DTOs with suffix `Response` (e.g. `UserResponse`)
-- Place all validation annotations (`@NotNull`, `@NotBlank`, `@Size`, etc.) on request DTOs, never on entities
-- For collection fields, use `@Valid` (to recursively validate nested objects) and `@NotEmpty` (to reject empty collections) as needed; e.g., `@Valid @NotEmpty List<ItemRequest> items`
-- For external identifiers used in lookups or I/O operations (MAC addresses, filenames, user IDs, URLs), apply explicit format constraints: `@Pattern` for regex-based validation, `@Size` for length bounds, or custom validators. Document the allowed format in the annotation's message parameter. Example: `@Pattern(regexp = "^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$", message = "MAC address must be in format HH:HH:HH:HH:HH:HH") String macAddress`
+## Mapper Design Rules
+1. Use MapStruct mapper interfaces with Spring component model for DTO boundary mapping.
+2. Keep mapper methods explicit for create, read, and update mapping paths.
+3. Keep update mapping methods explicit about immutable or protected target fields.
+4. Keep mapper names aligned with feature aggregate terminology.
 
-## Mapper Boundary
-- Always map at layer boundaries: controller returns response DTOs, service maps domain objects to DTOs before returning
-- Use consistent method names: `toEntity`, `toResponse`, `toCreateResponse`
+## Field Coverage Rules
+1. Forbid unmapped target fields in MapStruct DTO mappers.
+2. Keep id and system-managed fields explicitly ignored or explicitly sourced.
+3. Keep null handling and default values deterministic and explicit.
+4. Keep transport-only fields out of persistence or domain models.
+5. Forbid leaking persistence internals into response DTOs.
 
-## MapStruct
-- MapStruct is mandatory for all domain ↔ DTO mapping; never write manual conversion boilerplate
-- Define mappers as interfaces annotated with `@Mapper(componentModel = "spring")`
-- Name MapStruct mapper interfaces with suffix `DtoMapper` to avoid overlap with SQL/MyBatis mapper conventions
-- Use package-private visibility by default for mapper interfaces; elevate to `public` only when external callers require it
-- Default to `unmappedTargetPolicy = ReportingPolicy.ERROR` to catch unmapped fields at compile time. For intentional partial mapping (e.g., computed fields not in DTO, differing hierarchies), explicitly set policy to `WARN` or `IGNORE`, add a one-line inline comment, and consider a unit test documenting the unmapped fields.
+## Build and Tooling Rules
+1. Keep MapStruct dependency and annotation processor configured in pom.xml when mapper interfaces are present.
+2. Keep lombok-mapstruct-binding configured when Lombok and MapStruct coexist.
+3. Keep annotation processor versions aligned with declared dependency versions.
+4. Keep generated mapper behavior deterministic across profiles and environments.
 
-## MapStruct Build Requirements
-- When DTO mapping exists in scope, `pom.xml` must include `org.mapstruct:mapstruct`
-- `maven-compiler-plugin` must include `org.mapstruct:mapstruct-processor` under `annotationProcessorPaths`
-- If Lombok and MapStruct are both used, `annotationProcessorPaths` must include `org.projectlombok:lombok-mapstruct-binding`
-- Do not finalize generation if mapper interfaces exist but MapStruct dependencies/processors are missing
+## Boundary and Safety Rules
+1. Keep business rules out of mapper methods.
+2. Keep repositories and SQL concerns out of mapper implementations.
+3. Keep mapper usage in service or adapter boundaries, not in configuration bootstrap logic.
+4. Keep tests covering create, update, and response mapping for each feature mapper.
 
-## Raw Passthrough Exception
-See [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) for the canonical Raw Passthrough Exception rule.
-
+## Quality Gates
+1. Forbid reflection-based or dynamic mapping for core request and response boundaries.
+2. Forbid wildcard or ambiguous field mapping behavior.
+3. Keep mapping contracts backward-compatible for published API DTO fields.

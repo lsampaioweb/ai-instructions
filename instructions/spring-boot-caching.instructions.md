@@ -1,46 +1,45 @@
 ---
-description: "Caching rules: cache annotations, naming, TTL policy, invalidation strategy, and dependency setup."
-applyTo: "**/*Service.java, **/*ServiceImpl.java, **/*Configuration.java, **/application*.yml, **/pom.xml, **/*Test.java, **/*IT.java, **/test/**/*.java"
+description: "Spring Boot caching contract for deterministic cache keys, safe invalidation, and bounded performance behavior in production-grade projects."
+applyTo: "**/src/main/java/**/*Service*.java, **/src/main/java/**/*Configuration.java, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml"
 ---
 
-# Caching Rules
+# Spring Boot Caching Contract
+Use this file to enforce deterministic caching and cache-backed read performance.
 
 ## Scope
-- Use this file as the canonical source for Spring Cache usage in service-layer read/write flows.
+1. Apply when cache abstractions, Redis data storage, or cache-like key-value reads are in scope.
+2. Keep cache behavior explicit in service and configuration boundaries.
 
-## Dependency and Enablement
-- Add `spring-boot-starter-cache` when caching is in scope.
-- Use Caffeine as the default in-process cache backend.
-- Use Redis cache backend only when distributed cache behavior is explicitly required.
-- Enable caching with `@EnableCaching` in a dedicated configuration class.
+## Coordination Order
+1. Apply [spring-boot-service.instructions.md](./spring-boot-service.instructions.md) first for generic service orchestration and transaction baseline rules.
+2. Apply [spring-boot-config.instructions.md](./spring-boot-config.instructions.md) first for generic YAML configuration baseline rules.
+3. Apply this file for caching-specific key, invalidation, and backend constraints when caching is in scope.
 
-## Annotation Usage
-- Use `@Cacheable` on read-heavy service methods (`findAll`, `findById`) when data is stable enough for cache reuse.
-- Use `@CacheEvict` on write methods (`create`, `update`, `delete`, `restore`) to invalidate affected cache entries.
-- Use `@CachePut` only when immediate cache refresh after write is required.
-- Do not place cache annotations on controllers or repositories.
+## Key and Value Rules
+1. Keep cache keys deterministic, stable, and domain-meaningful.
+2. Forbid cache keys derived from non-deterministic values such as timestamps or random numbers.
+3. Keep cached value serialization deterministic and version-safe.
+4. Keep key namespaces explicit to avoid cross-feature key collisions.
 
-## Cache Naming and Keys
-- Use explicit cache names grouped by domain (for example: `countries`, `states`, `cities`).
-- Keep key strategy deterministic and documented (`#id`, composite keys, or fixed keys for collection caches).
-- Avoid implicit key generation when method signatures may evolve frequently.
+## Read and Write Rules
+1. Cache only deterministic read paths with clear cache hit semantics.
+2. Keep write operations synchronized with cache invalidation or replacement semantics.
+3. Forbid stale-cache behavior after successful create, update, or delete operations.
+4. Keep cache miss behavior functionally equivalent to uncached reads.
 
-## TTL and Capacity Policy
-- Define cache TTL in configuration, not in hardcoded Java constants.
-- Set conservative TTL defaults for reference data and tune with observed update frequency.
-- Define maximum cache size for each named cache to avoid unbounded memory growth.
+## Backend and Configuration Rules
+1. Keep cache backend host, port, and credentials externalized in application configuration.
+2. Keep profile-aware cache configuration aligned across development and production.
+3. Keep serialization strategy explicit in cache configuration classes.
+4. Keep time-to-live and eviction policy explicit when expiration is required.
 
-## Invalidation Policy
-- Evict both item and collection caches when write operations change list or lookup results.
-- Keep invalidation rules symmetrical across create, update, delete, and restore operations.
-- Prefer explicit multi-key eviction over global `allEntries = true` unless full-cache invalidation is required.
+## Safety and Isolation Rules
+1. Forbid caching sensitive secrets or credential material.
+2. Keep cache access paths bounded by feature package boundaries.
+3. Keep repository or adapter layers free of business-rule cache decisions.
+4. Keep cache failures isolated from core business correctness when fallback reads are available.
 
-## Observability and Safety
-- Monitor cache hit/miss metrics through Actuator metrics.
-- Keep cache data free of secrets and security-sensitive payloads.
-- Document any eventual-consistency window introduced by cache TTL.
-
-## Testing
-- Add tests that verify cache population on reads and invalidation on writes.
-- Use test profile settings to keep TTL predictable and tests deterministic.
-- Ensure cache-related tests do not depend on production cache infrastructure.
+## Test and Observability Rules
+1. Keep tests covering cache hit, cache miss, and post-write invalidation behavior.
+2. Keep tests validating deterministic key generation.
+3. Keep operational visibility for cache connectivity and failure scenarios.

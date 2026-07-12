@@ -1,91 +1,53 @@
 ---
-description: "Logging rules: @Slf4j, i18n keys for all log messages, log level selection, and what must never be logged."
-applyTo: "**/*.java"
+description: "Spring Boot logging contract for secure, consistent, and operationally useful application log events in production-grade projects."
+applyTo: "**/src/main/java/**/*.java, **/src/test/java/**/*.java"
 ---
 
-# Logging Rules
+# Spring Boot Logging Contract
+Use this file to enforce application logging behavior.
 
-See `spring-boot-logback.instructions.md` for logback configuration guidance.
-See `spring-boot-observability.instructions.md` for MDC key contracts and HTTP correlation propagation.
+## Abstraction and DI
+1. Keep application and domain code dependent on a logging abstraction, not a vendor SDK.
+2. Keep transport-specific logging (file, JSON, Datadog, Loki, or equivalent) behind adapter implementations.
+3. Select logging adapter implementation through Spring configuration and dependency injection.
+4. Keep a safe default adapter available when no external sink is enabled.
+5. Do not import vendor-specific logging clients outside infrastructure adapter packages.
 
-## Scope: All Operator-Facing Text
-- Apply this i18n rule to operator-facing logs, operational exception messages, and human-readable string constants
-- Define all such text as i18n keys in `messages.properties`; never hardcode English text
-For HTTP response error rendering and locale-aware user-facing messages, see `spring-boot-exception.instructions.md` and `spring-boot-i18n.instructions.md`.
+## Event Design
+1. Log business state transitions, integration call outcomes, and failure events with operation context; do not log method-entry or loop-iteration noise.
+2. Keep one primary success log per operation boundary where observability is needed.
+3. Keep error logs actionable with operation context and outcome.
 
-## LogMessages vs MessageSource
+## Level Rules
+1. Use DEBUG for diagnostic detail.
+2. Use INFO for lifecycle and business-relevant state changes.
+3. Use WARN for recoverable abnormal conditions.
+4. Use ERROR for failed operations and unhandled exceptions.
 
-- Use `LogMessages` for all operator-facing text in Java classes (logs and operational exception messages)
-- Keep operator-facing text in English only; do not resolve logs or operational exceptions with request locale
-- Use `MessageSource` only inside `@RestControllerAdvice` to resolve HTTP response error messages with `LocaleContextHolder.getLocale()`
-- Do not inject `MessageSource` into controllers, services, repositories, listeners, integration clients, or utilities
-- Do not inject `LogMessages` into `@RestControllerAdvice` for HTTP error response rendering
+## Message Rules
+1. Use parameterized logging; do not build messages with string concatenation.
+2. Keep message templates stable and concise.
+3. Include stable identifiers for traceability.
+4. Avoid duplicate logs for the same failure across adjacent layers.
 
-## Rules
+## Security and Privacy
+1. Never log secrets, credentials, tokens, private keys, or raw authorization headers.
+2. Never log full sensitive payloads when redaction or summarization is required.
+3. Sanitize external input before logging.
+4. Keep stack traces at ERROR level only when they add remediation value.
 
-- Add `@Slf4j` (Lombok) to a class when it contains at least one `log.*` call; never declare `private static final Logger` manually
-- Never hardcode message text as string literals in log statements; define all log message templates in `messages.properties` and resolve them by key before passing to the logger
-- Resolve log message keys via a project-level `LogMessages` utility; inject it via constructor
-- Logs are always developer-facing and always in English — never resolve log messages with the request locale; locale-aware rendering applies only to HTTP responses
-- Use `logMessages.get(LOG_CONSTANT, args...)` in log statements; never pass a key string literal directly (e.g. `log.debug(logMessages.get(LOG_USER_NOT_FOUND, id))`, not `log.debug("User {} not found", id)`)
-- Declare i18n key constants as `private static final String` at class top with descriptive names aligned to event intent (e.g., `LOG_USER_CREATED`)
-- Add logs for important lifecycle events (startup, connect/disconnect, external calls, publish/consume)
-- Use `DEBUG` for noisy flow details and `INFO` for business or lifecycle milestones
-- Do not wrap ordinary `log.debug(...)` with `if (log.isDebugEnabled())`; use guards only for expensive arguments or hot loops/high-throughput paths
+## i18n and Consistency
+1. When i18n logging infrastructure exists, use centralized message keys for log text.
+2. Keep log message key naming consistent by feature and action.
+3. Keep locale-dependent text deterministic for operational analysis.
 
-## Compliance Check: Identifying Hardcoded Text
-When auditing compliance, check for hardcoded text violations in:
-1. **Exception messages**: String literals in `throw new Exception("text")` or exception message constants
-2. **String constants**: Any `private static final String` holding English text (should hold message keys instead)
-3. **Validation errors**: Custom error messages not resolved from `messages.properties`
-4. **Startup warnings/errors**: Any printed output or log statements with embedded text
+## Performance and Reliability
+1. Keep log volume bounded on hot paths.
+2. Avoid expensive object serialization in INFO and higher-frequency logs.
+3. Guard verbose logs with level checks when computation cost is non-trivial.
+4. Keep remote log shipping non-blocking and resilient to transient sink failures.
 
-Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words, constants ending in `_MESSAGE`, `_ERROR`, `_WARNING`, exception constructors with string literals.
-
-## Log Levels
-
-| Level   | When to use |
-|---------|-------------|
-| `ERROR` | Unrecoverable failure; always include the exception as the last argument |
-| `WARN`  | Recoverable issue; unexpected but non-fatal state |
-| `INFO`  | Service started, significant business event (order created, user registered) |
-| `DEBUG` | Internal state during processing; disabled in production |
-| `TRACE` | High-frequency or low-level detail; disabled in all non-local environments |
-
-## What Not to Log
-
-- Passwords, API keys, tokens, secrets, or any masked version of them
-- Full request or response bodies that may contain PII
-- Stack traces at `INFO` or `DEBUG` level; reserve those for `ERROR`
-- Expensive debug message construction inside tight loops or high-throughput paths without a level guard: `if (log.isDebugEnabled())`
-
-## Logging Layers: Where to Log
-
-Business operation logging belongs in the service layer. Controllers and repositories do not log business events.
-Do not emit the same business-event log in multiple layers of the same request flow.
-
-### By Component
-
-**Controller (REST Handlers)**
-- Do not log request success flow in controllers
-- Never log state transitions (create/update/delete), business events, or operation results in controllers; these belong in the service layer
-- No `@Slf4j`; no `LogMessages` injection; no `MessageSource` injection
-
-**Service Layer**
-- Log ALL state transitions: create/update/delete operations at `INFO` with i18n message keys
-- Log external integration calls: start, latency, outcome (success/failure) at `INFO`
-- Log payload details only at `DEBUG` level when needed for diagnosis
-- Use @Slf4j and LogMessages for all logging
-
-**Repository / Data Access**
-- Do not log business events or state transitions in repositories
-- Log only technical persistence diagnostics when needed (query intent, row count, retry/failure context)
-- Keep repository logs low-noise: prefer `DEBUG`; use `INFO` only for lifecycle-level operational events explicitly required by the feature
-- If a repository emits logs, use @Slf4j with i18n keys resolved through LogMessages
-
-**Listener/Consumer/Integration Client**
-- Log lifecycle: connect/disconnect events
-- Log operation outcomes: success/failure at `INFO`
-- Log latency for external calls at `INFO`
-- Use @Slf4j and LogMessages
-
+## Testing and Review
+1. Validate critical failure paths produce actionable logs.
+2. Validate sensitive fields are not emitted in logs.
+3. Treat missing contextual identifiers in critical logs as a review finding.
