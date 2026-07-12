@@ -6,12 +6,10 @@ Centralized VS Code Copilot instruction and prompt files for Spring Boot project
 ## Repository structure
 
 ```
-agents/         — .agent.md files for specialized creation and review workflows
+agents/         — reserved for .agent.md files when agent-specific workflows are added
 hooks/          — reserved for post-generation hooks
 instructions/   — .instructions.md files; auto-applied by Copilot based on applyTo patterns
 prompts/        — .prompt.md files; invoked explicitly with /prompt-name
-snippets/       — reusable code templates referenced by instruction files
-shared/         — shared cross-workflow instruction fragments referenced by agents and skills
 skills/         — SKILL.md files; domain knowledge loaded on demand
 ```
 
@@ -21,23 +19,16 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 
 | File | Invoke with | Purpose |
 |---|---|---|
-| [explain-problem-find-solution.prompt.md](prompts/explain-problem-find-solution.prompt.md) | `/explain-problem-find-solution` | Explain the problem cause, verify the root cause, and provide a permanent fix — not a workaround |
+| [audit-ai-customization-files.prompt.md](prompts/audit-ai-customization-files.prompt.md) | `/audit-ai-customization-files` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
 | [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, group logical commits, present commit plan for approval, then commit if approved; keep output concise without redundant bodies or repeated file lists |
-| [compare-code-to-instructions.prompt.md](prompts/compare-code-to-instructions.prompt.md) | `/compare-code-to-instructions` | Compare AI customization files and code, detect drift in either direction, and produce findings with mandatory closure states (`fixed`, `accepted-intentional`, `deferred`) |
-| [review-ai-customization.prompt.md](prompts/review-ai-customization.prompt.md) | `/review-ai-customization` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
+| [review-and-sync-docs.prompt.md](prompts/review-and-sync-docs.prompt.md) | `/review-and-sync-docs` | Correlate workspace deltas with Markdown docs and sync stale documentation in a controlled pass |
+| [review-code-against-instructions.prompt.md](prompts/review-code-against-instructions.prompt.md) | `/review-code-against-instructions` | Run bi-directional compliance audit between code artifacts and instruction contracts |
 | [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
-| [sync-readme-with-project.prompt.md](prompts/sync-readme-with-project.prompt.md) | `/sync-readme-with-project` | Update the main README.md with meaningful project changes from code, config, and docs |
+| [root-cause-analysis.prompt.md](prompts/root-cause-analysis.prompt.md) | `/root-cause-analysis` | Analyze logs and exceptions to identify root cause and propose permanent architectural fixes |
 
 ## Agent files
 
-Used in Agent mode for specialized generation and review flows.
-
-| File | Purpose |
-|---|---|
-| [spring-boot-creator.agent.md](agents/spring-boot-creator.agent.md) | Implements requested Spring Boot changes with minimal, verifiable edits using consumed instruction files |
-| [spring-boot-review-orchestrator.agent.md](agents/spring-boot-review-orchestrator.agent.md) | Coordinates specialist review agents and produces a single severity-ordered decision report |
-| [spring-boot-review-architecture.agent.md](agents/spring-boot-review-architecture.agent.md), [spring-boot-review-quality.agent.md](agents/spring-boot-review-quality.agent.md), [spring-boot-review-testing.agent.md](agents/spring-boot-review-testing.agent.md), [spring-boot-review-performance.agent.md](agents/spring-boot-review-performance.agent.md), [spring-boot-review-security.agent.md](agents/spring-boot-review-security.agent.md) | Domain-specific specialist reviewers used by the orchestrator |
-| [spring-boot-review-protocol.md](agents/spring-boot-review-protocol.md) | Shared output schema and severity/deduplication contract for all reviewer agents |
+No agent files are currently tracked in `agents/`.
 
 ## Skill files
 
@@ -45,60 +36,65 @@ Loaded automatically by Copilot when the prompt topic matches the skill descript
 
 | Folder | Invoke with | Purpose |
 |---|---|---|
-| [skills/spring-boot-generate/](skills/spring-boot-generate/SKILL.md) | `/spring-boot-generate` | Generate or implement Spring Boot features in agent mode with strict instruction-file compliance, mandatory traceability, and requirement coverage reporting |
-| [skills/spring-boot-review/](skills/spring-boot-review/SKILL.md) | `/spring-boot-review` | Audit or review Spring Boot code in plan mode with findings-first output, strict instruction traceability, and architecture compliance reporting |
+| [skills/spring-boot/](skills/spring-boot/SKILL.md) | `/spring-boot` | Unified Spring Boot workflow that routes requests to creation or review flow based on intent, with scoped traceability and compliance reporting |
 
 ## Instruction files
 
-| File | Applies to | Purpose |
-|---|---|---|
-| [mandatory-completion-gate.instructions.md](shared/mandatory-completion-gate.instructions.md) | referenced from generation agents and skills | Shared completion gate checklist used before reporting implementation or generation completion |
-| [ai-customization.instructions.md](instructions/ai-customization.instructions.md) | `**/*.agent.md`, `**/hooks/**/*.json`, `**/hooks/**/*.md`, `**/*.instructions.md`, `**/*.prompt.md`, `**/skills/**/SKILL.md` | Style contract for AI customization files: structure, wording, conflict handling, and scoring rubric for consistent, enforceable guidance |
-| [copilot-instructions.md](instructions/copilot-instructions.md) | `**` | Always-on behavioral baseline: directness, scope control, anti-hallucination, concise output, and tool discipline guardrails |
-| [spring-boot-actuator.instructions.md](instructions/spring-boot-actuator.instructions.md) | `**/*ActuatorConfig*.java`, `**/*HealthIndicator.java`, `**/management/**/*.java`, `**/application*.yml`, `**/pom.xml` | Actuator and health check rules: dependency setup, endpoint exposure, security, probe-based liveness/readiness, and custom health indicators |
-| [spring-boot-api-versioning.instructions.md](instructions/spring-boot-api-versioning.instructions.md) | `**/*Controller.java`, `**/*Api.java`, `**/*Request.java`, `**/*Response.java`, `**/*OpenApiConfig*.java`, `**/*SwaggerConfig*.java`, `**/*Test.java`, `**/*IT.java`, `**/README.md` | API versioning rules: coexistence strategy, deprecation headers, and DTO evolution across versions |
-| [spring-boot-architecture.instructions.md](instructions/spring-boot-architecture.instructions.md) | `**/*.java`, `**/pom.xml` | Cross-cutting architecture and boundary rules (packaging, dependency flow, API/domain boundaries, visibility, no-ORM, execution integrity), constructor injection conventions (including `@RequiredArgsConstructor` guidance), plus global scope/ambiguity protocol and pointers to specialized instruction files for implementation details |
-| [spring-boot-async-events.instructions.md](instructions/spring-boot-async-events.instructions.md) | `**/*Event.java`, `**/*Listener.java`, `**/*Publisher.java` | Async processing and internal event rules: Spring Application Events for cross-feature communication and `@Async` for heavy I/O listeners |
-| [spring-boot-caching.instructions.md](instructions/spring-boot-caching.instructions.md) | `**/*Service.java`, `**/*ServiceImpl.java`, `**/*Configuration.java`, `**/application*.yml`, `**/pom.xml`, `**/*Test.java`, `**/*IT.java`, `**/test/**/*.java` | Caching rules: cache annotations, naming, TTL policy, invalidation strategy, and dependency setup |
-| [spring-boot-config.instructions.md](instructions/spring-boot-config.instructions.md) | `**/application*.yml`, `**/*ConfigurationProperties.java`, `**/*Configuration.java` | Configuration rules: mandatory profile files, `@ConfigurationProperties`, `@EnableConfigurationProperties` placement guidance, `@Value` policy, test-profile override guidance, secrets pointer, `@Bean` organization, and `@PostConstruct` fail-fast startup initialization patterns |
-| [spring-boot-container.instructions.md](instructions/spring-boot-container.instructions.md) | `**/Dockerfile`, `**/Dockerfile-multi-stage`, `**/docker-compose.yml`, `**/.dockerignore` | Docker and Docker Compose rules: internal base image naming for Spring Boot apps, infrastructure service images, security hardening (separate for app and infrastructure), volume mounts, healthchecks, `.env.example` pattern, and log directory ownership |
-| [spring-boot-controller.instructions.md](instructions/spring-boot-controller.instructions.md) | `**/*Controller.java`, `**/*Api.java` | REST controller rules: no business logic, `@Valid` inputs, DTO responses, API versioning, and HTTP status conventions |
-| [spring-boot-database-schema.instructions.md](instructions/spring-boot-database-schema.instructions.md) | `**/sql/**/*.xml`, `**/mapper/**/*.xml`, `**/src/main/resources/sql/**/*.sql` | Database schema conventions: type sizing, naming standards, constraints, and nullability defaults for SQL artifacts |
-| [spring-boot-dto-mapper.instructions.md](instructions/spring-boot-dto-mapper.instructions.md) | `**/*DTO.java`, `**/*Dto.java`, `**/*DtoMapper.java`, `**/*Mapper.java`, `**/*Request.java`, `**/*Response.java`, `**/pom.xml` | DTO and mapper rules: immutable records, validation placement, mapper boundary enforcement, Spring component mapper defaults, and optional MapStruct conventions |
-| [spring-boot-enum.instructions.md](instructions/spring-boot-enum.instructions.md) | `**/*.java`, `**/mapper/**/*.xml`, `**/sql/**/*.xml` | Enum conventions: naming, DB storage, API serialization, validation, OpenAPI docs, and migration safety |
-| [spring-boot-error-code.instructions.md](instructions/spring-boot-error-code.instructions.md) | `**/*Exception.java`, `**/*ControllerAdvice.java`, `**/*ExceptionHandler.java`, `**/*ErrorResponse.java`, `**/*Controller.java`, `**/*Api.java`, `**/*OpenApiConfig*.java`, `**/*SwaggerConfig*.java` | Error code rules: machine-readable API error codes, ErrorResponse contract, and OpenAPI documentation |
-| [spring-boot-exception.instructions.md](instructions/spring-boot-exception.instructions.md) | `**/*Exception.java`, `**/*ControllerAdvice.java`, `**/*ExceptionHandler.java`, `**/*ErrorResponse.java`, `**/application*.yml` | Exception handling rules: single `@RestControllerAdvice`, domain exception hierarchy (including `transient` args guidance for serializability), `ErrorResponse`/`ValidationError` DTO patterns, UTC timestamp handling, and environment-driven stacktrace exposure policy |
-| [spring-boot-http-client.instructions.md](instructions/spring-boot-http-client.instructions.md) | `**/*Client.java`, `**/*ApiClient.java`, `**/*HttpClient.java` | HTTP client rules: `RestClient` setup, configuration, and usage patterns for calling external APIs |
-| [spring-boot-i18n.instructions.md](instructions/spring-boot-i18n.instructions.md) | `**/i18n/**`, `**/messages*.properties`, `**/*LocaleConfig.java` | i18n rules: message file layout, English+pt_BR required, locale resolution via `Accept-Language` header only |
-| [spring-boot-logback.instructions.md](instructions/spring-boot-logback.instructions.md) | `**/src/main/resources/log/logback-spring.xml`, `**/src/main/resources/logback-spring.xml`, `**/pom.xml`, `**/.vscode/launch.json` | Logback configuration rules: file location, profile-based appenders, rotation, and working-directory path resolution |
-| [spring-boot-logging.instructions.md](instructions/spring-boot-logging.instructions.md) | `**/*.java` | Logging and operator-text rules: `@Slf4j`, i18n keys for logs and exception/operator-facing text, log level selection, and what must never be logged |
-| [spring-boot-migrations.instructions.md](instructions/spring-boot-migrations.instructions.md) | `**/pom.xml`, `**/application*.yml`, `**/src/main/resources/db/migration/**/*.sql`, `**/*Test.java`, `**/*IT.java`, `**/test/**/*.java` | Database migration rules: Flyway/Liquibase selection, versioned scripts, profile behavior, and test integration |
-| [spring-boot-observability.instructions.md](instructions/spring-boot-observability.instructions.md) | `**/src/main/resources/log/logback-spring.xml`, `**/src/main/resources/logback-spring.xml`, `**/*Filter.java`, `**/*Interceptor.java`, `**/*Configuration.java`, `**/application*.yml`, `**/pom.xml` | Observability rules: pluggable log appenders, structured logging fields, and MDC correlation propagation |
-| [spring-boot-openapi.instructions.md](instructions/spring-boot-openapi.instructions.md) | `**/*OpenApiConfig*.java`, `**/*SwaggerConfig*.java`, `**/*Controller.java`, `**/*Api.java` | OpenAPI/Swagger rules: springdoc-openapi setup, version property management, required OpenAPI bean, controller annotation guidance (`@Tag`/`@Operation` baseline with early-tutorial exceptions), and profile-based UI toggle |
-| [spring-boot-pagination.instructions.md](instructions/spring-boot-pagination.instructions.md) | `**/*Controller.java`, `**/*Api.java`, `**/*Repository.java`, `**/*RepositoryImpl.java`, `**/*Response.java`, `**/mapper/**/*.xml`, `**/sql/**/*.xml`, `**/application*.yml` | Pagination rules: request parameters, response wrapper, size limits, SQL strategy, and Link headers |
-| [spring-boot-pom.instructions.md](instructions/spring-boot-pom.instructions.md) | `**/pom.xml` | Maven POM rules: `spring-boot-starter-parent`, required starter baseline, no hardcoded managed versions, dependency ordering, and BOM usage |
-| [spring-boot-readme.instructions.md](instructions/spring-boot-readme.instructions.md) | `**/README.md` | README structure rules: recommended sections and no-filler-prose policy |
-| [spring-boot-referential-integrity.instructions.md](instructions/spring-boot-referential-integrity.instructions.md) | `**/src/main/resources/sql/**/*.sql`, `**/mapper/**/*.xml`, `**/sql/**/*.xml`, `**/*Repository.java`, `**/*RepositoryImpl.java`, `**/*Exception.java`, `**/*ControllerAdvice.java`, `**/*Controller.java`, `**/*Api.java` | Referential integrity rules: foreign-key delete policy, API behavior, and FK violation exception mapping |
-| [spring-boot-repository.instructions.md](instructions/spring-boot-repository.instructions.md) | `**/*Repository.java`, `**/*RepositoryImpl.java`, `**/*Mapper.java`, `**/mapper/**/*.xml`, `**/sql/**/*.xml` | Repository rules: persistence repositories and SQL/MyBatis mappers only, MyBatis and Spring JDBC Templates, SQL in XML files, schema initialization guidance, package-private repository method conventions, no ORM, and no business logic |
-| [spring-boot-security.instructions.md](instructions/spring-boot-security.instructions.md) | `**/*SecurityConfig.java`, `**/security/**/*.java`, `**/pom.xml`, `**/application*.yml` | Security rules: Spring Security 6 Lambda DSL, deny-by-default, `@PreAuthorize` with read/write role baseline, CSRF/CORS policy, local SSL testing constraints, secrets, and error message hygiene |
-| [spring-boot-service.instructions.md](instructions/spring-boot-service.instructions.md) | `**/*Service.java`, `**/*ServiceImpl.java` | Service layer rules: business logic ownership, `@Transactional`, domain exceptions, and interface+impl pattern |
-| [spring-boot-soft-delete.instructions.md](instructions/spring-boot-soft-delete.instructions.md) | `**/*Controller.java`, `**/*Api.java`, `**/*Repository.java`, `**/*RepositoryImpl.java`, `**/*Service.java`, `**/*ServiceImpl.java`, `**/*Exception.java`, `**/*ControllerAdvice.java`, `**/src/main/resources/sql/**/*.sql`, `**/mapper/**/*.xml`, `**/sql/**/*.xml` | Soft-delete rules: schema columns, query filtering, endpoint semantics, and restore behavior |
-| [spring-boot-test.instructions.md](instructions/spring-boot-test.instructions.md) | `**/*Test.java`, `**/*IT.java`, `**/test/**/*.java` | Testing rules: slice vs full-context tests, `@MockitoBean` (Spring Boot 3.4+), naming conventions, AssertJ, and profile activation |
-| [spring-boot-thymeleaf.instructions.md](instructions/spring-boot-thymeleaf.instructions.md) | `**/*PageController.java`, `**/*Routes.java`, `**/templates/**/*.html` | Thymeleaf rules: `@Controller` vs `@RestController`, view name returns, view-controller naming (`*PageController`/`*Routes`), model attributes, form binding with `th:object`/`th:field`, and static resource URL expressions |
-| [spring-boot-websocket.instructions.md](instructions/spring-boot-websocket.instructions.md) | `**/*WebSocketConfiguration*.java`, `**/*SocketEndpoint.java`, `**/*SessionEventsListener.java`, `**/*ConnectionTracker.java`, `**/*StompMessage.java`, `**/*SocketMessage.java`, `**/*WebSocketMessage.java`, `**/static/js/*websocket*.js`, `**/static/js/*socket*.js` | WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience |
+Instruction contracts live under [instructions/](instructions). They are auto-routed by each file's `applyTo` pattern.
+
+Core governance:
+- [ai-customization.instructions.md](instructions/ai-customization.instructions.md)
+- [copilot-instructions.md](instructions/copilot-instructions.md)
+- [spring-boot-architecture.instructions.md](instructions/spring-boot-architecture.instructions.md)
+
+Spring Boot component contracts:
+- [spring-boot-actuator.instructions.md](instructions/spring-boot-actuator.instructions.md)
+- [spring-boot-api-versioning.instructions.md](instructions/spring-boot-api-versioning.instructions.md)
+- [spring-boot-async-events.instructions.md](instructions/spring-boot-async-events.instructions.md)
+- [spring-boot-caching.instructions.md](instructions/spring-boot-caching.instructions.md)
+- [spring-boot-config.instructions.md](instructions/spring-boot-config.instructions.md)
+- [spring-boot-container.instructions.md](instructions/spring-boot-container.instructions.md)
+- [spring-boot-controller.instructions.md](instructions/spring-boot-controller.instructions.md)
+- [spring-boot-database-schema.instructions.md](instructions/spring-boot-database-schema.instructions.md)
+- [spring-boot-dto-mapper.instructions.md](instructions/spring-boot-dto-mapper.instructions.md)
+- [spring-boot-enum.instructions.md](instructions/spring-boot-enum.instructions.md)
+- [spring-boot-error-code.instructions.md](instructions/spring-boot-error-code.instructions.md)
+- [spring-boot-exception.instructions.md](instructions/spring-boot-exception.instructions.md)
+- [spring-boot-http-client.instructions.md](instructions/spring-boot-http-client.instructions.md)
+- [spring-boot-i18n.instructions.md](instructions/spring-boot-i18n.instructions.md)
+- [spring-boot-logback.instructions.md](instructions/spring-boot-logback.instructions.md)
+- [spring-boot-logging.instructions.md](instructions/spring-boot-logging.instructions.md)
+- [spring-boot-migrations.instructions.md](instructions/spring-boot-migrations.instructions.md)
+- [spring-boot-observability.instructions.md](instructions/spring-boot-observability.instructions.md)
+- [spring-boot-openapi.instructions.md](instructions/spring-boot-openapi.instructions.md)
+- [spring-boot-pagination.instructions.md](instructions/spring-boot-pagination.instructions.md)
+- [spring-boot-pom.instructions.md](instructions/spring-boot-pom.instructions.md)
+- [spring-boot-readme.instructions.md](instructions/spring-boot-readme.instructions.md)
+- [spring-boot-referential-integrity.instructions.md](instructions/spring-boot-referential-integrity.instructions.md)
+- [spring-boot-repository.instructions.md](instructions/spring-boot-repository.instructions.md)
+- [spring-boot-security.instructions.md](instructions/spring-boot-security.instructions.md)
+- [spring-boot-service.instructions.md](instructions/spring-boot-service.instructions.md)
+- [spring-boot-soft-delete.instructions.md](instructions/spring-boot-soft-delete.instructions.md)
+- [spring-boot-test.instructions.md](instructions/spring-boot-test.instructions.md)
+- [spring-boot-thymeleaf.instructions.md](instructions/spring-boot-thymeleaf.instructions.md)
+- [spring-boot-websocket.instructions.md](instructions/spring-boot-websocket.instructions.md)
+
+To inspect current routing patterns directly:
+
+```bash
+rg -n "^applyTo:" instructions/*.instructions.md
+```
 
 ## Instruction format conventions
 
-- `spring-boot-*.instructions.md` files follow a standardized structure: YAML frontmatter, one H1 title, and H2 rule sections
-- Most instruction files end with `## Templates`; exceptions are `spring-boot-architecture.instructions.md` and `spring-boot-readme.instructions.md`
-- Keep reusable code examples only in `## Templates`; avoid duplicating code blocks inside rule sections
+- `spring-boot-*.instructions.md` files follow a standardized structure: YAML frontmatter, one H1 title, and deterministic H2 rule sections
+- Keep one rule per bullet and keep sections enforceable and purpose-specific
 - All `.instructions.md`, `.prompt.md`, `.agent.md`, and `SKILL.md` files must follow the style contract defined in [ai-customization.instructions.md](instructions/ai-customization.instructions.md)
 
 ## Contributing
 
 - Keep each instruction file focused on one concern and define `applyTo` as narrowly as possible
-- For Spring Boot instruction files, follow the standardized structure already used in this repository
-- Keep examples reusable and place them in `## Templates` when that section exists; avoid duplicate code blocks across sections
+- For Spring Boot instruction files, follow the standardized deterministic structure already used in this repository
 - Update [README.md](README.md) whenever an instruction, prompt, or skill is added, renamed, or meaningfully updated
 
 ## License
