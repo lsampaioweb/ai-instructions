@@ -17,7 +17,9 @@ See `spring-boot-api-versioning.instructions.md` for API version evolution, coex
 - Declare the full versioned base path at class level: `@RequestMapping("/api/v1/resource-name")` using lowercase plural resource names
 - Method annotations use only the path suffix relative to the class mapping (e.g., `@GetMapping`, `@GetMapping("/{id}")`, `@PostMapping`) and never repeat the base path in method annotations
 - No business logic; delegate all processing to the service layer
-- **No logging of business operations** — state transitions (create/update/delete), operation results, and business events belong in the service layer only
+- Do not add `@Slf4j` in controllers
+- Do not inject `MessageSource` or `LogMessages` into controllers
+- Do not log request success flow, business events, operation results, or state transitions in controllers; these logs belong in the service layer
 - Allow only protocol adaptation required by HTTP semantics (e.g., status code, headers, content-type); keep all branching, orchestration, transformations, and domain decisions in the service layer
 - Do not call mapper classes or integration clients directly
 - Accept input via explicit Spring binding annotations (`@RequestBody`, `@PathVariable`, `@RequestParam`, `@RequestHeader`, or `@ModelAttribute`) as required by the endpoint contract

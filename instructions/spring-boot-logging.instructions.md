@@ -13,6 +13,14 @@ See `spring-boot-observability.instructions.md` for MDC key contracts and HTTP c
 - Define all such text as i18n keys in `messages.properties`; never hardcode English text
 For HTTP response error rendering and locale-aware user-facing messages, see `spring-boot-exception.instructions.md` and `spring-boot-i18n.instructions.md`.
 
+## LogMessages vs MessageSource
+
+- Use `LogMessages` for all operator-facing text in Java classes (logs and operational exception messages)
+- Keep operator-facing text in English only; do not resolve logs or operational exceptions with request locale
+- Use `MessageSource` only inside `@RestControllerAdvice` to resolve HTTP response error messages with `LocaleContextHolder.getLocale()`
+- Do not inject `MessageSource` into controllers, services, repositories, listeners, integration clients, or utilities
+- Do not inject `LogMessages` into `@RestControllerAdvice` for HTTP error response rendering
+
 ## Rules
 
 - Add `@Slf4j` (Lombok) to a class when it contains at least one `log.*` call; never declare `private static final Logger` manually
@@ -54,14 +62,14 @@ Use `grep` or IDE search to find patterns: hardcoded strings longer than 2 words
 ## Logging Layers: Where to Log
 
 Business operation logging belongs in the service layer. Controllers and repositories do not log business events.
+Do not emit the same business-event log in multiple layers of the same request flow.
 
 ### By Component
 
 **Controller (REST Handlers)**
-- Log HTTP-level concerns only: unexpected 5xx errors (at `ERROR`), redirect decisions (at `DEBUG`)
-- **Never log** state transitions (create/update/delete), business events, or operation results — these belong in the service layer
-- Keep successful request flow logging at `DEBUG` or omit if not needed for HTTP diagnostics
-- No @Slf4j; no LogMessages injection
+- Do not log request success flow in controllers
+- Never log state transitions (create/update/delete), business events, or operation results in controllers; these belong in the service layer
+- No `@Slf4j`; no `LogMessages` injection; no `MessageSource` injection
 
 **Service Layer**
 - Log ALL state transitions: create/update/delete operations at `INFO` with i18n message keys

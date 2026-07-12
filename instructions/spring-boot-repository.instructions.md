@@ -33,7 +33,9 @@ For canonical ORM prohibition policy, see `spring-boot-architecture.instructions
 
 ## General
 - No business logic in repositories; data access only
-- **No logging in repositories** — all operation tracking and state-transition logging belongs in the service layer
+- Do not log business operations, state transitions, or business-event outcomes in repositories; service layer owns these logs
+- Log only technical persistence diagnostics when needed (query intent, row count mismatch, retry/failure context)
+- Keep repository diagnostics low-noise: default to `DEBUG`; use `INFO` only for explicitly required lifecycle operational events
 - Use package-private visibility by default for repository and mapper classes; elevate to `public` only when external callers require it
 - Place schema and seed SQL files under `src/main/resources/sql/`; do not place them in the root of `src/main/resources/`
 - Do not introduce migration dependencies by default; add Flyway or Liquibase only when migrations are in scope. See `spring-boot-migrations.instructions.md`

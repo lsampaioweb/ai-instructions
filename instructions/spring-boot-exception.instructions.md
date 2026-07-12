@@ -20,6 +20,12 @@ See `spring-boot-error-code.instructions.md` for machine-readable `errorCode` co
 - Domain exceptions are HTTP-facing and are translated by `@RestControllerAdvice`
 - Operational exceptions are startup/infrastructure exceptions and are not returned as HTTP error payloads
 
+## Message Resolution Boundary
+- Resolve domain exception messages with `MessageSource` only in `@RestControllerAdvice` using `LocaleContextHolder.getLocale()`
+- Do not inject `MessageSource` into controllers, services, repositories, listeners, integration clients, exception classes, or utilities
+- Resolve operational exception messages with `LogMessages` in the class that throws the exception
+- Do not use `LogMessages` to render HTTP response error messages
+
 ## Domain Exceptions
 - All domain exceptions extend a shared abstract base class that extends `RuntimeException`
 - The base class stores three fields: `String messageKey`, `Object[] args`, `HttpStatus status`

@@ -11,7 +11,9 @@ See `spring-boot-logging.instructions.md` for logging scope, message i18n, and c
 ## Rules
 
 - All business logic lives in the service layer; never in controllers, repositories, or entities
-- Follow `spring-boot-logging.instructions.md` for state-transition logging scope, levels, and `LogMessages` usage
+- Service layer is the canonical owner of business-operation logs (state transitions, operation outcomes, business events)
+- Follow `spring-boot-logging.instructions.md` for level selection, state-transition scope, and `LogMessages` usage
+- Do not duplicate the same business-event log across controller, service, and repository layers; emit it once in the service flow
 - Define a service interface; provide a single implementation class suffixed with `Impl` per interface
 - Apply `@Transactional` at the method level, not on the class; read-only methods use `@Transactional(readOnly = true)`
 - Throw domain-specific exceptions extending the project's base exception class; do not throw raw Spring infrastructure exceptions
