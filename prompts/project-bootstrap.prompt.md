@@ -33,9 +33,9 @@ argument-hint: "Required: repository root path or target module directory. Optio
 - **Lifecycle Reconciliation Rule:** Mark each instruction file action explicitly as create, update, retain, or delete with evidence.
 - **Baseline Naming Exception:** Keep `architecture.instructions.md` as the global mandatory baseline and do not prefix it with ecosystem.
 - **Instruction Target Directory Rule:** Create and update instruction files only under `.github/instructions/`; do not place instruction files at repository root.
-- **Scale-Driven Aggregation Rule:** Evaluate workspace scale before declaring output targets.
-  - *Enterprise Scale (> 50 source units or complex polyglot repos):* use a 1:1 primitive-to-file mapping.
-  - *Micro/Specialized Scale (< 50 source units or single-domain pipelines):* aggregate 6 primitives into 2-3 conditional files. Aggregation changes file count only; each file still inherits the full 4-tier layout.
+- **Scale-Driven Aggregation Rule:** Evaluate total workspace scale, architectural complexity, and polyglot boundaries before declaring output targets.
+  - *Enterprise Scale (> 100 source units OR multi-ecosystem polyglot repositories):* Maintain a fully decoupled 1:1 mapping of primitives to files.
+  - *Micro/Specialized Scale (< 100 source units OR single-domain pipelines/extensions):* Aggregate the 6 universal primitives into a maximum of 2 to 3 high-density conditional files to maximize token density and prevent governance bloat.
 - **4-Tier Layout Transfer:** Every proposed instruction file must inherit the strict **4-Tier Engine Layout** (`Scope & Analysis`, `Resolution Rules`, `Review Plan Layout`, `Safety Guards`). Generic narrative rules are prohibited.
 
 ## 3. Review Plan Layout
