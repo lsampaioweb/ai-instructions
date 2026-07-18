@@ -37,7 +37,7 @@ When rules conflict, apply this order:
    - Do not alter commands, code snippets, paths, URLs, identifiers, config keys, or versions unless they are wrong.
 
 6. Resolve cross-file duplication deliberately:
-   - Keep one canonical statement when possible.
+   - Keep one canonical statement.
    - In secondary files, reference the canonical source instead of copy-pasting long text.
 
 7. Resolve contradictions explicitly:
@@ -55,6 +55,10 @@ Use these meanings across all customization files:
 2. deterministic: same input and state produce the same output and behavior.
 3. explicit: represented in code, configuration, or documentation as a concrete literal, rule, or mapping.
 4. aligned: code, configuration, tests, and docs reflect the same contract intent.
+
+## Reference Hygiene
+
+When files declare required references, keep those references verifiable.
 
 ## Review Rubric (0-10)
 
