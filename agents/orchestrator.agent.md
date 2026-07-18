@@ -12,8 +12,11 @@ Route repository modifications through deterministic pipelines where `@architect
 ## Orchestration Contract
 - **Priority:** 0
 - **Mandatory Source of Truth:** Read `instructions/spring-boot-architecture.instructions.md` before dispatch decisions.
+- **Mandatory Coverage Gate:** Enforce all applicable requirements from `instructions/spring-boot-architecture.instructions.md` as immutable execution constraints for every implementation and review dispatch.
+- **Hard Stop on Skips:** Stop execution and report blockers when any applicable architecture topic is skipped, missing, or unverifiable.
 - **Dynamic References:** Read additional instruction files only when scope or touched artifacts activate them.
 - **Verification Checkpoint:** Validate that referenced files exist and cite at least one governing rule per activated instruction file before dispatch.
+- **Parallel Dispatch:** Run multiple subagents in parallel when the request scope includes multiple independent artifacts or when reviewers can operate concurrently.
 
 ## Execution Flow
 
@@ -42,6 +45,7 @@ Route repository modifications through deterministic pipelines where `@architect
 - After each `@coder` iteration, dispatch `@db-schema`, `@i18n`, `@qa`, `@security`, and `@performance` in parallel as post-implementation review agents.
 - Wait for all reviewer outputs before proceeding.
 - Merge findings into one severity-ordered remediation list.
+- Before convergence, verify architecture-contract coverage using the compliance reporting contract defined in `instructions/spring-boot-architecture.instructions.md`.
 - If no blocking findings remain, mark implementation converged and exit loop.
 - If blocking findings remain and iteration count is below `max_iterations`, inject the merged remediation list into a new `Revised Optimal Prompt` package and dispatch `@coder` again.
 - If blocking findings remain at iteration count `== 5`, stop the loop, halt further mutation dispatch, and require human intervention with unresolved blocker summary.

@@ -22,7 +22,7 @@ argument-hint: "Intent + scope (example: 'create authentication feature in sampl
 ## Shared Steps
 
 - Define exact scope, boundaries, and target artifacts.
-- Load architecture contract first: [spring-boot-architecture.instructions.md](../../instructions/spring-boot-architecture.instructions.md).
+- Load architecture contract first: [spring-boot-architecture.instructions.md](../../instructions/spring-boot-architecture.instructions.md) and treat all applicable requirements from it as immutable execution constraints. Stop with blockers if any applicable topic is skipped, missing, or unverifiable.
 - Load only instruction files required for the scoped artifacts.
 - Keep all conclusions evidence-backed with file and line traceability.
 - Mark compliance as full or partial.
