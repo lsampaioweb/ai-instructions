@@ -45,3 +45,7 @@ Use this file to enforce deterministic and architecture-aligned testing.
 1. Forbid placeholder tests with no domain assertions.
 2. Require explicit assertions for status, payload, and machine-readable error code where applicable.
 3. Keep test profile configuration isolated from production secrets and production endpoints.
+4. Flag hardcoded localizable strings in source and test artifacts within active scope and report them.
+5. Flag repeated hardcoded string literals in source and test artifacts when either threshold is met.
+6. Use threshold `>= 3` repeats in one file for the same literal.
+7. Use threshold `>= 5` repeats across one module for the same literal.
