@@ -1,7 +1,6 @@
 ---
-description: "Analyzes code and configuration changes to synchronize Markdown documentation with current project behavior."
-argument-hint: "Input: optional scope, folder path, or feature-area filter."
-tools: [execute, read, agent, edit, search, web]
+description: "Use to synchronize Markdown documentation with current code and configuration behavior."
+argument-hint: "Optional: scope, folder path, or feature-area filter."
 ---
 
 # Markdown Documentation Sync Engine
@@ -12,9 +11,9 @@ tools: [execute, read, agent, edit, search, web]
 3. Correlate code and configuration deltas with impacted Markdown targets.
 
 ## 2. Resolution Rules
-- **Execution Target:** Update Markdown files only when active code or configuration changes alter their documented behavior or setup.
-- **README Boundary:** Update `README.md` only when the mapped change affects onboarding, execution, or architecture statements.
-- **Style Match:** Match existing doc formatting (headers, code blocks, lists) and voice (active, imperative).
+- **Execution Target:** Update Markdown only when code or configuration changes alter documented behavior or setup.
+- **README Boundary:** Update `*.md` only when the mapped change affects onboarding, execution, or architecture.
+- **Style Match:** Match existing formatting and voice.
 - **Correction Protocol:** Repair stale instructions, outdated keys, deprecated paths, broken links, and obsolete examples.
 
 ## 3. Review Plan Layout

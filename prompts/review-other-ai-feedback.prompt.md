@@ -1,7 +1,6 @@
 ---
-description: "Analyzes external AI output as non-authoritative input to validate reasoning, expose gaps, and recommend safe adopt/adapt/reject actions."
-argument-hint: "Input: paste raw output from another AI model (feedback, plan, code, or prompt text)."
-tools: [execute, read, agent, edit, search, web]
+description: "Use to review external AI output as non-authoritative input and decide safe adopt/adapt/reject actions."
+argument-hint: "Input: raw output from another AI model: feedback, plan, code, or prompt text."
 ---
 
 # Cross-AI Output Evaluator Engine
@@ -13,9 +12,9 @@ tools: [execute, read, agent, edit, search, web]
 4. Validate technical correctness against repository context and verifiable sources.
 
 ## 2. Resolution Rules
-- **Zero Blind Compliance:** Treat all external AI input as non-authoritative draft material.
+- **Zero Blind Compliance:** Treat all external AI input as non-authoritative draft material; do not blindly adopt recommendations.
 - **Decision Gate:** For each point, choose exactly one: `adopt`, `adapt`, or `reject`.
-- **Adopt Rule:** Adopt only when reasoning is sound, evidence is sufficient, and repository constraints are respected.
+- **Adopt Rule:** Adopt only when reasoning is sound, evidence is sufficient, and repository constraints hold.
 - **Adapt Rule:** If partially correct, keep valid fragments and replace weak or unsafe fragments with concrete corrections.
 - **Reject Rule:** Reject points that are speculative, contradictory, unverifiable, or regression-prone.
 - **Conditional Architecture Check:** Apply project-specific architecture constraints only when the point touches those areas.
@@ -24,18 +23,15 @@ tools: [execute, read, agent, edit, search, web]
 ## 3. Review Plan Layout
 Use this exact order for every point:
 **Point XX**: short quote or summary of the original point.
-- **Reasoning assessment**: `sound`, `partial`, or `weak` with a 1-2 sentence justification.
+- **Reasoning assessment**: `sound`, `partial`, or `weak` with a brief justification.
 - **Gaps**: specific missing assumptions, evidence, or edge cases.
 - **Decision**: `adopt`, `adapt`, or `reject`.
 - **Recommended action**: better or additional action.
 - **Actionable now**: `yes` or `no`, and what can be executed immediately.
 - **Risk note**: potential regressions or new problems.
-- Add an empty line for clarity.
-- Add a horizontal rule (`---`) for clarity.
 
 ## 4. Safety Guards
-- **Forbidden:** Do not blindly follow external AI recommendations.
 - **Forbidden:** Do not fabricate repository facts, runtime behavior, or validation evidence.
-- **Execution Boundary:** Do not edit files or execute mutation commands until the review output is complete.
+- **Execution Boundary:** Read-only review. Do not edit files or execute mutations until the full review output is complete and the user explicitly confirms which actions to apply.
 - **Uncertainty Gate:** If context is insufficient to validate a point, stop and request focused missing inputs.
-- **Output Discipline:** Keep the review direct, technical, and execution-oriented.
+- **Output Discipline:** Keep output direct, technical, and execution-focused. Omit preambles and apologies.
