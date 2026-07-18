@@ -41,14 +41,15 @@ Route repository modifications through deterministic pipelines where `@architect
 
 ### Phase 2C: Implementation Loop (Coder + Parallel Reviewers)
 - Enforce a strict limit of `max_iterations = 5` before loop execution.
+- Initialize `iteration_count = 1` when entering Phase 2C for the first `@coder` dispatch.
 - Dispatch `@coder` with the current `Revised Optimal Prompt` package after Phase 2A and optional Phase 2B.
 - After each `@coder` iteration, dispatch `@db-schema`, `@i18n`, `@qa`, `@security`, and `@performance` in parallel as post-implementation review agents.
 - Wait for all reviewer outputs before proceeding.
 - Merge findings into one severity-ordered remediation list.
 - Before convergence, verify architecture-contract coverage using the compliance reporting contract defined in `instructions/spring-boot-architecture.instructions.md`.
 - If no blocking findings remain, mark implementation converged and exit loop.
-- If blocking findings remain and iteration count is below `max_iterations`, inject the merged remediation list into a new `Revised Optimal Prompt` package and dispatch `@coder` again.
-- If blocking findings remain at iteration count `== 5`, stop the loop, halt further mutation dispatch, and require human intervention with unresolved blocker summary.
+- If blocking findings remain and `iteration_count < max_iterations`, increment `iteration_count` by 1, inject the merged remediation list into a new `Revised Optimal Prompt` package, and dispatch `@coder` again.
+- If blocking findings remain and `iteration_count == max_iterations`, stop the loop, halt further mutation dispatch, and require human intervention with unresolved blocker summary.
 
 ### Phase 2D: Review-Only Track (Parallel Verification)
 - Dispatch `@qa`, `@security`, and `@performance` in parallel by default.
