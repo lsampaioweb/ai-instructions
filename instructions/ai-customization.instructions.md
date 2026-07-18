@@ -56,10 +56,6 @@ Use these meanings across all customization files:
 3. explicit: represented in code, configuration, or documentation as a concrete literal, rule, or mapping.
 4. aligned: code, configuration, tests, and docs reflect the same contract intent.
 
-## Reference Hygiene
-
-When files declare required references, keep those references verifiable.
-
 ## Review Rubric (0-10)
 
 Score each file using five dimensions:
