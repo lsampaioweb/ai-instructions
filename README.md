@@ -6,7 +6,7 @@ Centralized VS Code Copilot instruction and prompt files for Spring Boot project
 ## Repository structure
 
 ```
-agents/         — reserved for .agent.md files when agent-specific workflows are added
+agents/         — .agent.md files for specialized agent workflows
 hooks/          — reserved for post-generation hooks
 instructions/   — .instructions.md files; auto-applied by Copilot based on applyTo patterns
 prompts/        — .prompt.md files; invoked explicitly with /prompt-name
@@ -19,8 +19,9 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 
 | File | Invoke with | Purpose |
 |---|---|---|
-| [audit-ai-customization-files.prompt.md](prompts/audit-ai-customization-files.prompt.md) | `/audit-ai-customization-files` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
 | [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, group logical commits, present commit plan for approval, then commit if approved; keep output concise without redundant bodies or repeated file lists |
+| [project-bootstrap.prompt.md](prompts/project-bootstrap.prompt.md) | `/project-bootstrap` | Discover workspace architecture from repository evidence and reconcile instruction files with explicit create, update, retain, or delete actions |
+| [review-ai-customization-files.prompt.md](prompts/review-ai-customization-files.prompt.md) | `/review-ai-customization-files` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
 | [review-and-sync-docs.prompt.md](prompts/review-and-sync-docs.prompt.md) | `/review-and-sync-docs` | Correlate workspace deltas with Markdown docs and sync stale documentation in a controlled pass |
 | [review-code-against-instructions.prompt.md](prompts/review-code-against-instructions.prompt.md) | `/review-code-against-instructions` | Run bi-directional compliance audit between code artifacts and instruction contracts |
 | [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
@@ -28,7 +29,19 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 
 ## Agent files
 
-No agent files are currently tracked in `agents/`.
+Agent workflows are tracked under [agents/](agents/).
+
+| File | Invoke with | Purpose |
+|---|---|---|
+| [agents/architect.agent.md](agents/architect.agent.md) | `@architect` | Define and clarify feature architecture requirements before implementation and produce the feature ADR |
+| [agents/coder.agent.md](agents/coder.agent.md) | `@coder` | Implement feature Java code after ADR approval or a canonical bug-fix scope note |
+| [agents/db-schema.agent.md](agents/db-schema.agent.md) | `@db-schema` | Create or update schema migrations and MyBatis mapper artifacts for a feature |
+| [agents/documentation.agent.md](agents/documentation.agent.md) | `@documentation` | Update README, API docs, and interface documentation after implementation and verification |
+| [agents/i18n.agent.md](agents/i18n.agent.md) | `@i18n` | Add or reconcile localized message keys and locale bundle consistency for a feature |
+| [agents/orchestrator.agent.md](agents/orchestrator.agent.md) | `@orchestrator` | Route feature work across specialized agents from ADR creation through verification and documentation closure |
+| [agents/performance.agent.md](agents/performance.agent.md) | `@performance` | Validate latency, memory, and throughput risks against ADR requirements |
+| [agents/qa.agent.md](agents/qa.agent.md) | `@qa` | Validate structural compliance, code quality gates, and ADR alignment after implementation |
+| [agents/security.agent.md](agents/security.agent.md) | `@security` | Audit new feature code for injection, access-control, and sensitive-data exposure risks |
 
 ## Skill files
 
