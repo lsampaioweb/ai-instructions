@@ -98,6 +98,13 @@ To inspect current routing patterns directly:
 rg -n "^applyTo:" instructions/*.instructions.md
 ```
 
+## Governance Notes
+
+- Proactive loading is mandatory: read each activated component instruction file before generation or review; do not rely only on `applyTo` auto-loading.
+- Optional components follow intent-first activation: ask when intent is ambiguous, then apply silent defaults only when user intent remains silent.
+- Prompt macros are available through [instructions/copilot-instructions.md](instructions/copilot-instructions.md): `#DMS`, `#ALT`, `#OTS`, `#FAST`.
+- Reviewer initialization is centralized in [agents/orchestrator.agent.md](agents/orchestrator.agent.md) under `Shared Reviewer Agent Baseline`; reviewer agents inherit that baseline.
+
 ## Instruction format conventions
 
 - `spring-boot-*.instructions.md` files follow a standardized structure: YAML frontmatter, one H1 title, and deterministic H2 rule sections
