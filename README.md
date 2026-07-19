@@ -19,6 +19,7 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 
 | File | Invoke with | Purpose |
 |---|---|---|
+| [clean-slate-workspace.prompt.md](prompts/clean-slate-workspace.prompt.md) | `/clean-slate-workspace` | Remove only the current chat's created artifacts from the active workspace so a new session can start clean |
 | [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, group logical commits, present commit plan for approval, then commit if approved; keep output concise without redundant bodies or repeated file lists |
 | [project-bootstrap.prompt.md](prompts/project-bootstrap.prompt.md) | `/project-bootstrap` | Discover workspace architecture from repository evidence and reconcile instruction files with explicit create, update, retain, or delete actions |
 | [review-ai-customization-files.prompt.md](prompts/review-ai-customization-files.prompt.md) | `/review-ai-customization-files` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
