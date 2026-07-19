@@ -31,7 +31,7 @@ argument-hint: "Required: repository root path or target module directory. Optio
   6. **External Integration:** external system communication.
 - **Taxonomy Blueprint Design:** Generate a custom-tailored instruction-file plan using the naming convention: `<detected-ecosystem>-<component>.instructions.md`.
 - **Lifecycle Reconciliation Rule:** Mark each instruction file action explicitly as create, update, retain, or delete with evidence.
-- **Baseline Naming Exception:** Keep `architecture.instructions.md` as the global mandatory baseline and do not prefix it with ecosystem.
+- **Baseline Naming Exception:** Keep `<detected-ecosystem>-architecture.instructions.md` as the global mandatory baseline and do not prefix it with ecosystem.
 - **Instruction Target Directory Rule:** Create and update instruction files only under `.github/instructions/`; do not place instruction files at repository root.
 - **Scale-Driven Aggregation Rule:** Evaluate total workspace scale, architectural complexity, and polyglot boundaries before declaring output targets.
   - *Enterprise Scale (> 100 source units OR multi-ecosystem polyglot repositories):* Maintain a fully decoupled 1:1 mapping of primitives to files.
@@ -55,7 +55,7 @@ Provide a markdown table mapping found codebase patterns to proposed instruction
 
 ### Proposed Customization Suite Layout
 List the exact file-tree reconciliation plan:
-1. `[CREATE|UPDATE|RETAIN|DELETE] .github/instructions/architecture.instructions.md` (Mandatory baseline)
+1. `[CREATE|UPDATE|RETAIN|DELETE] .github/instructions/<detected-ecosystem>-architecture.instructions.md` (Mandatory baseline)
 2. `[CREATE|UPDATE|RETAIN|DELETE] .github/instructions/<detected-ecosystem>-<component1>.instructions.md` (Conditional module)
 3. `[CREATE|UPDATE|RETAIN|DELETE] .github/instructions/<detected-ecosystem>-<component2>.instructions.md` ...
 
