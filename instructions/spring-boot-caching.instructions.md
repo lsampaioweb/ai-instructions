@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot caching contract for deterministic cache keys, safe invalidation, and bounded performance behavior in production-grade projects."
-applyTo: "**/src/main/java/**/*Service*.java, **/src/main/java/**/*Configuration.java, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml"
+applyTo: "**/src/main/java/**/*Service*.java, **/src/main/java/**/*Configuration.java, **/src/main/resources/application*.yml"
 ---
 
 # Spring Boot Caching Contract

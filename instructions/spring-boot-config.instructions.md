@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot configuration contract for profile-aware, secure, and externalized runtime settings in production-grade projects."
-applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml"
+applyTo: "**/src/main/resources/application*.yml"
 ---
 
 # Spring Boot Config Contract

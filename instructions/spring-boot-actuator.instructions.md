@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot actuator contract for minimal, secure, and operationally useful management endpoint exposure in production-grade projects."
-applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
+applyTo: "**/src/main/resources/application*.yml, **/pom.xml"
 ---
 
 # Spring Boot Actuator Contract

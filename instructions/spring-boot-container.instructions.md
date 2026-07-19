@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot container contract for deterministic image builds, secure runtime defaults, and operable container orchestration behavior in production-grade projects."
-applyTo: "**/Dockerfile, **/Dockerfile-*, **/docker-compose.yml, **/compose.yml, **/compose.yaml, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml, **/README.md"
+applyTo: "**/Dockerfile, **/Dockerfile-*, **/docker-compose.yml, **/compose.yml, **/compose.yaml, **/src/main/resources/application*.yml, **/pom.xml, **/README.md"
 ---
 
 # Spring Boot Container Contract
@@ -36,13 +36,11 @@ Use this file to enforce deterministic container build and runtime behavior.
 4. Keep TLS certificate and key paths externalized and mounted read-only when used.
 
 ## Compose and Service Orchestration Rules
-1. Keep service names deterministic by feature purpose.
-2. Keep network names deterministic by feature purpose.
-3. Keep container names deterministic by feature purpose.
-4. Keep healthcheck probes explicit and aligned with actuator liveness or readiness endpoints.
-5. Keep restart policy explicit and appropriate for target environment.
-6. Keep environment variable contracts explicit with production-safe defaults.
-7. Keep host volume mounts explicit and restricted to operationally required paths.
+1. Keep service, network, container names deterministic by feature purpose.
+2. Keep healthcheck probes explicit and aligned with actuator liveness or readiness endpoints.
+3. Keep restart policy explicit and appropriate for target environment.
+4. Keep environment variable contracts explicit with production-safe defaults.
+5. Keep host volume mounts explicit and restricted to operationally required paths.
 
 ## Spring Boot Integration Rules
 1. Keep Spring Boot Docker Compose development support profile-scoped and disabled for production deployments.

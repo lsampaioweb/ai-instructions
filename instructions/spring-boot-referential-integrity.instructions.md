@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot referential-integrity contract for deterministic foreign-key relationships, delete/update semantics, and data consistency in production-grade relational systems."
-applyTo: "**/src/main/resources/db/migration/*.sql, **/src/main/resources/sql/**/*.sql, **/src/main/resources/mapper/**/*.xml"
+applyTo: "**/src/main/resources/sql/**/*.sql, **/src/main/resources/sql/**/*.xml"
 ---
 
 # Spring Boot Referential Integrity Contract

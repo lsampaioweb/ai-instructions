@@ -34,6 +34,7 @@ Use this file to enforce deterministic and architecture-aligned testing.
 4. Cover pagination bounds and default behavior when pagination is enabled.
 5. Cover locale fallback and message resolution when i18n is enabled.
 6. Cover transactional rollback behavior for multi-step feature operations.
+7. Resolve expected localized assertion strings through MessageSource-backed keys when i18n is enabled.
 
 ## Architecture Alignment
 1. Validate feature-level behavior without enforcing top-level technical package splits.

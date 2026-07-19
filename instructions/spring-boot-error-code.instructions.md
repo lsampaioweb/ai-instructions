@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot error-code contract for deterministic machine-readable API error semantics and stable message-key mapping."
-applyTo: "**/src/main/java/**/*ErrorCode.java, **/src/main/java/**/*AppException.java, **/src/main/java/**/*GlobalExceptionHandler.java, **/src/main/resources/i18n/messages*.properties"
+applyTo: "**/src/main/java/**/*ErrorCode.java, **/src/main/java/**/*Exception*.java, **/src/main/resources/i18n/messages*.properties"
 ---
 
 # Spring Boot Error Code Contract

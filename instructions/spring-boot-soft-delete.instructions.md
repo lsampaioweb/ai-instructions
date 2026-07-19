@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot soft-delete contract for deterministic lifecycle state management, retention windows, and archive-safe data handling in production-grade systems."
-applyTo: "**/src/main/resources/db/migration/*.sql, **/src/main/resources/sql/**/*.sql, **/src/main/resources/mapper/**/*.xml, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml"
+applyTo: "**/src/main/resources/sql/**/*.sql, **/src/main/resources/sql/**/*.xml"
 ---
 
 # Spring Boot Soft Delete Contract

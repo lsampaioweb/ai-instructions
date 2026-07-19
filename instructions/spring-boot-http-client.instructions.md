@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot HTTP client contract for deterministic outbound calls, bounded resilience behavior, and secure integration boundaries in production-grade projects."
-applyTo: "**/src/main/java/**/*Http*Client*.java, **/src/main/java/**/*Http*Adapter*.java, **/src/main/java/**/*Configuration*.java, **/src/main/java/**/config/**/*.java, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
+applyTo: "**/src/main/java/**/*Http*Client*.java, **/src/main/java/**/*Http*Adapter*.java, **/src/main/java/**/*Configuration*.java, **/src/main/java/**/config/**/*.java, **/src/main/java/**/*Service.java, **/src/main/java/**/*ServiceImpl.java, **/src/main/java/**/service/**/*.java, **/src/test/java/**/*Test.java, **/src/test/java/**/*Tests.java, **/src/main/resources/application*.yml, **/pom.xml"
 ---
 
 # Spring Boot HTTP Client Contract
@@ -10,6 +10,7 @@ Use this file to enforce deterministic outbound HTTP integration behavior.
 1. Apply to outbound client configuration, service adapters, and external API property bindings.
 2. Keep outbound integration isolated from transport controllers and persistence adapters.
 3. Apply service-level rules from this file only when service code performs outbound HTTP integration.
+4. Apply quality-gate test expectations in this file to tests covering outbound HTTP integration behavior.
 
 ## Coordination Order
 1. Apply [spring-boot-service.instructions.md](./spring-boot-service.instructions.md) first for generic service orchestration and transaction baseline rules.
@@ -42,6 +43,7 @@ Use this file to enforce deterministic outbound HTTP integration behavior.
 3. Keep fallback behavior explicit and domain-safe when enabled.
 4. Keep outbound call latency and failure logs aligned with logging and error-code contracts.
 5. Keep status-handler behavior explicit for client-wide and per-call error semantics.
+6. Log caught outbound failure exceptions at WARN for recoverable flows and ERROR for terminal operation failures.
 
 ## Security Rules
 1. Keep outbound credentials and tokens externalized in secret-backed properties.

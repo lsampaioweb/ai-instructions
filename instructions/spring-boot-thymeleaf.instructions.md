@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot Thymeleaf contract for deterministic server-rendered UI behavior, template safety, and maintainable view composition in production-grade projects."
-applyTo: "**/src/main/java/**/*PageController.java, **/src/main/java/**/*Page*Controller.java, **/src/main/resources/templates/**/*.html, **/src/main/resources/static/**/*.js, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
+applyTo: "**/src/main/java/**/*PageController.java, **/src/main/java/**/*Page*Controller.java, **/src/main/resources/templates/**/*.html, **/src/main/resources/static/**/*.js, **/src/main/resources/application*.yml, **/pom.xml"
 ---
 
 # Spring Boot Thymeleaf Contract
@@ -10,6 +10,11 @@ Use this file to enforce deterministic Thymeleaf MVC and template behavior.
 1. Apply to server-rendered page controllers, Thymeleaf templates, and related static assets.
 2. Keep page rendering responsibilities separate from API and persistence boundaries.
 3. Exclude REST API controllers from this file scope.
+
+## Coordination Order
+1. Apply [spring-boot-controller.instructions.md](./spring-boot-controller.instructions.md) first for baseline HTTP transport rules.
+2. Apply this file next for Thymeleaf-specific page rendering, model binding, and template composition behavior.
+3. When list endpoints are present, apply [spring-boot-pagination.instructions.md](./spring-boot-pagination.instructions.md) for deterministic pagination response shape and Link headers.
 
 ## Controller and Model Rules
 1. Keep page controllers limited to view orchestration and model assembly.

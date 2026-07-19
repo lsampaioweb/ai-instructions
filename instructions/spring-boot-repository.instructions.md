@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot persistence contract for deterministic data-access boundaries using MyBatis XML mappers or Spring JDBC in production-grade projects."
-applyTo: "**/src/main/java/**/*Repository.java, **/src/main/java/**/*RepositoryImpl.java, **/src/main/java/**/*Jdbc*.java, **/src/main/java/**/*Mapper.java, **/src/main/resources/mapper/**/*.xml"
+applyTo: "**/src/main/java/**/*Repository.java, **/src/main/java/**/*RepositoryImpl.java, **/src/main/java/**/*Jdbc*.java, **/src/main/java/**/*Mapper.java, **/src/main/resources/sql/**/*.xml"
 ---
 
 # Spring Boot Repository Contract

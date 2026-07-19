@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot exception contract for centralized, secure, and deterministic API error handling in production-grade projects."
-applyTo: "**/src/main/java/**/*AppException.java, **/src/main/java/**/*GlobalExceptionHandler.java, **/src/main/java/**/*ErrorResponse.java, **/src/main/java/**/*ValidationError.java, **/src/main/java/**/*Exception.java"
+applyTo: "**/src/main/java/**/*AppException.java, **/src/main/java/**/*GlobalExceptionHandler.java, **/src/main/java/**/*ExceptionHandlingAdvice.java, **/src/main/java/**/*ErrorResponse.java, **/src/main/java/**/*ValidationError.java, **/src/main/java/**/*Exception.java"
 ---
 
 # Spring Boot Exception Contract

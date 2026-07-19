@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot security contract for deterministic authentication, authorization, and least-privilege endpoint protection in production-grade projects."
-applyTo: "**/src/main/java/**/security/**/*.java, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
+applyTo: "**/src/main/java/**/security/**/*.java, **/src/main/resources/application*.yml, **/pom.xml"
 ---
 
 # Spring Boot Security Contract

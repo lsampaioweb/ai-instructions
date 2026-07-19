@@ -35,6 +35,8 @@ Use this file to enforce application logging behavior.
 2. Never log full sensitive payloads when redaction or summarization is required.
 3. Sanitize external input before logging.
 4. Keep stack traces at ERROR level only when they add remediation value.
+5. Override toString in credential-bearing @ConfigurationProperties records to redact sensitive fields.
+6. Allow stack traces at WARN only for recoverable outbound integration failures when a feature-specific contract explicitly requires WARN-level exception logging.
 
 ## i18n and Consistency
 1. When i18n logging infrastructure exists, use centralized message keys for log text.

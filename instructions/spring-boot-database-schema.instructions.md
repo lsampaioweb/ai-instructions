@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot database schema contract for deterministic table design, naming consistency, and production-safe evolution in relational persistence projects."
-applyTo: "**/src/main/resources/db/migration/*.sql, **/src/main/resources/sql/**/schema.sql, **/src/main/resources/sql/**/*.sql"
+applyTo: "**/src/main/resources/sql/**/*.sql, **/src/main/resources/sql/**/*.xml"
 ---
 
 # Spring Boot Database Schema Contract

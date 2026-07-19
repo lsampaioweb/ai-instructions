@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot migrations contract for deterministic versioned SQL changes, safe roll-forward strategy, and environment-consistent schema evolution in production-grade projects."
-applyTo: "**/src/main/resources/db/migration/*.sql, **/src/main/resources/sql/**/*.sql, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
+applyTo: "**/src/main/resources/sql/**/*.sql, **/src/main/resources/sql/**/*.xml"
 ---
 
 # Spring Boot Migrations Contract

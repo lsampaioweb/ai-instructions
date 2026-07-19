@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot WebSocket contract for deterministic real-time messaging, secure endpoint exposure, and operable connection lifecycle behavior in production-grade projects."
-applyTo: "**/src/main/java/**/*WebSocket*.java, **/src/main/java/**/*Socket*.java, **/src/main/java/**/*Stomp*.java, **/src/main/java/**/*Configuration*.java, **/src/main/resources/static/js/**/*.js, **/src/main/resources/templates/**/*.html, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/pom.xml"
+applyTo: "**/src/main/java/**/*WebSocket*.java, **/src/main/java/**/*Socket*.java, **/src/main/java/**/*Stomp*.java, **/src/main/java/**/*Configuration*.java, **/src/main/resources/static/js/**/*.js, **/src/main/resources/templates/**/*.html, **/src/main/resources/application*.yml, **/pom.xml"
 ---
 
 # Spring Boot WebSocket Contract

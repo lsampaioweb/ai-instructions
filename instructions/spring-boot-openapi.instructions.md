@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot OpenAPI contract for deterministic API documentation, accurate response semantics, and secure profile-aware exposure in production-grade projects."
-applyTo: "**/src/main/java/**/*OpenApi*Config*.java, **/src/main/java/**/*ApiDoc*Config*.java, **/src/main/java/**/*Swagger*Config*.java, **/src/main/java/**/*Controller.java, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/README.md, **/pom.xml"
+applyTo: "**/src/main/java/**/*OpenApi*Config*.java, **/src/main/java/**/*ApiDoc*Config*.java, **/src/main/java/**/*Swagger*Config*.java, **/src/main/java/**/*Controller.java, **/src/main/resources/application*.yml, **/README.md, **/pom.xml"
 ---
 
 # Spring Boot OpenAPI Contract

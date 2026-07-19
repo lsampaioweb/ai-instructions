@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot pagination contract for bounded request parameters, deterministic response shape, and predictable navigation semantics in production-grade projects."
-applyTo: "**/src/main/java/**/*Controller.java, **/src/main/resources/mapper/**/*.xml, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml"
+applyTo: "**/src/main/java/**/*Controller.java, **/src/main/resources/sql/**/*.xml, **/src/main/resources/application*.yml"
 ---
 
 # Spring Boot Pagination Contract

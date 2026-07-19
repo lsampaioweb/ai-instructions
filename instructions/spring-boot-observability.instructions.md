@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot observability contract for health, metrics, and operational visibility with secure production defaults."
-applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/README.md"
+applyTo: "**/src/main/resources/application*.yml, **/README.md"
 ---
 
 # Spring Boot Observability Contract
@@ -33,7 +33,7 @@ Use this file to enforce runtime visibility and operational safety.
 ## Instrumentation (When Adopted)
 1. Instrument critical business and integration paths with consistent metric conventions.
 2. Ensure instrumentation failures do not break business operations.
-3. Keep instrumentation libraries isolated from business logic where possible.
+3. Keep instrumentation libraries isolated from business logic.
 
 ## Operational Verification
 1. Validate health endpoint behavior in development and production profiles.
