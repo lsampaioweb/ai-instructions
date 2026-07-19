@@ -78,6 +78,18 @@ Mark a conditional component mandatory for the current task when at least one co
 
 If none of the conditions are true, mark the component as excluded with reason.
 
+## Context-Driven Dependency Inference Rules
+Apply these rules as deterministic dependency inference. Do not treat this section as an exhaustive feature checklist.
+
+### Cross-Cutting Concern Inference (Always Evaluate)
+1. For every task, evaluate applicability of `i18n`, `logging`, `observability` (including metrics and tracing), `security`, `performance and scalability`, `exception handling`, `error-code mapping`, and `test coverage`.
+2. If any cross-cutting concern is marked not-applicable, record explicit rationale tied to concrete scope boundaries.
+3. If observability is active for runtime services, record one explicit tracing decision: enabled now, deferred with reason, or out-of-scope by contract.
+4. If performance or scalability risks exist (for example large collections, blocking I/O, external network calls, or high concurrency), record at least one explicit mitigation or accepted risk.
+5. If security exposure exists (for example external inputs, authentication, authorization, secrets, or sensitive data), record explicit controls or an approved exception.
+6. If a cross-cutting decision conflicts with explicit user intent or project evidence, ask focused clarification instead of guessing.
+7. Record all cross-cutting evaluations and resulting activations or exclusions in compliance output under scope and assumptions.
+
 ## Component Discovery and Decision Workflow
 1. If a project exists, detect required and optional component presence before generation.
 2. If a detected component is present, validate it against its corresponding instruction contract before adding new code.
@@ -126,6 +138,8 @@ All generation and review outputs must include:
 2. conditional components: included or excluded with reason
 3. scope and assumptions used for decisions
 4. explicit blockers for any partial compliance result
+5. resolved decisions for all high-impact assumptions
+6. cross-cutting evaluation matrix covering i18n, logging, observability or tracing, security, performance, exception, error-code, and test
 
 ## Safety Guards
 1. Forbidden: generate or approve code using jakarta.persistence.*, org.hibernate.*, or org.springframework.data.*.

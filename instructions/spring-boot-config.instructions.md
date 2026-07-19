@@ -16,9 +16,11 @@ Use this file to enforce configuration consistency across environments.
 
 ## Profiles and Environment Separation
 1. Use development and production profiles for runtime-specific behavior.
-2. Keep production-safe defaults in production profile settings.
-3. Keep debug-friendly settings limited to development profile.
-4. Do not duplicate unchanged values across profile files.
+2. Use file names `application-development.yml` and `application-production.yml` for profile-specific overrides.
+3. Keep `application.yml` as the shared baseline.
+4. Keep production-safe defaults in production profile settings.
+5. Keep debug-friendly settings limited to development profile.
+6. Do not duplicate unchanged values across profile files.
 
 ## Externalization Rules
 1. Externalize secrets, credentials, and host-specific values with environment placeholders.

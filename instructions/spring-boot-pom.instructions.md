@@ -20,6 +20,13 @@ Use this file to enforce Maven build consistency for Spring Boot projects.
 4. Define Java version in properties and align compiler/runtime target to that value.
 5. Include spring-boot-maven-plugin in build plugins.
 
+## Default Build Baselines
+1. In greenfield Spring Boot scope with no existing project baseline, default `groupId` to `io.github.lsampaioweb` unless the user provides a different organization namespace.
+2. In greenfield Spring Boot scope with no existing project baseline, default `java.version` to `25`.
+3. In greenfield Spring Boot scope with no existing project baseline, default Spring Boot parent version to `4.1.0`.
+4. Surface these defaults explicitly in architecture preflight or ADR decisions when they were inferred rather than user-provided.
+5. These defaults apply only to greenfield bootstrap values allowed by active architecture and architect contracts; they do not override architecture rules that require explicit clarification for unrelated high-impact decisions.
+
 ## Dependency Governance
 1. Include only dependencies required by active architecture components.
 2. Use Spring Boot starters as default entry points for framework capabilities.
