@@ -16,28 +16,40 @@ argument-hint: "Optional: path or feature-scope filter."
 - **Commit Format:** Use Conventional Commits only: `type(scope): description`. Do not invent custom types.
 - **Scope Rule:** Use a feature domain or infrastructure area. Do not use technical-layer identifiers.
 - **Description Rule:** Imperative, present tense, max 50 characters, no trailing period.
-- **Body Rule:** Document the *why* only. Do not list files or repeat diff content.
+- **Body Rule:** Document the *why* and the *impact* only. Do not list modified files or duplicate the diff data.
 - **Footer Rule:** Append `Closes #123` or tracking IDs if detected in branch or context.
 - **Safety Gate:** If a cluster contains mixed/unclear concerns, flag it for manual review.
 
 ## 3. Review Plan Layout
-Present the proposed sequence as a read-only plan:
-```
-Commit N: <type(scope): description>
+Present the proposed sequence as a read-only plan using this exact structural layout schema:
 
-Files:
-- path/to/file1
-- path/to/file2
+### Proposed Commit Sequence Plan
 
-Message:
-type(scope): description
+---
 
-Extended body if present.
-```
+### Commit [N]: `type(scope): description`
+
+- **Target Files to Stage:**
+  - `path/to/file1`
+  - `path/to/file2`
+- **Execution Message Blueprint:**
+  ```gitcommit
+  type(scope): description
+
+  Detailed reason explaining why this change was introduced and its structural impact.
+  ```
+
+---
+
+### Documentation Gate Verification
+
+* **Status:** [CLEAR | PENDING SYNC]
+* **Details:** <List "No detected." doc documentation missing or state un-synced updates>
 
 ## 4. Safety Guards
-- **Execution Boundary:** Read-only analysis. Do not execute any Git commands until the commit plan is confirmed.
-- **Fix Application Rule:** If authorized, apply only the approved commit clusters. Non-targeted changes remain uncommitted.
-- **Ask for Confirmation:** Ask if the user wants to proceed with the proposed commit plan.
-- **Confirmation Gate:** Stop and wait for explicit user confirmation before executing any Git commands.
-- **Post-approval:** Run `git add` and `git commit` sequentially for each cluster. Verify success at each step.
+
+* **Execution Boundary:** Read-only analysis. Do not execute any Git commands until the commit plan is confirmed.
+* **Fix Application Rule:** If authorized, apply only the approved commit clusters. Non-targeted changes remain uncommitted.
+* **Ask for Confirmation:** Output: `Proceed with executing this automated commit sequence? [yes/no]`
+* **Confirmation Gate:** Stop and wait for explicit user confirmation before executing any Git commands.
+* **Post-approval:** Run `git add` and `git commit` sequentially for each cluster. Verify success at each step.
