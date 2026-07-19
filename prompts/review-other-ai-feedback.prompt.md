@@ -34,4 +34,3 @@ Use this exact order for every point:
 - **Forbidden:** Do not fabricate repository facts, runtime behavior, or validation evidence.
 - **Execution Boundary:** Read-only review. Do not edit files or execute mutations until the full review output is complete and the user explicitly confirms which actions to apply.
 - **Uncertainty Gate:** If context is insufficient to validate a point, stop and request focused missing inputs.
-- **Output Discipline:** Keep output direct, technical, and execution-focused. Omit preambles and apologies.

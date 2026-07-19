@@ -72,4 +72,3 @@ List the exact file-tree reconciliation plan:
 - **Post-Confirmation:** After the report card is confirmed, execute the reconciliation plan sequentially: apply create and update actions first under `.github/instructions/`, then apply delete actions. Apply the 4-Tier Engine Layout to every created or updated file.
 - **Insufficient-Evidence Gate:** If evidence is insufficient for a proposed module, stop, mark it as not-applicable with reason, and do not generate that file.
 - **No Web-Framework Presumption:** Do not force-fit database migrations, REST patterns, or API annotations if the detected stack is an embedded, script-based, or low-level environment.
-- **Output Discipline:** Keep output direct, technical, and execution-focused. Omit preambles and apologies.

@@ -36,6 +36,8 @@ Extended body if present.
 ```
 
 ## 4. Safety Guards
+- **Execution Boundary:** Read-only analysis. Do not execute any Git commands until the commit plan is confirmed.
+- **Fix Application Rule:** If authorized, apply only the approved commit clusters. Non-targeted changes remain uncommitted.
 - **Ask for Confirmation:** Ask if the user wants to proceed with the proposed commit plan.
 - **Confirmation Gate:** Stop and wait for explicit user confirmation before executing any Git commands.
 - **Post-approval:** Run `git add` and `git commit` sequentially for each cluster. Verify success at each step.

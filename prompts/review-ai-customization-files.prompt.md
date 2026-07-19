@@ -23,28 +23,38 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 - **Status Classification:** PASS (9–10) | WARN (7–8) | FAIL (0–6).
 
 ## 3. Review Plan Layout
-Generate audit findings using this exact markdown schema:
+
+Generate audit findings using this exact markdown schema and layout rules:
 
 ### Scope
-- Files scanned: <list>
-- Assumptions applied: <list>
+- **Files scanned:** <list>
+- **Assumptions applied:** <list>
 
 ### Findings (Ordered by Severity: Critical | High | Medium | Low)
-Per finding:
-- Severity: [Critical | High | Medium | Low]
-- Type: [Duplicate | Conflict | Verbosity | Ambiguity | Structure]
-- Location: <file path> + line
-- Why it matters: <technical impact>
-- Minimal fix: <action>
+*Render each finding inside a distinct structural block using horizontal rules and bold headers:*
+
+---
+
+#### [SEVERITY] • [TYPE]
+- **Location:** `<file path>` + line
+- **Why it matters:** <technical impact explanation>
+- **Minimal Fix:** <actionable, direct resolution step>
+
+---
 
 ### Scorecard
-Table: File | Total (0–10) | Clarity | Enforceability | Consistency | Brevity | Status.
+| File | Total (0–10) | Clarity | Enforceability | Consistency | Brevity | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| <path> | <score> | <score> | <score> | <score> | <score> | [PASS\|WARN\|FAIL] |
 
 ### Quick Wins
-3–7 edits. Highest impact, lowest risk.
+- [ ] **<Component Name>:** <Actionable high-impact edit>
+- [ ] **<Component Name>:** <Actionable high-impact edit>
 
 ### Cross-File Comparison Matrix
-Pair analysis: Overlay | Domain | Friction | Recommendation.
+| Overlay Pair | Targeted Domain | Operational Friction | Strategic Recommendation |
+| :--- | :--- | :--- | :--- |
+| file1 vs file2 | <domain context> | <conflict details> | <resolution path> |
 
 ### Final Verdict
 - **[READY]** — All files PASS/WARN, no Critical/High findings.
@@ -53,4 +63,3 @@ Pair analysis: Overlay | Domain | Friction | Recommendation.
 ## 4. Safety Guards
 - **Execution Boundary:** Read-only audit. Do not edit files or execute mutations until explicit user confirmation.
 - **Fix Application Rule:** If authorized, modify only approved items. Non-targeted text remains unchanged.
-- **Output Discipline:** Keep output direct, technical, and execution-focused. Omit preambles and apologies.

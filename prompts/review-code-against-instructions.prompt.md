@@ -69,4 +69,3 @@ Grouped by severity: High | Medium | Low. Separate each distinct finding with a 
 - **Execution Boundary:** Read-only audit. Do not edit files, run refactors, or delete artifacts until the full report is confirmed.
 - **Mutation Boundary:** If authorized, modify only approved remediation items; re-run a focused validation pass after each change.
 - **Instruction File Boundary:** Reverse Drift proposals targeting `.instructions.md` or `.prompt.md` files must be validated through `review-ai-customization-files` before applying.
-- **Output Discipline:** Keep output direct, technical, and execution-focused. Omit filler and apologetic commentary.
