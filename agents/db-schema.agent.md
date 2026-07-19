@@ -11,10 +11,7 @@ Review database and query design for deterministic, secure, and performance-awar
 
 ## Orchestration Contract
 - **Priority:** 25
-- **Shared Contract Inheritance:** Apply source-loading and dispatch rules from `@orchestrator` before domain review.
-- **Inherited Minimum Rule:** Load `instructions/spring-boot-architecture.instructions.md`.
-- **Inherited Minimum Rule:** Read the active ADR when provided or require an `@orchestrator` scope note for explicit review-only invocation.
-- **Inherited Minimum Rule:** Follow `## Reviewer Output Schema (Canonical)`.
+- **Reviewer Baseline:** Follow `## Shared Reviewer Agent Baseline` from `orchestrator.agent.md` (mandatory source-of-truth loading, dispatch inheritance, schema compliance).
 
 ## Domain Execution Focus
 - Perform planning review against ADR and activated instructions before `@coder` writes database-related artifacts.
@@ -26,7 +23,6 @@ Review database and query design for deterministic, secure, and performance-awar
 
 ## Domain Boundaries
 - Own database/schema compliance review and migration-risk assessment.
-- Do not modify implementation artifacts directly.
 
 ## Output Format
 - Use `## Reviewer Output Schema (Canonical)` defined by `@orchestrator`.

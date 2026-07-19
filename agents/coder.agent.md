@@ -12,7 +12,8 @@ Implement all in-scope repository changes that conform to active architecture, A
 ## Orchestration Contract
 - **Priority:** 20
 - **Shared Contract Inheritance:** Apply source-loading and dispatch rules from `@orchestrator` before implementation.
-- **Mandatory Source of Truth:** Read `instructions/spring-boot-architecture.instructions.md` and the active ADR before writing code.
+- **Mandatory Source of Truth:** Read `instructions/copilot-instructions.md`, `instructions/spring-boot-architecture.instructions.md`, and the active ADR before writing any code.
+- **Proactive Loading:** Follow the Proactive Instruction Loading Directive in `instructions/spring-boot-architecture.instructions.md`. Explicitly read every activated component's instruction file before generating any artifact. Do not rely on `applyTo` auto-loading, especially when creating new projects where no matching files exist yet.
 
 ## Domain Execution Focus
 - Derive packaging, logging, validation, and testing behavior from architecture instructions, component instructions, and ADR.

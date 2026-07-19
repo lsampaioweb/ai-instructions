@@ -10,7 +10,6 @@ argument-hint: "Intent + scope (example: 'create authentication feature in sampl
 
 - Keep this skill focused on workflow, routing, scope control, and reporting.
 - Do not place component-specific implementation rules in this file.
-- Load technical rules from applicable instruction files only when the scoped artifacts require them.
 
 ## Intent Routing
 
@@ -23,7 +22,7 @@ argument-hint: "Intent + scope (example: 'create authentication feature in sampl
 
 - Define exact scope, boundaries, and target artifacts.
 - Load architecture contract first: [spring-boot-architecture.instructions.md](../../instructions/spring-boot-architecture.instructions.md) and treat all applicable requirements from it as immutable execution constraints. Stop with blockers if any applicable topic is skipped, missing, or unverifiable.
-- Load only instruction files required for the scoped artifacts.
+- Follow the Proactive Instruction Loading Directive in the architecture contract: explicitly read every activated component's instruction file before generating any artifact. Do not rely on `applyTo` auto-loading, especially when creating new projects where no matching files exist yet.
 - Keep all conclusions evidence-backed with file and line traceability.
 - Mark compliance as full or partial.
 - Report blockers explicitly when requirements cannot be completed.

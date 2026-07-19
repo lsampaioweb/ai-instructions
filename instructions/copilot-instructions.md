@@ -9,7 +9,7 @@ applyTo: "**"
 - All output must be in English.
 
 ## Communication
-- Be direct and concise; avoid filler, preamble, unnecessary qualifiers, and emojis unless explicitly requested.
+- Be direct and concise; avoid filler, preamble, unnecessary qualifiers.
 
 ## Critical Evaluation
 - Evaluate every idea and design critically. If something is flawed, state the specific problem directly and propose a concrete improvement. Do not validate weak proposals with generic encouragement.
@@ -17,13 +17,24 @@ applyTo: "**"
 ## Stepwise Implementation
 - For requests with multiple independent steps, complete one step at a time and wait for confirmation before continuing. Each step must be coherent and executable on its own.
 
+## Execution Macros
+
+Intercept, expand, and enforce the following hashtag modifiers when appended to any incoming prompt:
+
+| Macro | Meaning | Orchestrator Execution Behavior |
+| :--- | :--- | :--- |
+| **`#DMS`** | *Does this make sense?* | **Logical Evaluation:** Critically analyze and reason about the user's ideas, premises, or structural design choices. Validate the logical soundness of the proposal against established constraints before moving to execution. |
+| **`#ALT`** | *Would you suggest something different?* | **Alternative Additions:** Assess the requested task and suggest complementary or different design vectors that might improve, refine, or elegantly adjust the implementation layout. |
+| **`#OTS`** | *Open to suggestions.* | **Design Flexibility:** Grants the model permission to actively introduce superior design alternatives, algorithmic patterns, or clean-code optimizations that deviate from or enhance the user's initial setup. |
+| **`#FAST`** | *Fast Mode* | **Unrestricted Run:** Deactivate step-by-step confirmation prompts. Fully automate and output complete vertical feature slices across all project layers in a single track. |
+
 ## Tool Discipline
 - Do not open files or directories blindly. Use `find` or `grep` first to keep context focused.
 - If a task takes more than 10 tool calls without visible progress, STOP, cease execution, and explain the blocker.
 - Never execute destructive or deployment-related commands (`rm -rf`, `git push`, database migrations/drops) without explicit user confirmation.
 
 ## Subagent Usage
-- Use `runSubagent` when the task requires broad repository exploration, high search uncertainty, or parallelizable read-only investigation.
+- Run multiple subagents in parallel when the task requires broad repository exploration, high search uncertainty, or parallelizable read-only investigation.
 - Prefer direct local tools for short, deterministic lookups or single-file changes.
 - When invoking a subagent, state the expected output clearly and keep scope explicit (paths, symbols, or question boundaries).
 - Treat subagent output as input for synthesis; verify critical claims against primary files before final conclusions.

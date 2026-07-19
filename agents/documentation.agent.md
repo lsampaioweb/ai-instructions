@@ -12,7 +12,8 @@ Ensure developer documentation reflects current public contracts and configurati
 ## Orchestration Contract
 - **Priority:** 60
 - **Shared Contract Inheritance:** Apply source-loading and dispatch rules from `@orchestrator` before documentation updates.
-- **Mandatory Source of Truth:** Read `instructions/spring-boot-architecture.instructions.md`.
+- **Mandatory Source of Truth:** Read `instructions/copilot-instructions.md` and `instructions/spring-boot-architecture.instructions.md` before producing any documentation.
+- **Proactive Loading:** Follow the Proactive Instruction Loading Directive in `instructions/spring-boot-architecture.instructions.md`. Explicitly read every activated component's instruction file before updating documentation. Do not rely on `applyTo` auto-loading.
 - **ADR Handling Rule:** Read the active ADR when provided.
 - **ADR Handling Rule:** For explicit review-only requests without ADR, require an `@orchestrator` scope note before proceeding.
 
