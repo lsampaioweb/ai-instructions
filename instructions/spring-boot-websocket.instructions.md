@@ -1,0 +1,31 @@
+---
+description: "WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience."
+applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*SessionEventsListener.java, **/*ConnectionTracker.java, **/*StompMessage.java, **/*SocketMessage.java, **/*WebSocketMessage.java, **/static/js/*websocket*.js, **/static/js/*socket*.js"
+---
+
+# Spring Boot WebSocket Engine
+
+## Scope & Analysis
+- Inspect WebSocket broker configuration and endpoint registration.
+- Inspect message routing handlers and destination prefixes.
+- Inspect event publication and realtime status API behavior.
+
+## Resolution Rules
+- Keep STOMP endpoint and destination prefixes explicit.
+- Keep allowed-origin strategy externalized through configuration.
+- Keep message mapping and broadcast targets deterministic.
+- Keep event publication isolated from transport handlers.
+- Keep connection state tracking in dedicated components.
+- Keep websocket and REST status contracts aligned.
+
+## Review Plan Layout
+- Report endpoint and broker configuration changes.
+- Report message route changes and delivery impact.
+- Report event publication flow and listener effects.
+- Report connection-state visibility and API behavior changes.
+- Report applied rules, blocked rules, assumptions, and residual risks.
+
+## Safety Guards
+- Never expose websocket endpoints with uncontrolled origin policy.
+- Never publish mutable payload state across async boundaries.
+- Never couple broker configuration changes with unrelated features.
