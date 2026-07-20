@@ -6,12 +6,23 @@ Centralized VS Code Copilot instruction and prompt files for Spring Boot project
 ## Repository structure
 
 ```
-agents/         — reserved for .agent.md files when specialized agent workflows are present
+agents/         — specialized .agent.md workflows used by orchestrator, architect, coder, and reviewers
 hooks/          — reserved for post-generation hooks
 instructions/   — .instructions.md files; auto-applied by Copilot based on applyTo patterns
 prompts/        — .prompt.md files; invoked explicitly with /prompt-name
 skills/         — reserved for SKILL.md files when on-demand domain knowledge is present
 ```
+
+## Agent Catalog
+
+- [spring-orchestrator.agent.md](agents/spring-orchestrator.agent.md): routes create and review work, applies loop controls, and normalizes final output.
+- [spring-architect.agent.md](agents/spring-architect.agent.md): read-only architecture planning and implementation decomposition.
+- [spring-coder.agent.md](agents/spring-coder.agent.md): write-capable implementation agent.
+- [spring-review-qa.agent.md](agents/spring-review-qa.agent.md): QA-only reviewer.
+- [spring-review-security.agent.md](agents/spring-review-security.agent.md): security-only reviewer.
+- [spring-review-performance.agent.md](agents/spring-review-performance.agent.md): performance-only reviewer.
+- [spring-review-i18n.agent.md](agents/spring-review-i18n.agent.md): i18n-only reviewer.
+- [spring-review-database.agent.md](agents/spring-review-database.agent.md): database-only reviewer.
 
 ## Prompt files
 
