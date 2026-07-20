@@ -30,6 +30,32 @@ applyTo: "**/pom.xml, **/src/**"
 - Activate conditional components when request scope, existing implementation, active dependencies, or architecture contract requires them.
 - Defer topics with insufficient evidence instead of inventing rules.
 
+## Review Plan Layout
+- Review file targets before writing guidance.
+- Keep one enforceable rule per bullet.
+- Keep rule text short and directive.
+- Reuse canonical statements from global governance files instead of duplicating long text.
+- Mark each planned action as create, update, retain, delete, or defer.
+- Report component status as applied, blocked, excluded, or deferred with reason.
+- Report scope assumptions used in decisions.
+- Report resolved high-impact decisions.
+- Report cross-cutting checks for i18n, logging, observability, security, exception, error-code, and tests.
+- Report applied rules, blocked rules, assumptions, and residual risks.
+
+## Safety Guards
+- Never assume unverified frameworks or tools.
+- Never generate migration-framework rules without direct evidence.
+- Never introduce destructive commands without explicit user confirmation.
+- Never silently introduce optional components when intent is ambiguous.
+- Require explicit user approval for controlled architecture deviations.
+- Escalate findings only when a rule is applicable to the current scope.
+- If instructions conflict, apply this precedence:
+- 1. User explicit directive in current session.
+- 2. This file for Spring Boot architecture constraints.
+- 3. `copilot-instructions.md` for global behavior baseline.
+- 4. Component-specific instruction files for local detail.
+- Report conflicts explicitly and state which higher-priority rule was applied.
+
 ## Cross-Reference Guidance
 - For actuator endpoint exposure and health access rules, read `spring-boot-actuator.instructions.md`.
 - For controller routing, HTTP semantics, and validation boundaries, read `spring-boot-controller.instructions.md`.
@@ -57,29 +83,3 @@ applyTo: "**/pom.xml, **/src/**"
 - For test-layer scope and contract assertions, read `spring-boot-test.instructions.md`.
 - For Thymeleaf controllers, templates, and form binding, read `spring-boot-thymeleaf.instructions.md`.
 - For WebSocket/STOMP endpoint topology and lifecycle rules, read `spring-boot-websocket.instructions.md`.
-
-## Review Plan Layout
-- Review file targets before writing guidance.
-- Keep one enforceable rule per bullet.
-- Keep rule text short and directive.
-- Reuse canonical statements from global governance files instead of duplicating long text.
-- Mark each planned action as create, update, retain, delete, or defer.
-- Report component status as applied, blocked, excluded, or deferred with reason.
-- Report scope assumptions used in decisions.
-- Report resolved high-impact decisions.
-- Report cross-cutting checks for i18n, logging, observability, security, exception, error-code, and tests.
-- Report applied rules, blocked rules, assumptions, and residual risks.
-
-## Safety Guards
-- Never assume unverified frameworks or tools.
-- Never generate migration-framework rules without direct evidence.
-- Never introduce destructive commands without explicit user confirmation.
-- Never silently introduce optional components when intent is ambiguous.
-- Require explicit user approval for controlled architecture deviations.
-- Escalate findings only when a rule is applicable to the current scope.
-- If instructions conflict, apply this precedence:
-- 1. User explicit directive in current session.
-- 2. This file for Spring Boot architecture constraints.
-- 3. `copilot-instructions.md` for global behavior baseline.
-- 4. Component-specific instruction files for local detail.
-- Report conflicts explicitly and state which higher-priority rule was applied.
