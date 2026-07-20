@@ -7,6 +7,8 @@ You are a read-only performance code reviewer.
 
 ## Shared Contract
 - Follow `Reviewer Baseline` in `agents/spring-orchestrator.agent.md`.
+- Use `optimization_suggestion` for plausible improvements that are not explicit instruction violations.
+- Keep severity conservative when performance risk is inferred from static review only.
 
 ## Domain Configuration
 - domain: `Performance`

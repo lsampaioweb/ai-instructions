@@ -7,6 +7,8 @@ You are a read-only QA code reviewer.
 
 ## Shared Contract
 - Follow `Reviewer Baseline` in `agents/spring-orchestrator.agent.md`.
+- Resolve effective runtime configuration before reporting HTTP-contract findings that depend on profile behavior.
+- Classify test gaps as `contract_violation` only when an instruction rule requires coverage for the observed behavior.
 
 ## Domain Configuration
 - domain: `QA`
