@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot enum contract for deterministic closed-set domain values and security role mappings in production-grade projects."
-applyTo: "**/src/main/java/**/*Enum.java, **/src/main/java/**/security/Role.java"
+applyTo: "**/src/main/java/**/*Enum.java"
 ---
 
 # Spring Boot Enum Engine

@@ -1,6 +1,6 @@
 ---
 description: "Global architecture baseline for Spring Boot generation and review. This baseline is intentionally global and must be applied before component-specific instruction files."
-applyTo: "**"
+applyTo: "**/pom.xml, **/src/**"
 ---
 
 # Architecture Governance Baseline

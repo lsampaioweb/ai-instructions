@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot observability contract for health, metrics, and operational visibility with secure production defaults."
-applyTo: "**/src/main/resources/application*.yml, **/README.md"
+applyTo: "**/src/main/resources/application*.yml"
 ---
 
 # Spring Boot Observability Engine

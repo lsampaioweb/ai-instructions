@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot i18n contract for message-key governance, locale behavior, and translation-safe output."
-applyTo: "**/messages*.properties,**/*Controller.java,**/*Service.java,**/*ServiceImpl.java,**/*Exception*.java"
+applyTo: "**/messages*.properties, **/*.java"
 ---
 
 # Spring Boot I18N Engine

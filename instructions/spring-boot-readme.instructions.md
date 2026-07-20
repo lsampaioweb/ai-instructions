@@ -1,6 +1,6 @@
 ---
 description: "README structure rules: recommended sections and no-filler-prose policy for Spring Boot project documentation."
-applyTo: "**/README.md"
+applyTo: "**/*.md"
 ---
 
 # Spring Boot README Engine
