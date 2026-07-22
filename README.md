@@ -30,12 +30,12 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 
 | File | Invoke with | Purpose |
 |---|---|---|
+| [add-content-to-file.prompt.md](prompts/add-content-to-file.prompt.md) | `/add-content-to-file` | Add, update, or deduplicate content in markdown or plain text files while preserving document structure and style |
 | [clean-slate-workspace.prompt.md](prompts/clean-slate-workspace.prompt.md) | `/clean-slate-workspace` | Remove only the current chat's created artifacts from the active workspace so a new session can start clean |
 | [prepare-commit-messages.prompt.md](prompts/prepare-commit-messages.prompt.md) | `/prepare-commit-messages` | Review uncommitted changes, group logical commits, present commit plan for approval, then commit if approved; keep output concise without redundant bodies or repeated file lists |
-| [project-bootstrap.prompt.md](prompts/project-bootstrap.prompt.md) | `/project-bootstrap` | Discover workspace architecture from repository evidence and reconcile instruction files with explicit create, update, retain, or delete actions |
 | [review-ai-customization-files.prompt.md](prompts/review-ai-customization-files.prompt.md) | `/review-ai-customization-files` | Score AI customization files with a strict style rubric and report enforceable fixes for duplicates, conflicts, and low-signal wording |
 | [review-and-sync-docs.prompt.md](prompts/review-and-sync-docs.prompt.md) | `/review-and-sync-docs` | Correlate workspace deltas with Markdown docs and sync stale documentation in a controlled pass |
-| [review-code-against-instructions.prompt.md](prompts/review-code-against-instructions.prompt.md) | `/review-code-against-instructions` | Run bi-directional compliance audit between code artifacts and instruction contracts |
+| [review-code-against-instructions.prompt.md](prompts/review-code-against-instructions.prompt.md) | `/review-code-against-instructions` | Audit the target scope both ways: code against instructions and instructions against code, with minimal remediation actions |
 | [review-other-ai-feedback.prompt.md](prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
 | [root-cause-analysis.prompt.md](prompts/root-cause-analysis.prompt.md) | `/root-cause-analysis` | Analyze logs and exceptions to identify root cause and propose permanent architectural fixes |
 
