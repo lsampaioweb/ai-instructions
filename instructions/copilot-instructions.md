@@ -21,12 +21,8 @@ applyTo: "**"
 - Do not open files or directories blindly. Use `find` or `grep` first to keep context focused.
 - If a task takes more than 10 tool calls without visible progress, STOP, cease execution, and explain the blocker.
 - Never execute destructive or deployment-related commands (`rm -rf`, `git push`, database migrations/drops) without explicit user confirmation.
-
-## Subagent Usage
-- Run multiple subagents in parallel when the task requires broad repository exploration, high search uncertainty, or parallelizable read-only investigation.
-- Prefer direct local tools for short, deterministic lookups or single-file changes.
-- When invoking a subagent, state the expected output clearly and keep scope explicit (paths, symbols, or question boundaries).
-- Treat subagent output as input for synthesis; verify critical claims against primary files before final conclusions.
+- Always use 2 spaces, never tabs.
+- After editing programming language files, format them using VS Code tools.
 
 ## Scope Precision
 - Edit only files and functions directly related to the requested task.
@@ -42,3 +38,4 @@ Intercept, expand, and enforce the following hashtag modifiers when appended to 
 | **`#DMS`** | *Validate proposal logic.* | **Logical Evaluation:** Critically analyze the user's idea, premises, and structural choices. Validate logical soundness against known constraints before execution. |
 | **`#ALT`** | *Suggest a different design.* | **Alternative Additions:** Assess the requested task and propose a complementary or alternative design vector that improves implementation quality. |
 | **`#OTS`** | *Permit proactive improvements.* | **Design Flexibility:** Permit superior design alternatives, algorithmic patterns, or clean-code optimizations that improve the initial setup. |
+| **`#FIX`** | *Execute all identified corrections.* | **Immediate Implementation:** Apply all proposed fixes and improvements, excluding destructive commands that require user confirmation per Tool Discipline rules. |
