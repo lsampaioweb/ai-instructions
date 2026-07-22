@@ -7,6 +7,8 @@ argument-hint: "Optional: target path, module, file, or glob to audit."
 
 Review the target scope in both directions.
 
+Read `copilot-instructions.md` and `spring-boot-architecture.instructions.md`. You **MUST** obey all instructions in those files.
+
 - Check code against the applicable instruction files and flag places where the implementation does not follow the active rules.
 - Check the instruction files against the real codebase and flag recurring patterns, missing constraints, or missing governance that should be added.
 - If no instruction files exist for the target scope, infer the needed instruction files from the code and propose the minimum enforceable initial set.
