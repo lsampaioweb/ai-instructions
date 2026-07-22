@@ -10,10 +10,10 @@ Read `copilot-instructions.md` and `spring-boot-architecture.instructions.md`. Y
 
 ## Shared Rules for All Reviewers
 When invoking any review subagent, require this exact output format:
+Rule: <violated instruction file and rule name>
 Severity: <Critical|High|Medium|Low>
 File: <workspace-relative-path>
 Line: <number|n/a>
-Rule: <violated instruction file and rule name>
 Problem: <concise issue description>
 Fix: <concise actionable fix suggestion>
 If there are no findings, output: No findings.
