@@ -5,6 +5,8 @@ argument-hint: "Input: error logs, stack traces, or terminal output."
 
 # Root Cause & Permanent Resolution Engine
 
+Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.
+
 ## 1. Scope & Analysis
 1. **Trace Analysis:** Parse the stack trace or log to isolate the exact originating line, class, and feature package.
 2. **Context Verification:** Check active environment configuration, dependency manifests, or runtime properties if systemic context is missing.

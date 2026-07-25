@@ -5,6 +5,8 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 
 # AI Customization Audit Engine
 
+Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.
+
 ## 1. Scope & Analysis
 1. Target only user-provided scope. If missing, stop and request inputs.
 2. Load and parse the applicable style baseline for the current scope.

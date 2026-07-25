@@ -5,6 +5,8 @@ argument-hint: "Optional scope notes or exclusions"
 
 # Clean Slate Workspace Engine
 
+Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.
+
 ## 1. Scope & Analysis
 - Inspect current conversation artifacts in the active workspace.
 - List all files, plans, repo memory, session memory, and temporary artifacts created in this chat.

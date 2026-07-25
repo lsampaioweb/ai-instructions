@@ -5,6 +5,8 @@ argument-hint: "Optional: scope, folder path, or feature-area filter."
 
 # Markdown Documentation Sync Engine
 
+Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.
+
 ## 1. Scope & Analysis
 1. Resolve the target scope from `{{$ARGUMENTS}}`.
 2. **Fallback Scan:** If scope is omitted, inspect uncommitted workspace changes (`git status`, `git diff`) first, then evaluate recent commits.

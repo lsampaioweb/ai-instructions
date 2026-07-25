@@ -5,6 +5,8 @@ argument-hint: "#file:path/to/file and the new content to add"
 
 # Add Content To File Engine
 
+Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.
+
 ## 1. Scope & Analysis
 - Read the target file.
 - Identify structure: headings, sections, list patterns, and style conventions.

@@ -5,6 +5,8 @@ argument-hint: "Optional: path or feature-scope filter."
 
 # Logical Git Commit Engine
 
+Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.
+
 ## 1. Scope & Analysis
 - Inspect uncommitted changes (`git status`, `git diff`).
 - Cluster files into atomic, reversible commits.

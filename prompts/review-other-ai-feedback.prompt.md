@@ -5,6 +5,8 @@ argument-hint: "Input: raw output from another AI model: feedback, plan, code, o
 
 # Cross-AI Output Evaluator Engine
 
+Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.
+
 ## 1. Scope & Analysis
 1. Parse the provided external AI output into discrete points.
 2. Classify each point by intent (analysis, recommendation, implementation, or policy).
