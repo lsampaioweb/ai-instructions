@@ -13,8 +13,11 @@ applyTo: "**/*Controller.java,**/*Service.java,**/*ServiceImpl.java"
 ## Resolution Rules
 - Use pageable request parameters for collection endpoints.
 - Allow custom pagination with validated `page` and `size` request parameters when Spring Data Pageable is not used.
+- Use `page=0` and `size=20` as default pagination values unless the user explicitly requests different defaults.
+- Enforce `size` upper bound with `max=100` unless module constraints require a stricter limit.
 - Return paged responses with metadata for total elements and pages.
 - Keep sort behavior deterministic for repeatable results.
+- Use ascending sort by a stable resource key by default unless the user explicitly requests different sorting defaults.
 - Validate page and size boundaries with explicit defaults.
 - Enforce explicit max-page-size protection when custom pagination configuration exists.
 - Keep pagination semantics consistent across resources.

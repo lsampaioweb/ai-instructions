@@ -13,6 +13,7 @@ applyTo: "**/*Controller.java"
 ## Resolution Rules
 - Use class-level request mapping with versioned base path.
 - Use `/api/v1` as the default REST API base prefix unless the user explicitly requests a different version root.
+- When CRUD entity fields are not provided, propose a minimal baseline contract for the resource and ask for confirmation or edits.
 - Use `@RestController` for JSON API endpoints and `@Controller` for server-rendered page flows.
 - Use method-level HTTP verb mappings for each operation.
 - Use constructor injection for controller dependencies.

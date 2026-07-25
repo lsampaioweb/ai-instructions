@@ -11,6 +11,8 @@ applyTo: "**/src/main/resources/sql/**/*.xml, **/src/main/resources/sql/**/*.sql
 - Inspect naming conventions and data-type consistency.
 
 ## Resolution Rules
+- Use PostgreSQL as the default relational system-of-record for CRUD modules unless request constraints require a different store.
+- Allow in-memory relational storage only for explicit local or demo scope.
 - Keep DDL idempotent for repeatable local setup where applicable.
 - Keep table and column naming consistent and predictable.
 - Keep primary, unique, and foreign key constraints explicit.
