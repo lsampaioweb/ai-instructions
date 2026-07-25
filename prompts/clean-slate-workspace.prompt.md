@@ -1,21 +1,31 @@
 ---
-description: "Remove only the current chat's created artifacts from the active workspace so a new session can start clean"
+description: "Use to remove only this chat's created artifacts from the active workspace for a clean restart."
 argument-hint: "Optional scope notes or exclusions"
 ---
 
-Reset the current workspace to a clean slate for a new chat session.
+# Clean Slate Workspace Engine
 
-Requirements:
-- Inspect the current conversation history and list all files, plans, repo memory, session memory, and temporary artifacts created by you in this chat for the active workspace.
-- Do not delete any artifact until the inspection step is complete and all targets are listed.
-- Delete only artifacts that you created.
-- Do not delete or modify user-authored files. Treat ambiguous ownership as user-authored.
-- Do not touch persistent user-level memories or reusable customizations unless they were created specifically for this workspace in the current chat.
-- Remove empty directories left behind by those deletions.
-- Verify the workspace is clean afterward.
+## 1. Scope & Analysis
+- Inspect current conversation artifacts in the active workspace.
+- List all files, plans, repo memory, session memory, and temporary artifacts created in this chat.
+- Determine ownership for each artifact.
 
-Return a concise report with:
-- What you deleted.
-- What you intentionally preserved.
-- Any uncertainty or leftovers that need manual review.
+## 2. Resolution Rules
+- Do not delete anything until inspection is complete and targets are listed.
+- Ask for explicit confirmation before deletion.
+- Delete only artifacts created in this chat.
+- Treat ambiguous ownership as user-authored.
+- Do not delete or modify user-authored files.
+- Do not touch persistent user-level memories or reusable customizations unless they were created for this workspace in this chat.
+- Remove empty directories left by deletions.
+- Verify workspace cleanliness after deletion.
 - If no session-created artifacts exist, state that explicitly and stop.
+
+## 3. Review Plan Layout
+- Report what was deleted.
+- Report what was intentionally preserved.
+- Report uncertainties or leftovers requiring manual review.
+
+## 4. Safety Guards
+- Read-only until explicit confirmation to delete.
+- Do not mutate non-targeted artifacts.

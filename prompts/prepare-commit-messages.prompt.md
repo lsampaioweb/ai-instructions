@@ -6,11 +6,11 @@ argument-hint: "Optional: path or feature-scope filter."
 # Logical Git Commit Engine
 
 ## 1. Scope & Analysis
-1. Inspect uncommitted changes (`git status`, `git diff`).
-2. Cluster files into atomic, reversible commits.
-3. **Sort Order:** Foundational changes (config, schemas, deps) must be committed before feature layers.
-4. **Grouping Boundary:** Group files strictly by **feature domain** (e.g., `auth`, `payment`). Grouping by technical layer is strictly prohibited.
-5. **Documentation Gate:** If Markdown documentation exists for changed code but contains no corresponding updates, flag the affected docs and recommend running `review-and-sync-docs` before proceeding.
+- Inspect uncommitted changes (`git status`, `git diff`).
+- Cluster files into atomic, reversible commits.
+- **Sort Order:** Foundational changes (config, schemas, deps) must be committed before feature layers.
+- **Grouping Boundary:** Group files strictly by **feature domain** (e.g., `auth`, `payment`). Grouping by technical layer is strictly prohibited.
+- **Documentation Gate:** If Markdown documentation exists for changed code but contains no corresponding updates, flag the affected docs and recommend running `review-and-sync-docs` before proceeding.
 
 ## 2. Resolution Rules
 - **Commit Format:** Use Conventional Commits only: `type(scope): description`. Do not invent custom types.
@@ -21,7 +21,7 @@ argument-hint: "Optional: path or feature-scope filter."
 - **Safety Gate:** If a cluster contains mixed/unclear concerns, flag it for manual review.
 
 ## 3. Review Plan Layout
-Present the proposed sequence as a read-only plan using this exact structural layout schema:
+Output this plan layout:
 
 ### Proposed Commit Sequence Plan
 
@@ -36,20 +36,19 @@ Present the proposed sequence as a read-only plan using this exact structural la
   ```gitcommit
   type(scope): description
 
-  Detailed reason explaining why this change was introduced and its structural impact.
+  Why this change is needed and its impact.
   ```
 
 ---
 
 ### Documentation Gate Verification
 
-* **Status:** [CLEAR | PENDING SYNC]
-* **Details:** <List "No detected." doc documentation missing or state un-synced updates>
+- **Status:** [CLEAR | PENDING SYNC]
+- **Details:** <State "none" if no documentation gaps are detected; otherwise list missing or unsynced documentation updates>
 
 ## 4. Safety Guards
 
-* **Execution Boundary:** Read-only analysis. Do not execute any Git commands until the commit plan is confirmed.
-* **Fix Application Rule:** If authorized, apply only the approved commit clusters. Non-targeted changes remain uncommitted.
-* **Ask for Confirmation:** Output: `Proceed with executing this automated commit sequence? [yes/no]`
-* **Confirmation Gate:** Stop and wait for explicit user confirmation before executing any Git commands.
-* **Post-approval:** Run `git add` and `git commit` sequentially for each cluster. Verify success at each step.
+- **Execution Boundary:** Read-only analysis. Do not execute any Git commands until the commit plan is confirmed.
+- **Ask for Confirmation:** Output: `Proceed with executing this automated commit sequence? [yes/no]`
+- **Confirmation Gate:** Stop and wait for explicit user confirmation before executing any Git commands.
+- **Post-approval:** Run `git add` and `git commit` sequentially for each cluster. Verify success at each step.

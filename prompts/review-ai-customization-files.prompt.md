@@ -1,5 +1,5 @@
 ---
-description: "Use when auditing AI customization files for duplicates, conflicts, and low-signal wording with a strict style rubric."
+description: "Use to audit AI customization files for duplicates, conflicts, and enforceability."
 argument-hint: "Required: file, file list, folder, or glob to audit."
 ---
 
@@ -19,19 +19,19 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
   4. Directives (ambiguous or non-enforceable phrasing).
   5. Frontmatter (routing patterns, discoverability).
   6. Token efficiency (density; reward high-signal literals; penalize descriptive bloat).
-- **Scoring Protocol:** Score each file 0–10 using the baseline rubric. Assign 0–2 per dimension with factual justification. Map the checklist to the scorecard as follows: Clarity = frontmatter + token efficiency, Enforceability = directives, Consistency = cross-file alignment, Brevity = verbosity, Conflict-Free = duplicates + conflicts.
+- **Scoring Protocol:** Score each file 0–10. Assign 0–2 per dimension with factual justification. Map dimensions as follows: Clarity = frontmatter + token efficiency, Enforceability = directives, Consistency = cross-file alignment, Brevity = verbosity, Conflict-Free = duplicates + conflicts.
 - **Status Classification:** PASS (9–10) | WARN (7–8) | FAIL (0–6).
 
 ## 3. Review Plan Layout
 
-Generate audit findings using this exact markdown schema and layout rules:
+Use this exact markdown schema:
 
 ### Scope
 - **Files scanned:** <list>
 - **Assumptions applied:** <list>
 
 ### Findings (Ordered by Severity: Critical | High | Medium | Low)
-*Render each finding inside a distinct structural block using horizontal rules and bold headers:*
+Use one block per finding.
 
 ---
 
@@ -43,9 +43,9 @@ Generate audit findings using this exact markdown schema and layout rules:
 ---
 
 ### Scorecard
-| File | Total (0–10) | Clarity | Enforceability | Consistency | Brevity | Status |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| <path> | <score> | <score> | <score> | <score> | <score> | [PASS\|WARN\|FAIL] |
+| File | Total (0–10) | Clarity | Enforceability | Consistency | Brevity | Conflict-Free | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| <path> | <score> | <score> | <score> | <score> | <score> | <score> | [PASS\|WARN\|FAIL] |
 
 ### Quick Wins
 - [ ] **<Component Name>:** <Actionable high-impact edit>

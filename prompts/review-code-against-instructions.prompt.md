@@ -24,7 +24,15 @@ Default output:
 
 1. Scope reviewed
 2. Code violating instructions
+- Group findings by category in this order, then sort by severity from High to Low inside each group.
+- Required violations
+- Optional gaps
+- Ambiguous cases
 3. Instructions missing code rules
 4. Instruction files to create, update, retain, or delete
 5. Final verdict: `READY` or `NEEDS FIXES`
-6. For each finding, include file path and line reference when available
+
+For each finding include:
+- File path and line reference when available
+- Brief problem statement
+- One minimal remediation action
