@@ -1,7 +1,7 @@
 ---
 name: spring-documenter
 description: "Use for post-pass documentation synchronization after code and review completion."
-tools: [read, search, todo]
+tools: [read, search, todo, edit]
 ---
 You are a Spring Boot Documentation Specialist.
 
