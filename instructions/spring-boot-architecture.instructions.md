@@ -5,81 +5,49 @@ applyTo: "**/pom.xml, **/src/**"
 
 # Architecture Governance Baseline
 
-## Scope & Analysis
-- Analyze repository evidence before proposing changes.
-- Classify findings into: environment state, boundary encapsulation, state mutation and persistence, failure processing, diagnostics, external integration.
-- Classify component status as mandatory, conditional, or not-applicable.
-- Preserve the existing package and module boundaries of the target project.
-- Keep API boundary separation: controller, service, repository, DTO mapper, exception handling.
-
-## Resolution Rules
-- Prioritize explicit repository evidence over conventions.
-- Use `com.learning` as the default top-level Java package namespace unless the user explicitly requests another namespace.
-- Keep route versioning additive inside v1.
-- Create a new API version for breaking changes.
-- Use per-module error-code catalogs with strict prefixes.
-- Allow only actuator health and info by default.
-- Require explicit opt-in for any other actuator endpoint.
-- Enforce one canonical local container run flow across Docker, Compose, and Traefik.
-- Prohibit JPA, Hibernate, and Spring Data repository patterns.
-- Use JDBC or JdbcClient patterns for persistence guidance.
-- Always use constructor injection for application components.
-- Keep feature-scoped application classes package-private by default and use public visibility only for cross-module contracts.
-- Keep API models separated from persistence internals.
-- Keep configuration externalized and profile-aware.
-- Activate conditional components when request scope, existing implementation, active dependencies, or architecture contract requires them.
-- Defer topics with insufficient evidence instead of inventing rules.
-
-## Review Plan Layout
-- Review file targets before writing guidance.
-- Keep one enforceable rule per bullet.
-- Keep rule text short and directive.
-- Reuse canonical statements from global governance files instead of duplicating long text.
-- Mark each planned action as create, update, retain, delete, or defer.
-- Report component status as applied, blocked, excluded, or deferred with reason.
-- Report scope assumptions used in decisions.
-- Report resolved high-impact decisions.
-- Report cross-cutting checks for i18n, logging, observability, security, exception, error-code, and tests.
-- Report applied rules, blocked rules, assumptions, and residual risks.
-
-## Safety Guards
-- Never assume unverified frameworks or tools.
-- Never generate migration-framework rules without direct evidence.
-- Never introduce destructive commands without explicit user confirmation.
-- Never silently introduce optional components when intent is ambiguous.
-- Require explicit user approval for controlled architecture deviations.
-- Escalate findings only when a rule is applicable to the current scope.
-- If instructions conflict, apply this precedence:
-- 1. User explicit directive in current session.
-- 2. This file for Spring Boot architecture constraints.
-- 3. `copilot-instructions.md` for global behavior baseline.
-- 4. Component-specific instruction files for local detail.
-- Report conflicts explicitly and state which higher-priority rule was applied.
-
 ## Cross-Reference Guidance
-- For actuator endpoint exposure and health access rules, read `spring-boot-actuator.instructions.md`.
-- For controller routing, HTTP semantics, and validation boundaries, read `spring-boot-controller.instructions.md`.
-- For API version coexistence and DTO evolution, read `spring-boot-api-versioning.instructions.md`.
-- For async publication, consumers, and RabbitMQ delivery semantics, read `spring-boot-async-events.instructions.md`.
-- For application properties, profiles, and externalized configuration, read `spring-boot-config.instructions.md`.
-- For Dockerfile and Compose runtime rules, read `spring-boot-container.instructions.md`.
-- For SQL DDL conventions, read `spring-boot-database-schema.instructions.md`.
-- For DTO mapping contracts and MapStruct expectations, read `spring-boot-dto-mapper.instructions.md`.
-- For enum governance and security role enums, read `spring-boot-enum.instructions.md`.
-- For machine-readable API error codes and message-key mapping, read `spring-boot-error-code.instructions.md`.
-- For centralized exception handling and error response mapping, read `spring-boot-exception.instructions.md`.
-- For outbound HTTP clients and integration configuration, read `spring-boot-http-client.instructions.md`.
-- For locale behavior and message bundle governance, read `spring-boot-i18n.instructions.md`.
-- For Logback appenders, levels, and sink routing, read `spring-boot-logback.instructions.md`.
-- For application logging behavior and safe diagnostics, read `spring-boot-logging.instructions.md`.
-- For OpenAPI metadata and documentation structure, read `spring-boot-openapi.instructions.md`.
-- For pageable endpoints, sorting, and paged response rules, read `spring-boot-pagination.instructions.md`.
-- For Maven dependencies, plugins, and build governance, read `spring-boot-pom.instructions.md`.
-- For README structure and project documentation rules, read `spring-boot-readme.instructions.md`.
-- For foreign-key delete and update semantics, read `spring-boot-referential-integrity.instructions.md`.
-- For repository boundaries, JdbcClient usage, and SQL safety, read `spring-boot-repository.instructions.md`.
-- For authentication, authorization, and endpoint protection, read `spring-boot-security.instructions.md`.
-- For service orchestration and transaction boundaries, read `spring-boot-service.instructions.md`.
-- For test-layer scope and contract assertions, read `spring-boot-test.instructions.md`.
-- For Thymeleaf controllers, templates, and form binding, read `spring-boot-thymeleaf.instructions.md`.
-- For WebSocket/STOMP endpoint topology and lifecycle rules, read `spring-boot-websocket.instructions.md`.
+
+### Clarification Triggers
+- Ask for application type when request text does not identify `rest-web`, `mvc-web`, `console-cli`, `batch-worker`, or `integration-adapter`.
+- Ask for data-store strategy when data ownership is requested but persistence details are absent.
+- Ask for access policy when endpoint exposure is requested without authentication and authorization boundaries.
+- Ask for runtime expectations when profiles, ports, TLS, or container runtime are not explicit.
+- Ask for domain fields and validation rules when CRUD entities are requested without attribute definitions.
+
+### Exclusion Signals
+- Exclude web-controller guidance for console-only or worker-only requests.
+- Exclude security guidance unless access boundaries are requested or already implemented.
+- Exclude container guidance unless local or deployment runtime requires it.
+- Exclude pagination guidance unless list behavior requires page and sort controls.
+- Exclude async-events and websocket guidance unless messaging behavior is explicitly requested.
+
+### Always Active
+- Read `spring-boot-pom.instructions.md` for Maven dependencies, plugins, and build governance.
+- Read `spring-boot-config.instructions.md` for application properties, profiles, and externalized configuration.
+- Read `spring-boot-i18n.instructions.md` for locale behavior and message bundle governance.
+- Read `spring-boot-logging.instructions.md` for logging behavior and safe diagnostics.
+- Read `spring-boot-observability.instructions.md` for observability behavior and configuration governance.
+- Read `spring-boot-enum.instructions.md` for closed-set domain values and role-enum governance.
+- Read `spring-boot-error-code.instructions.md` for machine-readable API error-code mapping.
+- Read `spring-boot-exception.instructions.md` for centralized exception handling and error response mapping.
+- Read `spring-boot-test.instructions.md` for test-layer scope and contract assertions.
+- Read `spring-boot-readme.instructions.md` for user-facing behavior and setup documentation rules.
+
+### Intent-Driven Activation
+- Read `spring-boot-controller.instructions.md` when REST or MVC endpoints are requested.
+- Read `spring-boot-openapi.instructions.md` when API contract documentation is requested.
+- Read `spring-boot-security.instructions.md` when authentication or authorization is requested.
+- Read `spring-boot-thymeleaf.instructions.md` when server-rendered pages are requested.
+- Read `spring-boot-http-client.instructions.md` when outbound HTTP integration is requested.
+- Read `spring-boot-websocket.instructions.md` when realtime messaging is requested.
+- Read `spring-boot-async-events.instructions.md` when asynchronous event workflows are requested.
+- Read `spring-boot-container.instructions.md` when Docker, Compose, or Traefik runtime is requested.
+
+### Evidence-Driven Activation
+- Read `spring-boot-repository.instructions.md` when persistence is present or requested.
+- Read `spring-boot-database-schema.instructions.md` when SQL schema files are created or modified.
+- Read `spring-boot-referential-integrity.instructions.md` when foreign-key behavior is introduced.
+- Read `spring-boot-dto-mapper.instructions.md` when DTO-to-domain mapping is introduced.
+- Read `spring-boot-api-versioning.instructions.md` when API version coexistence is required.
+- Read `spring-boot-pagination.instructions.md` when pageable list behavior is required.
+- Read `spring-boot-actuator.instructions.md` when actuator exposure policy is changed.

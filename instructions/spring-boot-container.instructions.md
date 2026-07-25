@@ -14,6 +14,7 @@ applyTo: "**/Dockerfile, **/docker-compose.yml"
 - Keep container images built from approved runtime base images.
 - Keep build and runtime stages separated when multi-stage is used.
 - Keep compose services hardened with minimal privileges.
+- Keep one canonical local container run flow across Docker, Compose, and Traefik.
 - Keep healthchecks explicit and aligned with actuator liveness endpoints.
 - Keep runtime configuration profile-aware and externalized.
 - Keep container resources and mounted paths explicit.
