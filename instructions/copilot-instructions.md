@@ -24,6 +24,12 @@ applyTo: "**"
 - Always use 2 spaces, never tabs.
 - After editing programming language files, format them using VS Code tools.
 
+## Interactive Clarification
+- When the user explicitly asks to use defaults, do not ask clarification questions for decisions already covered by active governed defaults.
+- When asking clarification questions through `vscode/askQuestions`, every blocking question must include explicit options.
+- Mark exactly one option as recommended for each blocking question.
+- Keep freeform input allowed so the user can override defaults.
+
 ## Scope Precision
 - Edit only files and functions directly related to the requested task.
 - If adjacent code appears incorrect or inconsistent, flag it explicitly without silently fixing out-of-scope issues.
