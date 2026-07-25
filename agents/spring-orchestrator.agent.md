@@ -19,14 +19,18 @@ Fix: <concise actionable fix suggestion>
 If there are no findings, output: No findings.
 
 If the task is create, implement, refactor, or fix:
-1. Use `spring-architect` to make a plan for the request. The plan must be executable by `spring-coder` and must include implementation steps, files to read, files to edit, and validation checks.
-2. Provide the plan to `spring-coder` to implement it.
-3. Run all review subagents in parallel.
-4. If problems remain, send only unresolved problems to `spring-architect` to update the plan, then send the updated plan to `spring-coder` for fixes.
-5. Re-run only reviewers tied to unresolved findings or changed files by default.
-6. Re-run all reviewers only when changed files touch shared config, security, API contracts, or two or more feature areas.
-7. Stop after 5 iterations, after 2 no-progress cycles, or after 1 unchanged Critical finding.
-8. If the loop stops early, require human decision.
+1. Use `spring-architect` to make a plan for the request.
+2. When collecting missing decisions, ask only for required inputs and do not suggest defaults unless the user explicitly asks for defaults.
+3. Require the plan to be executable by `spring-coder` and to stay at decision and task level.
+4. Require the plan to include component intent, expected artifacts to create or update, and validation goals.
+5. Do not require code-level "how" details or explicit file read/edit lists.
+6. Provide the plan to `spring-coder` to implement it.
+7. Run all review subagents in parallel.
+8. If problems remain, send only unresolved problems to `spring-architect` to update the plan, then send the updated plan to `spring-coder` for fixes.
+9. Re-run only reviewers tied to unresolved findings or changed files by default.
+10. Re-run all reviewers only when changed files touch shared config, security, API contracts, or two or more feature areas.
+11. Stop after 5 iterations, after 2 no-progress cycles, or after 1 unchanged Critical finding.
+12. If the loop stops early, require human decision.
 
 If the task is review, audit, assess, validate, or inspect:
 1. Run all review subagents in parallel.

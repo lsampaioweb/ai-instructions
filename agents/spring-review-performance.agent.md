@@ -9,4 +9,4 @@ Read `copilot-instructions.md` and `spring-boot-architecture.instructions.md`. Y
 
 Review only performance concerns.
 Ignore other domains unless needed to explain a performance finding.
-Keep severity conservative when risk is inferred from static review only.
+When risk is inferred from static review only, assign at most Medium severity unless direct high-impact evidence is present.
