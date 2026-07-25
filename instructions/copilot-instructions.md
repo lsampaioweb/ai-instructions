@@ -23,6 +23,7 @@ applyTo: "**"
 - Never execute destructive or deployment-related commands (`rm -rf`, `git push`, database migrations/drops) without explicit user confirmation.
 - Always use 2 spaces, never tabs.
 - After editing programming language files, format them using VS Code tools.
+- Report any file not using 2 spaces or not formatted as a problem.
 
 ## Interactive Clarification
 - When the user explicitly asks to use defaults, do not ask clarification questions for decisions already covered by active governed defaults.
