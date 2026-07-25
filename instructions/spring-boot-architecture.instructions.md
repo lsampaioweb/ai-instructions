@@ -9,16 +9,19 @@ applyTo: "**/pom.xml, **/src/**"
 
 ### Clarification Triggers
 - Ask for application type when request text does not identify `rest-web`, `mvc-web`, `console-cli`, `batch-worker`, or `integration-adapter`.
-- Ask for data-store strategy when data ownership is requested but persistence details are absent.
+- For persistence defaults and override behavior, defer to the active persistence-specific instruction files.
+- Ask for data-store strategy only when active persistence instructions do not resolve the decision or request constraints conflict.
 - Ask for access policy when endpoint exposure is requested without authentication and authorization boundaries.
 - Ask for runtime expectations when profiles, ports, TLS, or container runtime are not explicit.
-- Ask for domain fields and validation rules when CRUD entities are requested without attribute definitions.
+- For entity field and validation baseline suggestions, defer to active API-contract instructions.
+- For REST list pagination and sorting defaults, defer to active pagination instructions.
+- When user text explicitly requests default options, apply defaults from active component instructions without re-asking covered decisions.
 
 ### Exclusion Signals
 - Exclude web-controller guidance for console-only or worker-only requests.
-- Exclude security guidance unless access boundaries are requested or already implemented.
+- Exclude security guidance only when there are no exposed endpoints and no endpoint exposure planned.
 - Exclude container guidance unless local or deployment runtime requires it.
-- Exclude pagination guidance unless list behavior requires page and sort controls.
+- Exclude pagination guidance only when no collection endpoint is present or user explicitly requires unpaged responses.
 - Exclude async-events and websocket guidance unless messaging behavior is explicitly requested.
 
 ### Always Active
@@ -26,6 +29,7 @@ applyTo: "**/pom.xml, **/src/**"
 - Read `spring-boot-config.instructions.md` for application properties, profiles, and externalized configuration.
 - Read `spring-boot-i18n.instructions.md` for locale behavior and message bundle governance.
 - Read `spring-boot-logging.instructions.md` for logging behavior and safe diagnostics.
+- Read `spring-boot-logback.instructions.md` for logback configuration and safe logging.
 - Read `spring-boot-observability.instructions.md` for observability behavior and configuration governance.
 - Read `spring-boot-enum.instructions.md` for closed-set domain values and role-enum governance.
 - Read `spring-boot-error-code.instructions.md` for machine-readable API error-code mapping.
@@ -34,20 +38,21 @@ applyTo: "**/pom.xml, **/src/**"
 - Read `spring-boot-readme.instructions.md` for user-facing behavior and setup documentation rules.
 
 ### Intent-Driven Activation
-- Read `spring-boot-controller.instructions.md` when REST or MVC endpoints are requested.
-- Read `spring-boot-openapi.instructions.md` when API contract documentation is requested.
-- Read `spring-boot-security.instructions.md` when authentication or authorization is requested.
-- Read `spring-boot-thymeleaf.instructions.md` when server-rendered pages are requested.
-- Read `spring-boot-http-client.instructions.md` when outbound HTTP integration is requested.
-- Read `spring-boot-websocket.instructions.md` when realtime messaging is requested.
-- Read `spring-boot-async-events.instructions.md` when asynchronous event workflows are requested.
-- Read `spring-boot-container.instructions.md` when Docker, Compose, or Traefik runtime is requested.
+- Read `spring-boot-controller.instructions.md` when REST or MVC endpoints are present or requested.
+- Read `spring-boot-openapi.instructions.md` when REST API endpoints are present, created, or modified.
+- Read `spring-boot-security.instructions.md` when endpoint exposure is present or requested.
+- Read `spring-boot-service.instructions.md` when business use cases, orchestration flows, or service-layer methods are present or requested.
+- Read `spring-boot-thymeleaf.instructions.md` when server-rendered pages are present or requested.
+- Read `spring-boot-http-client.instructions.md` when outbound HTTP integration is present or requested.
+- Read `spring-boot-websocket.instructions.md` when realtime messaging endpoints are present or requested.
+- Read `spring-boot-async-events.instructions.md` when asynchronous event workflows are present or requested.
+- Read `spring-boot-container.instructions.md` when Docker, Podman, or container runtime is present or requested.
 
 ### Evidence-Driven Activation
 - Read `spring-boot-repository.instructions.md` when persistence is present or requested.
-- Read `spring-boot-database-schema.instructions.md` when SQL schema files are created or modified.
-- Read `spring-boot-referential-integrity.instructions.md` when foreign-key behavior is introduced.
-- Read `spring-boot-dto-mapper.instructions.md` when DTO-to-domain mapping is introduced.
-- Read `spring-boot-api-versioning.instructions.md` when API version coexistence is required.
-- Read `spring-boot-pagination.instructions.md` when pageable list behavior is required.
-- Read `spring-boot-actuator.instructions.md` when actuator exposure policy is changed.
+- Read `spring-boot-database-schema.instructions.md` when relational persistence is present or requested.
+- Read `spring-boot-referential-integrity.instructions.md` when relational persistence is present or requested.
+- Read `spring-boot-dto-mapper.instructions.md` when DTO models and domain models coexist in controller or service flows.
+- Read `spring-boot-api-versioning.instructions.md` when REST API endpoints are present, created, or modified.
+- Read `spring-boot-pagination.instructions.md` for REST collection endpoints unless user explicitly requests unpaged responses.
+- Read `spring-boot-actuator.instructions.md` when actuator dependency or endpoint exposure is present, created, or modified.
