@@ -1,0 +1,35 @@
+Instruction Review TODO
+
+Legend:
+- [-]: file under review now
+- []: not reviewed yet
+- [X]: reviewed and discussed
+
+[X] spring-boot-actuator.instructions.md
+[X] spring-boot-api-versioning.instructions.md
+[X] spring-boot-architecture.instructions.md
+[X] spring-boot-async-events.instructions.md
+[X] spring-boot-config.instructions.md
+[X] spring-boot-container.instructions.md
+[X] spring-boot-controller.instructions.md
+[X] spring-boot-database-schema.instructions.md
+[X] spring-boot-dto-mapper.instructions.md
+[X] spring-boot-enum.instructions.md
+[X] spring-boot-error-code.instructions.md
+[X] spring-boot-exception.instructions.md
+[X] spring-boot-http-client.instructions.md
+[X] spring-boot-i18n.instructions.md
+[X] spring-boot-logback.instructions.md
+[X] spring-boot-logging.instructions.md
+[X] spring-boot-observability.instructions.md
+[X] spring-boot-openapi.instructions.md
+[X] spring-boot-pagination.instructions.md
+[X] spring-boot-pom.instructions.md
+[X] spring-boot-readme.instructions.md
+[X] spring-boot-referential-integrity.instructions.md
+[X] spring-boot-repository.instructions.md
+[X] spring-boot-security.instructions.md
+[X] spring-boot-service.instructions.md
+[X] spring-boot-test.instructions.md
+[X] spring-boot-thymeleaf.instructions.md
+[X] spring-boot-websocket.instructions.md
