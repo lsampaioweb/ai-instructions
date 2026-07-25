@@ -16,7 +16,7 @@ applyTo: "**/*.md"
 - Keep run instructions deterministic and copy-safe.
 - Document authentication and authorization behavior when applicable.
 - Document endpoint contracts or link to canonical API documentation.
-- Keep architecture decisions discoverable with concise rationale.
+- Keep architecture decisions discoverable with concise rationale and link to deeper technical docs instead of duplicating long walkthroughs.
 
 ## Review Plan Layout
 - Report sections added, removed, or reordered.

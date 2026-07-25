@@ -7,21 +7,23 @@ applyTo: "**/src/main/resources/sql/**/*.sql, **/src/main/resources/sql/**/*.xml
 
 ## Scope & Analysis
 - Inspect foreign keys, unique constraints, and check constraints in SQL files.
-- Inspect delete and update flows in service and repository implementations.
-- Inspect relationship assumptions between parent and child entities.
+- Inspect delete and update actions declared in SQL relation constraints.
+- Inspect relationship assumptions expressed by schema definitions between parent and child entities.
 
 ## Resolution Rules
 - Keep foreign-key constraints explicit for relational links.
+- When CRUD scope implies parent-child or lookup relationships but relation definitions are missing, ask blocking clarification for cardinality and delete/update behavior before planning schema changes.
 - Keep delete behavior explicit for constrained relationships.
 - Keep update behavior explicit where key relations can be impacted.
-- Keep domain invariants enforced by constraints and service checks.
-- Keep service-level guard checks aligned with schema constraints.
+- Always declare both `ON DELETE` and `ON UPDATE` actions on every FK constraint; never declare one without the other.
+- Keep domain invariants enforced by explicit SQL constraints and relation actions.
+- Keep constraint semantics explicit enough to avoid hidden dependence on undocumented service-side safeguards.
 - Keep relation naming and constraint naming predictable.
 
 ## Review Plan Layout
 - Report added or changed constraints and affected entities.
 - Report delete and update behavior changes across relation boundaries.
-- Report service-level guard logic added for integrity protection.
+- Report constraint-level mechanisms added for integrity protection.
 - Report risks of orphan records or invalid relations.
 - Report applied rules, blocked rules, assumptions, and residual risks.
 
@@ -29,3 +31,4 @@ applyTo: "**/src/main/resources/sql/**/*.sql, **/src/main/resources/sql/**/*.xml
 - Never remove referential constraints without explicit approval.
 - Never introduce delete flows that bypass relation safeguards.
 - Never accept integrity-breaking updates without controlled migration.
+- Never write a FK constraint that specifies `ON DELETE` behavior but omits `ON UPDATE` behavior, or vice versa.

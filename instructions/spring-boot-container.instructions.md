@@ -11,11 +11,13 @@ applyTo: "**/Dockerfile, **/docker-compose.yml"
 - Inspect healthcheck, ports, and environment variable behavior.
 
 ## Resolution Rules
-- Keep container images built from approved runtime base images.
+- Keep container images pinned to explicit tags.
 - Keep build and runtime stages separated when multi-stage is used.
-- Keep compose services hardened with minimal privileges.
-- Keep one canonical local container run flow across Docker, Compose, and Traefik.
-- Keep healthchecks explicit and aligned with actuator liveness endpoints.
+- Keep compose services hardened with minimal privileges by default.
+- Keep capability additions exceptional and justified inline for each service.
+- Keep socket mounts read-only and justified by explicit runtime needs.
+- Keep local container run flows documented per scenario (standalone app flow or shared infrastructure flow).
+- Keep healthchecks explicit and service-appropriate (actuator endpoints for Spring apps, native probes for infrastructure services).
 - Keep runtime configuration profile-aware and externalized.
 - Keep container resources and mounted paths explicit.
 
@@ -28,5 +30,5 @@ applyTo: "**/Dockerfile, **/docker-compose.yml"
 
 ## Safety Guards
 - Never run containers with unnecessary privileges by default.
-- Never expose internal-only ports without explicit need.
+- Never expose internal-only ports without explicit need and documentation.
 - Never ship container defaults that bypass runtime safety controls.

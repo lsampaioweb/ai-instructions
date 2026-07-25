@@ -9,20 +9,24 @@ applyTo: "**/pom.xml, **/src/**"
 
 ### Clarification Triggers
 - Ask for application type when request text does not identify `rest-web`, `mvc-web`, `console-cli`, `batch-worker`, or `integration-adapter`.
+- Allow a primary application type plus secondary capabilities when the module combines concerns such as REST, MVC, websocket, async events, or outbound integration.
 - For persistence defaults and override behavior, defer to the active persistence-specific instruction files.
 - Ask for data-store strategy only when active persistence instructions do not resolve the decision or request constraints conflict.
-- Ask for access policy when endpoint exposure is requested without authentication and authorization boundaries.
+- Use feature-first package organization as the default for multi-feature modules, and ask blocking clarification only when the user explicitly requests a conflicting structure.
+- Treat feature-first organization as grouping controller, service, repository, DTO, mapper, and exception classes by domain feature when the module has more than one business feature.
+- Ask for access policy when externally reachable HTTP endpoints, messaging endpoints, or websocket endpoints are requested without authentication and authorization boundaries.
 - Ask for runtime expectations when profiles, ports, TLS, or container runtime are not explicit.
 - For entity field and validation baseline suggestions, defer to active API-contract instructions.
 - For REST list pagination and sorting defaults, defer to active pagination instructions.
 - When user text explicitly requests default options, apply defaults from active component instructions without re-asking covered decisions.
+- When configuration properties are introduced, defer registration and test-slice behavior to the active config and test instruction files.
 
 ### Exclusion Signals
 - Exclude web-controller guidance for console-only or worker-only requests.
-- Exclude security guidance only when there are no exposed endpoints and no endpoint exposure planned.
-- Exclude container guidance unless local or deployment runtime requires it.
+- Exclude security guidance only when there is no externally reachable HTTP, messaging, or websocket surface and none is planned.
+- Exclude container guidance unless local runtime, deployment runtime, or shared infrastructure assets require it.
 - Exclude pagination guidance only when no collection endpoint is present or user explicitly requires unpaged responses.
-- Exclude async-events and websocket guidance unless messaging behavior is explicitly requested.
+- Exclude async-events and websocket guidance unless messaging behavior is explicitly requested or present in scope.
 
 ### Always Active
 - Read `spring-boot-pom.instructions.md` for Maven dependencies, plugins, and build governance.
@@ -40,13 +44,13 @@ applyTo: "**/pom.xml, **/src/**"
 ### Intent-Driven Activation
 - Read `spring-boot-controller.instructions.md` when REST or MVC endpoints are present or requested.
 - Read `spring-boot-openapi.instructions.md` when REST API endpoints are present, created, or modified.
-- Read `spring-boot-security.instructions.md` when endpoint exposure is present or requested.
+- Read `spring-boot-security.instructions.md` when externally reachable HTTP, REST, MVC, actuator, config-server, or websocket endpoints are present or requested.
 - Read `spring-boot-service.instructions.md` when business use cases, orchestration flows, or service-layer methods are present or requested.
 - Read `spring-boot-thymeleaf.instructions.md` when server-rendered pages are present or requested.
 - Read `spring-boot-http-client.instructions.md` when outbound HTTP integration is present or requested.
 - Read `spring-boot-websocket.instructions.md` when realtime messaging endpoints are present or requested.
 - Read `spring-boot-async-events.instructions.md` when asynchronous event workflows are present or requested.
-- Read `spring-boot-container.instructions.md` when Docker, Podman, or container runtime is present or requested.
+- Read `spring-boot-container.instructions.md` when Docker, Podman, container runtime, or shared infrastructure container assets are present or requested.
 
 ### Evidence-Driven Activation
 - Read `spring-boot-repository.instructions.md` when persistence is present or requested.

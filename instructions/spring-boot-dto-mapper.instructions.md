@@ -13,10 +13,10 @@ applyTo: "**/*DtoMapper.java,**/*Mapper.java"
 ## Resolution Rules
 - Keep mapping logic isolated in dedicated mapper types.
 - Keep mapper contracts deterministic and side-effect free.
-- Standardize generated mapper implementations on MapStruct using `@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.ERROR)`.
-- Enforce strict unmapped-field handling for generated mappers.
+- Use MapStruct for generated mapper implementations when the module adopts generated mapping.
+- Keep generated mappers strict with `unmappedTargetPolicy = ReportingPolicy.ERROR`.
 - Keep DTO and entity model boundaries explicit in mapper methods.
-- Keep request DTOs operation-specific using action-oriented names such as CreateXRequest and UpdateXRequest.
+- Keep request DTO strategy explicit: use operation-specific request DTOs when create/update validation diverges, or a shared request DTO when validation and semantics are identical.
 - Keep public API responses mapped to dedicated `*Response` DTO types.
 - Keep update mapping explicit for mutable entity fields.
 - Keep mapper visibility aligned with feature encapsulation.

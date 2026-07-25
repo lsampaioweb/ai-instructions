@@ -18,7 +18,7 @@ applyTo: "**/OpenApiConfig.java,**/openapi/*.java, **/*Controller.java, **/*Api.
 - Keep OpenAPI configuration in dedicated configuration classes.
 - Place the configuration either at module root or in an `openapi` package.
 - Prefer the existing module placement unless the module is already being reorganized.
-- Place `@Tag` on controller or API classes and `@Operation` on endpoint methods when endpoint-level documentation is used.
+- SpringDoc auto-detects endpoints from `@RequestMapping` annotations; `@Tag` and `@Operation` are optional and should be used consistently when a module adopts richer per-endpoint documentation.
 - Keep endpoint documentation aligned with controller contracts.
 - Keep schema names stable for existing public responses.
 - Keep documentation changes synchronized with versioning rules.
@@ -34,3 +34,4 @@ applyTo: "**/OpenApiConfig.java,**/openapi/*.java, **/*Controller.java, **/*Api.
 - Never publish stale API docs after route contract changes.
 - Never duplicate conflicting OpenAPI configurations in one module.
 - Never change public schema semantics without versioning decision.
+- Never mix conflicting endpoint documentation styles in the same module without an explicit documentation strategy.

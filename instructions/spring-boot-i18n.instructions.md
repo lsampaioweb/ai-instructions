@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot i18n contract for message-key governance, locale behavior, and translation-safe output."
-applyTo: "**/messages*.properties, **/*.java"
+applyTo: "**/*.java, **/application*.yml, **/messages*.properties"
 ---
 
 # Spring Boot I18N Engine
@@ -15,10 +15,11 @@ applyTo: "**/messages*.properties, **/*.java"
 - Keep key naming stable and domain-oriented.
 - Keep placeholders indexed and consistent across locales.
 - Use `Accept-Language` as the default locale negotiation strategy for API and web flows.
-- Use `en` and `pt-BR` as the default supported locale set unless the user explicitly requests additional locales.
+- Use `en` and `pt-BR` as baseline defaults unless the project or user explicitly defines a different supported locale set.
 - Add fallback behavior for unsupported locales.
 - Use UTF-8-safe content and avoid encoding regressions.
 - Keep error messages aligned with error-code policy.
+- Use a dedicated `LogMessages` component backed by `MessageSource` with `Locale.ENGLISH` for log events; never resolve log messages using the request locale.
 
 ## Review Plan Layout
 - Report added keys and owning feature.
@@ -31,3 +32,4 @@ applyTo: "**/messages*.properties, **/*.java"
 - Never remove keys that are still referenced.
 - Never change placeholder order without updating all locale variants.
 - Never hardcode user-facing text where message keys are required.
+- Never resolve log-level messages using the request locale; always use `Locale.ENGLISH` for application log output.

@@ -13,14 +13,16 @@ applyTo: "**/pom.xml"
 ## Resolution Rules
 - Keep Spring Boot parent and plugin versions coherent.
 - Use Java 25 as the default baseline by defining `<java.version>25</java.version>` unless the user explicitly requests a different version.
+- Use Spring Boot 4.x as the default framework baseline unless the user explicitly requests a different version.
 - Use `io.github.lsampaioweb` as the default `groupId` unless the user explicitly requests a different organization namespace.
 - Keep project identity deterministic: set `<artifactId>` and `<name>` to the same module identifier in kebab-case.
 - Add only dependencies required by explicit scope.
-- Keep MapStruct modules configured with both `org.mapstruct:mapstruct` and compiler annotation processing via `org.mapstruct:mapstruct-processor`.
+- When MapStruct is used, configure both `org.mapstruct:mapstruct` and compiler annotation processing via `org.mapstruct:mapstruct-processor`.
 - Pin versions only when the parent BOM does not manage them.
 - Remove duplicate dependencies and redundant exclusions.
 - Prohibit JPA, Hibernate, and Spring Data repository dependencies.
 - Prefer stable, maintained libraries over niche alternatives.
+- Include test slice starter dependencies explicitly: `spring-boot-starter-webmvc-test` for `@WebMvcTest` and `spring-boot-jdbc-test` for `@JdbcTest`; neither is bundled in `spring-boot-starter-test`.
 
 ## Review Plan Layout
 - Report added dependencies with purpose.

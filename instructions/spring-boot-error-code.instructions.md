@@ -17,9 +17,11 @@ applyTo: "**/src/main/java/**/*ErrorCode.java, **/src/main/java/**/*Exception*.j
 - Keep placeholder count and order consistent across locales.
 - Keep one canonical mapping from error code to failure scenario.
 - Keep each module's active error-code ownership explicit.
-- Keep per-module error-code catalogs with strict, module-specific prefixes.
 - Prefer a dedicated `ErrorCode` catalog when the module already defines one.
-- Allow handler-local error-code constants as an intermediate pattern when no catalog exists yet.
+- Keep one canonical error-code strategy per module: dedicated `ErrorCode` catalog or handler-local constants.
+- Use a dedicated `ErrorCode` catalog when error-code values are shared across multiple exception types or handlers in the same module.
+- Allow handler-local constants when error-code ownership is isolated to a single handler and remains explicit.
+- Keep machine-readable error-code fields explicit only for modules whose public error payload contract exposes an `errorCode` property.
 - Keep error-code declarations out of service orchestration logic.
 
 ## Review Plan Layout

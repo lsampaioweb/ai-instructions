@@ -11,7 +11,7 @@ applyTo: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*Sq
 - Inspect SQL execution paths and exception mapping behavior.
 
 ## Resolution Rules
-- Require repository implementations to be separated from contract interfaces: define `interface XyzRepository`, then implement `@Repository class XyzRepositoryImpl implements XyzRepository`.
+- Prefer repository contract/implementation separation (`interface XyzRepository` + `XyzRepositoryImpl`) for modules with multiple persistence adapters or higher domain complexity; a single `@Repository` class is acceptable for focused modules.
 - Keep repositories JDBC or JdbcClient based.
 - Keep JDBC or JdbcClient as the default for relational persistence modules.
 - Allow non-relational repository implementations only when the module is explicitly scoped to an approved non-relational store; keep key design, serialization rules, and failure mapping explicit.
@@ -19,6 +19,8 @@ applyTo: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*Sq
 - Keep SQL parameters explicit and safely bound.
 - Keep repository exceptions mapped to domain-safe failures.
 - Keep repository methods scoped to persistence concerns only.
+- Externalize SQL statements into `@PropertySource`-backed XML property files (one file per feature); access them through a `@ConfigurationProperties` record named `XyzSqlConfigurationProperties` within the feature package.
+- Register `XyzSqlConfigurationProperties` using one explicit pattern: either `@Component` + `@ConfigurationProperties` on the record, or `@EnableConfigurationProperties` on the owning `@Configuration` class.
 
 ## Review Plan Layout
 - Report repository methods added, changed, or removed.

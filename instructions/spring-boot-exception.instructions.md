@@ -12,9 +12,10 @@ applyTo: "**/*Exception*.java,**/*ExceptionHandler*.java,**/*Advice*.java"
 
 ## Resolution Rules
 - Use centralized exception handling for API error responses.
-- Keep a stable error response contract across features.
+- Keep a stable error response contract within each module or public API surface.
 - Map domain exceptions to explicit HTTP status codes.
 - Keep validation-error handling distinct from domain-error handling.
+- When validation failures return a different payload shape (e.g., `List<ValidationError>`) than the domain-error envelope, document the intentional divergence in handler-level notes or API documentation.
 - Keep exception-to-response mapping deterministic.
 - Keep stack traces out of client-facing error payloads by default.
 
@@ -29,3 +30,4 @@ applyTo: "**/*Exception*.java,**/*ExceptionHandler*.java,**/*Advice*.java"
 - Never leak internal stack traces to external clients by default.
 - Never return generic 500 when a domain mapping is available.
 - Never duplicate exception handling logic across controllers.
+- Never silently return a different error payload shape without explicit documentation of the intentional divergence.

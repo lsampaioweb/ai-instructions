@@ -11,10 +11,10 @@ applyTo: "**/*Service.java,**/*ServiceImpl.java"
 - Inspect dependency usage and orchestration responsibilities.
 
 ## Resolution Rules
-- Require service implementations to be separated from contract interfaces: define `interface XyzService`, then implement `@Service class XyzServiceImpl implements XyzService`.
+- Prefer service contract/implementation separation (`interface XyzService` + `XyzServiceImpl`) for business modules with multiple collaborators or evolving API contracts; a focused single `@Service` class is acceptable for simple integration or utility services.
 - Keep business orchestration in service layer.
 - Keep constructor injection as the only dependency pattern.
-- Keep read and write transaction semantics explicit.
+- Keep read and write transaction semantics explicit for persistence workflows; avoid transactional annotations on services that do not perform transactional resource updates.
 - Keep service methods aligned with API and repository contracts.
 - Keep external integration calls encapsulated in service boundaries.
 

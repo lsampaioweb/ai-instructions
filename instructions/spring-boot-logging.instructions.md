@@ -15,7 +15,7 @@ applyTo: "**/src/main/java/**/*.java, **/src/test/java/**/*.java"
 - Use consistent level semantics across features.
 - Include correlation identifiers when available.
 - Keep sensitive data out of logs.
-- Prefer structured log fields over string-only messages.
+- Prefer parameterized log messages and use structured log fields when the active sink/aggregation tooling supports structured ingestion.
 - Keep exception logs single-source to avoid duplication.
 
 ## Review Plan Layout

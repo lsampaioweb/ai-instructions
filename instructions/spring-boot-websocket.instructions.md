@@ -1,6 +1,6 @@
 ---
 description: "WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience."
-applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*SessionEventsListener.java, **/*ConnectionTracker.java, **/*StompMessage.java, **/*SocketMessage.java, **/*WebSocketMessage.java, **/static/js/*websocket*.js, **/static/js/*socket*.js"
+applyTo: "**/*Socket*.java, **/*Stomp*.java"
 ---
 
 # Spring Boot WebSocket Engine
@@ -13,6 +13,7 @@ applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*Session
 ## Resolution Rules
 - Keep STOMP endpoint and destination prefixes explicit.
 - Keep allowed-origin strategy externalized through configuration.
+- Allow wildcard origins only for explicitly documented development/local profiles; production profiles must define constrained origin patterns.
 - Keep message mapping and broadcast targets deterministic.
 - Keep event publication isolated from transport handlers.
 - Keep connection state tracking in dedicated components.
@@ -27,5 +28,6 @@ applyTo: "**/*WebSocketConfiguration*.java, **/*SocketEndpoint.java, **/*Session
 
 ## Safety Guards
 - Never expose websocket endpoints with uncontrolled origin policy.
+- Never allow wildcard origin policy in production profiles.
 - Never publish mutable payload state across async boundaries.
 - Never couple broker configuration changes with unrelated features.

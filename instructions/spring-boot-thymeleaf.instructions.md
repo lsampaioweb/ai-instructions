@@ -15,7 +15,7 @@ applyTo: "**/*PageController.java, **/*Routes.java, **/templates/**/*.html"
 - Keep templates organized by feature-oriented folder structure.
 - Keep form binding and validation explicit at controller boundaries.
 - Keep model attribute keys stable and intentional.
-- Keep locale resolution explicit with supported locales.
+- Keep locale resolution behavior explicit when deviating from framework defaults; if default locale handling is retained, keep supported locales and fallback behavior documented.
 - Keep message-key usage consistent in templates and logs.
 
 ## Review Plan Layout
@@ -26,6 +26,6 @@ applyTo: "**/*PageController.java, **/*Routes.java, **/templates/**/*.html"
 - Report applied rules, blocked rules, assumptions, and residual risks.
 
 ## Safety Guards
-- Never mix REST payload endpoints into page controller flows.
+- Never expose JSON REST payload endpoints from page controllers; fragment rendering and page-workflow AJAX endpoints are allowed when they serve the same template flow.
 - Never bypass validation feedback wiring in form workflows.
 - Never hardcode user-facing text where message keys exist.

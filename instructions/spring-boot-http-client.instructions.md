@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot HTTP client contract for deterministic outbound calls, bounded resilience behavior, and secure integration boundaries in production-grade projects."
-applyTo: "**/src/main/java/**/*Http*Client*.java, **/src/main/java/**/*Http*Adapter*.java, **/src/main/java/**/*Configuration*.java, **/src/main/java/**/config/**/*.java, **/src/main/resources/application*.yml, **/pom.xml"
+applyTo: "**/src/main/java/**/*Http*Client*.java, **/src/main/java/**/*Http*Adapter*.java, **/src/main/java/**/config/**/*Http*Configuration*.java, **/src/main/java/**/config/**/*Http*Properties*.java, **/src/main/resources/application*.yml"
 ---
 
 # Spring Boot HTTP-Client Engine
@@ -14,7 +14,9 @@ applyTo: "**/src/main/java/**/*Http*Client*.java, **/src/main/java/**/*Http*Adap
 - Keep outbound client configuration centralized in config classes.
 - Keep endpoint URLs and credentials externalized in properties.
 - Keep external-call initialization explicit and deterministic.
+- Keep outbound connection and read timeout values explicit and externally configurable for non-trivial integrations.
 - Keep error handling explicit for non-success HTTP responses.
+- Keep status-specific failure mapping explicit when remote APIs expose known error classes.
 - Keep generic response mapping type-safe.
 - Keep outbound request construction isolated from controller layer.
 
