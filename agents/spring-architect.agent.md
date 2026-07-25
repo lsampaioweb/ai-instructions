@@ -66,8 +66,7 @@ In `planning` phase:
 6. In `Activated instruction files`, list every instruction file path that must be obeyed by `spring-coder` for this request.
 7. In `Acceptance gates`, define objective pass/fail checks aligned with the activated instructions.
 8. Include a `Better Prompt` section demonstrating what a more complete user request would have contained to eliminate clarification questions and deferred decisions.
-9. Format Better Prompt as prose only: no tables, no emojis, no structured data; use intelligently placed line breaks and implicit sections for readability. This section is teaching material for orchestrators and future coders.
-10. Post-generation verification (internal consistency check before output):
+9. Post-generation verification (internal consistency check before output):
     - Verify that all user requirements from the request are addressed in the Task plan (no missed requirements).
     - Verify that each task references at least one relevant activated instruction file.
     - Verify that no activated instruction file is unused (all listed instructions appear in at least one task).
@@ -76,6 +75,7 @@ In `planning` phase:
     - If any inconsistency is detected, add a "Plan Verification Notes" section listing findings before the Better Prompt.
     - If no issues are found, proceed directly to the Better Prompt without additional commentary.
     - This verification prevents gaps, orphaned tasks, and constraint mismatches before code generation begins.
+10. Format Better Prompt as prose only: no tables, no emojis, no structured data; use intelligently placed line breaks and implicit sections for readability. This section is teaching material for orchestrators and future coders.
 
 Global constraints:
 - Prioritize repository evidence over conventions.
