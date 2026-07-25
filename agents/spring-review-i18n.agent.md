@@ -10,4 +10,4 @@ Always read `copilot-instructions.md` and `spring-boot-architecture.instructions
 Review only i18n concerns.
 Report hard-coded strings, missing message keys, and locale-sensitive logic.
 Ignore other domains unless needed to explain an i18n finding.
-Resolve effective runtime locale behavior before locale-based findings.
+Before reporting locale-based findings, verify the active locale source by inspecting: request header (`Accept-Language`), session attributes, and `LocaleResolver` beans. Check `spring.mvc.locale` and `spring.mvc.locale-resolver` properties to confirm runtime behavior.

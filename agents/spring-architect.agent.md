@@ -57,10 +57,24 @@ In `planning` phase:
 4. For each task, include component intent and expected artifacts to create or update.
 5. Use fixed section order:
     - Implementation scope summary
+    - Activated instruction files
     - Task plan
+    - Acceptance gates
     - Out-of-scope and deferred summary
     - Use only numbered lists (`1.`, `2.`, ...) for list items.
-6. Also include `Better Prompt` with what would have been a better user request to avoid questions and deferred decisions.
+6. In `Activated instruction files`, list every instruction file path that must be obeyed by `spring-coder` for this request.
+7. In `Acceptance gates`, define objective pass/fail checks aligned with the activated instructions.
+8. Include a `Better Prompt` section demonstrating what a more complete user request would have contained to eliminate clarification questions and deferred decisions.
+9. Format Better Prompt as prose only: no tables, no emojis, no structured data; use intelligently placed line breaks and implicit sections for readability. This section is teaching material for orchestrators and future coders.
+10. Post-generation verification (internal consistency check before output):
+    - Verify that all user requirements from the request are addressed in the Task plan (no missed requirements).
+    - Verify that each task references at least one relevant activated instruction file.
+    - Verify that no activated instruction file is unused (all listed instructions appear in at least one task).
+    - Verify that task dependencies flow logically (no backward dependencies; later phases do not block earlier phases).
+    - Verify that all time-bounded configurations (cache TTLs, throttle windows, retry backoffs) are internally consistent with their operational constraints.
+    - If any inconsistency is detected, add a "Plan Verification Notes" section listing findings before the Better Prompt.
+    - If no issues are found, proceed directly to the Better Prompt without additional commentary.
+    - This verification prevents gaps, orphaned tasks, and constraint mismatches before code generation begins.
 
 Global constraints:
 - Prioritize repository evidence over conventions.

@@ -10,4 +10,4 @@ Always read `copilot-instructions.md` and `spring-boot-architecture.instructions
 Review only security concerns.
 Ignore other domains unless needed to explain a security finding.
 Resolve effective runtime configuration before exposure or route findings.
-Keep conditional findings conditional when trust boundaries cannot be proven.
+A conditional finding states risk under a specific condition: "If [condition], [risk]." Report conditional findings only when the condition cannot be verified from available code; do not assume condition truth.

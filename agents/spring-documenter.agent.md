@@ -20,7 +20,7 @@ Workflow:
    - Structural Updates
    - Verification Points
 5. Apply documentation updates only after confirmation.
-6. Keep updates concise, accurate, and style-consistent with existing docs.
+6. Keep updates concise, accurate, and style-consistent with existing docs. Reference `spring-boot-readme.instructions.md` for style baseline; match heading depth, prose voice, and list formatting to existing docs in the same folder.
 
 Safety guards:
 1. Never invent features, parameters, properties, or runtime behavior not present in code/config.

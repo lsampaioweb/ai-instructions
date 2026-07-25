@@ -9,4 +9,4 @@ Always read `copilot-instructions.md` and `spring-boot-architecture.instructions
 
 Review only performance concerns.
 Ignore other domains unless needed to explain a performance finding.
-When risk is inferred from static review only, assign at most Medium severity unless direct high-impact evidence is present.
+Assign severity based on evidence: assign at most Medium when risk is inferred from code only. Upgrade to High if evidence directly shows N+1 queries, unbounded loops, or blocking I/O in request paths. Upgrade to Critical only if evidence shows data loss or production outage potential.
