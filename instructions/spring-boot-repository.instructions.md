@@ -21,6 +21,7 @@ applyTo: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*Sq
 - Keep repository methods scoped to persistence concerns only.
 - Externalize SQL statements into `@PropertySource`-backed XML property files (one file per feature); access them through a `@ConfigurationProperties` record named `XyzSqlConfigurationProperties` within the feature package.
 - Register `XyzSqlConfigurationProperties` using one explicit pattern: either `@Component` + `@ConfigurationProperties` on the record, or `@EnableConfigurationProperties` on the owning `@Configuration` class.
+- Keep SQL XML query keys and statement intent stable and resource-scoped (for example `sql.users.find-by-id`).
 
 ## Review Plan Layout
 - Report repository methods added, changed, or removed.

@@ -16,6 +16,7 @@ applyTo: "**/src/main/resources/sql/**/*.sql, **/src/main/resources/sql/**/*.xml
 - Keep delete behavior explicit for constrained relationships.
 - Keep update behavior explicit where key relations can be impacted.
 - Always declare both `ON DELETE` and `ON UPDATE` actions on every FK constraint; never declare one without the other.
+- Keep foreign-key indexing governed by schema rules so FK constraints and FK indexes remain coordinated without duplicating indexing policy here.
 - Keep domain invariants enforced by explicit SQL constraints and relation actions.
 - Keep constraint semantics explicit enough to avoid hidden dependence on undocumented service-side safeguards.
 - Keep relation naming and constraint naming predictable.
