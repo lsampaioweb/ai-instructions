@@ -14,7 +14,6 @@ applyTo: "**/src/main/resources/application*.yml"
 - Keep configuration externalized and profile-aware.
 - Keep `application.yml` as the base configuration file for each runnable module.
 - Add `application-development.yml` and `application-production.yml` when the module has distinct runtime environments.
-- Do NOT create `application-test.yml` for test slices by default.
 - Test slice annotations auto-provision their own infrastructure (for example, `@JdbcTest` auto-provisions an embedded H2 datasource).
 - Do NOT add an explicit test datasource profile for slices because it conflicts with auto-provisioning.
 - Do NOT force every slice test class to declare `@ActiveProfiles("test")`.
