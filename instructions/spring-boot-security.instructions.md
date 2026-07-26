@@ -18,6 +18,7 @@ applyTo: "**/*SecurityConfig.java,**/security/*Permissions.java,**/security/Role
 - Keep security defaults deny-oriented for mutating operations.
 - Keep authentication and authorization concerns separated from business logic.
 - Keep security decisions traceable through permission components.
+- Document temporary authentication deferrals with explicit metadata: scope, closure condition, and release checkpoint.
 
 ## Review Plan Layout
 - Report protected routes and authorization rules changed.
@@ -31,6 +32,7 @@ applyTo: "**/*SecurityConfig.java,**/security/*Permissions.java,**/security/Role
 - Never duplicate conflicting authorization logic across layers.
 - Never weaken security defaults without explicit approval.
 - Never leave role-assignment ownership ambiguous: assign roles in-module for local identity setups or explicitly document the external authority that assigns them.
+- Never leave unresolved `TODO` or `FIXME` markers inside active security route rules.
 
 ## Approved Exception Handling
 - Identify features or endpoints explicitly approved by user for temporary open access.

@@ -14,6 +14,7 @@ applyTo: "**/*Service.java,**/*ServiceImpl.java"
 - Prefer service contract/implementation separation (`interface XyzService` + `XyzServiceImpl`) for business modules with multiple collaborators or evolving API contracts; a focused single `@Service` class is acceptable for simple integration or utility services.
 - Keep business orchestration in service layer.
 - Keep constructor injection as the only dependency pattern.
+- Extract repeated technical string literals (for example message keys, domain error identifiers, event labels) into named constants within the service implementation.
 - Always apply `@Transactional(readOnly = true)` to service methods that only read data; apply `@Transactional` without `readOnly` for write operations; never omit transaction annotations for persistence workflows.
 - Keep service methods aligned with API and repository contracts.
 - Keep external integration calls encapsulated in service boundaries.

@@ -13,6 +13,7 @@ applyTo: "**/src/test/java/**/*.java, **/*Test.java"
 ## Resolution Rules
 - Use layer-appropriate test slices for the target behavior.
 - Use explicit slice annotations by layer: `@WebMvcTest` (package `org.springframework.boot.webmvc.test.autoconfigure`, dependency `spring-boot-starter-webmvc-test`) for controllers, `@JdbcTest` (package `org.springframework.boot.jdbc.test.autoconfigure`, dependency `spring-boot-jdbc-test`) for JDBC repositories, plain unit tests for services, and `@SpringBootTest` for full integration flows or context-bootstrap smoke tests.
+- Use `@SpringBootTest` + `@AutoConfigureMockMvc` for security-chain tests that assert actuator endpoint access; `@WebMvcTest` slices do not represent full actuator exposure.
 - When using `@JdbcTest` with an explicit datasource configured in a test profile, add `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` to prevent the slice from replacing the configured datasource.
 - When using `@JdbcTest` with custom non-Spring-Data `@Repository` implementations, explicitly `@Import` the repository implementation class and the `JdbcClient` configuration class; the slice does not component-scan custom `@Repository` beans.
 - Any `@Configuration` class imported via `@Import` in a test slice must have `public` class visibility; a package-private configuration class causes a silent import failure when the test is in a different package.
