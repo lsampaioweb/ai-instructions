@@ -23,6 +23,7 @@ applyTo: "**/*Controller.java,**/*Service.java,**/*ServiceImpl.java"
 - Use ascending sort by a stable resource key by default for paginated endpoints unless the module contract defines different sorting defaults.
 - Validate page and size boundaries with explicit defaults.
 - Enforce explicit max-page-size protection when custom pagination configuration exists.
+- Validate custom `page`/`size` constraints in the service layer once per use case and reuse that path across endpoints.
 - Avoid repeating numeric fallback literals across multiple controllers.
 - Keep pagination semantics consistent across resources.
 - Keep pagination mapping in service layer aligned with API contract.
