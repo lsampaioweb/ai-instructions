@@ -60,7 +60,7 @@ In `planning` phase:
     - Out-of-scope and deferred summary
     - Use only numbered lists (`1.`, `2.`, ...) for list items.
 6. In `Activated instruction files`, list every instruction file path that must be obeyed by `spring-coder` for this request.
-7. In `Acceptance gates`, define objective pass/fail checks aligned with the activated instructions.
+7. In `Acceptance gates`, define objective pass/fail checks aligned with the activated instructions. For CRUD or endpoint-based features, explicitly list required HTTP methods and paths (e.g., GET /api/v1/resources, POST /api/v1/resources, PUT /api/v1/resources/{id}, DELETE /api/v1/resources/{id}) to prevent partial implementations.
 8. Include a `Better Prompt` section demonstrating what a more complete user request would have contained to eliminate clarification questions and deferred decisions.
 9. Post-generation verification (internal consistency check before output):
     - Verify that all user requirements from the request are addressed in the Task plan (no missed requirements).

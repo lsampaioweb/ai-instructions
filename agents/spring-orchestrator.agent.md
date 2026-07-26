@@ -28,7 +28,8 @@ If the task is create, implement, refactor, or fix:
 7. Require `spring-coder` preflight and post-implementation compliance report for activated instruction files.
 8. Do not require code-level "how" details or explicit file read/edit lists.
 9. Provide the plan to `spring-coder` to implement it.
-10. Run all review subagents in parallel.
+10. After `spring-coder` completes a pass, validate the controlling artifact before running reviews: for endpoint work, read the controller file and verify all acceptance-gate methods exist; for persistence work, verify repository methods exist. If critical acceptance gates are not met, send the coder back before launching reviewers.
+11. Run all review subagents in parallel.
 11. If problems remain, send only unresolved problems to `spring-architect` to update the plan, then send the updated plan to `spring-coder` for fixes.
 12. Re-run only reviewers tied to unresolved findings or changed files by default.
 13. Re-run all reviewers only when changed files touch shared config, security, API contracts, or two or more feature areas.
