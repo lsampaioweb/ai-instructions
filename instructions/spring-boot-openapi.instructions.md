@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot OpenAPI contract for documented API metadata, discoverable endpoints, and stable specification output."
-applyTo: "**/OpenApiConfig.java,**/openapi/*.java, **/*Controller.java, **/*Api.java"
+applyTo: "**/OpenApiConfig.java,**/openapi/**/*.java, **/*Controller.java, **/*Api.java"
 ---
 
 # Spring Boot OpenAPI Engine
