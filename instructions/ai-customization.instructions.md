@@ -23,4 +23,4 @@ Use this contract to keep customization files consistent, enforceable, and easy 
 - Preserve technical literals: do not alter commands, code, paths, URLs, identifiers, config keys, or versions unless incorrect.
 - Resolve duplication deliberately: keep one canonical statement and reference it from secondary files.
 - Resolve contradictions explicitly: define precedence or rewrite to remove conflict.
-- For `*.prompt.md` files, place this exact line immediately after frontmatter and before the first heading: `Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file.`
+- For `*.prompt.md` files, place this exact line immediately after frontmatter and before the first heading: "Always read `copilot-instructions.md`. You **MUST** obey all instructions from this file."

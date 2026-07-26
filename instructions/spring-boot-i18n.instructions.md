@@ -13,7 +13,7 @@ applyTo: "**/*.java, **/application*.yml, **/messages*.properties"
 ## Resolution Rules
 - Use message keys for user-facing text.
 - Keep key naming stable and domain-oriented.
-- Use message-key namespaces that reflect the message category: `validation.*` for request validation errors, `error.*` for domain/application errors, `openapi.*` for API documentation strings.
+- Use message-key namespaces that reflect the message category: `validation.*` for request validation errors, `error.*` for domain/application errors, `openapi.*` for API documentation strings, `log.*` for log-event messages resolved through `LogMessages`.
 - Keep placeholders indexed and consistent across locales.
 - Use `Accept-Language` as the default locale negotiation strategy for API and web flows.
 - Use `en` and `pt-BR` as baseline defaults unless the project or user explicitly defines a different supported locale set.
