@@ -14,13 +14,13 @@ applyTo: "**/*DtoMapper.java,**/*Mapper.java"
 - Keep mapping logic isolated in dedicated mapper types.
 - Keep mapper contracts deterministic and side-effect free.
 - Name mapper classes with the DtoMapper suffix (e.g., CountriesDtoMapper) to signal DTO transformation; never use generic Mapper suffix for DTO-to-model or model-to-DTO conversions.
+- Declare DTO mapper classes as package-private unless the mapper is explicitly shared across multiple feature packages; a feature-scoped mapper must not be public.
 - Use MapStruct for generated mapper implementations when the module adopts generated mapping.
 - Keep generated mappers strict with `unmappedTargetPolicy = ReportingPolicy.ERROR`.
 - Keep DTO and entity model boundaries explicit in mapper methods.
 - Keep request DTO strategy explicit: use operation-specific request DTOs when create/update validation diverges, or a shared request DTO when validation and semantics are identical.
 - Keep public API responses mapped to dedicated `*Response` DTO types.
 - Keep update mapping explicit for mutable entity fields.
-- Keep mapper visibility aligned with feature encapsulation.
 
 ## Review Plan Layout
 - Report mapper methods added or changed.

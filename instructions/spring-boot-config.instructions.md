@@ -26,6 +26,7 @@ applyTo: "**/src/main/resources/application*.yml"
 - Use clear, stable property keys with domain prefixes for custom application properties.
 - Keep each custom property namespace owned by a specific feature, integration, or infrastructure component.
 - Keep shared configuration in the module-root config/ package only for cross-feature infrastructure properties (e.g., pagination, locale, JDBC client); keep feature-specific configuration properties in feature package config/ subdirectories and owned by that feature.
+- Feature-scoped @Configuration classes must be package-private: any @Configuration class defined within a feature package (e.g., `geography/country/CountrySqlConfiguration`) must not be public; only module-root @Configuration classes (e.g., `geography/config/SecurityConfig`, `geography/config/PaginationConfig`) may be public.
 - Keep default values safe for local development.
 - Prefer class-level configuration properties over scattered value injection.
 - Keep external configuration imports explicit, environment-safe, and non-blocking unless startup failure is intentional.

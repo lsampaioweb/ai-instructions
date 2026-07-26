@@ -14,7 +14,9 @@ applyTo: "**/pom.xml, **/src/**"
 - Ask for data-store strategy only when active persistence instructions do not resolve the decision or request constraints conflict.
 - Use feature-first package organization as the default, and ask blocking clarification only when the user explicitly requests a conflicting structure.
 - Never create layer-based packages like common/api, common/exception, common/service, or common/repository; group all cross-cutting concerns and exceptions within their owning feature package.
-- Keep feature-scoped implementation classes (Impl, internal @Component mappers, internal configs) package-private to enforce feature boundaries; expose only interfaces, DTOs, and public service contracts.
+- Keep feature-scoped implementation classes package-private to enforce feature boundaries: all classes ending in `Impl` (ServiceImpl, RepositoryImpl, etc.) must be package-private; all @Component or @Configuration classes scoped to a single feature must be package-private; all internal mappers (whether manually written or generated) must be package-private.
+- Expose only public interfaces, DTOs (Request, Response, DTO types), records, and public service contracts (interfaces and controllers) from a feature package.
+- Feature-scoped @Configuration classes that wire domain-specific components (such as feature repositories, feature SQL configurations) must be package-private and placed within the feature package; never make them public.
 - Ask for access policy when externally reachable HTTP endpoints, messaging endpoints, or websocket endpoints are requested without authentication and authorization boundaries.
 - Ask for runtime expectations when profiles, ports, TLS, or container runtime are not explicit.
 - For entity field and validation baseline suggestions, defer to active API-contract instructions.
