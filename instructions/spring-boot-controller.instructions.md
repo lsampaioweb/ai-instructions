@@ -19,6 +19,7 @@ applyTo: "**/*Controller.java"
 - Use method-level HTTP verb mappings for each operation.
 - Use constructor injection for controller dependencies.
 - Keep controller logic thin and delegate business rules to services.
+- Extract repeated technical string literals (for example route fragments, query parameter names, message-key constants) into named constants within the controller class.
 - Use `@Valid` on all `@RequestBody` parameters to enforce request validation at the API boundary.
 - Apply `@Positive` (or `@Min(1)`) to numeric `@PathVariable` resource-identifier parameters in REST endpoints.
 - Do not apply numeric-positive constraints to non-numeric identifiers (for example `String` IDs).

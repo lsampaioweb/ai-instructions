@@ -17,11 +17,15 @@ applyTo: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*Sq
 - Allow non-relational repository implementations only when the module is explicitly scoped to an approved non-relational store; keep key design, serialization rules, and failure mapping explicit.
 - Prohibit JPA, Hibernate, and Spring Data repository patterns.
 - Keep SQL parameters explicit and safely bound.
+- Extract repeated technical string literals (for example SQL parameter names, column names, table names, key names) into named constants within the repository implementation.
 - Keep repository exceptions mapped to domain-safe failures.
 - Keep repository methods scoped to persistence concerns only.
 - Externalize SQL statements into `@PropertySource`-backed XML property files (one file per feature); access them through a `@ConfigurationProperties` record named `XyzSqlConfigurationProperties` within the feature package.
 - Register `XyzSqlConfigurationProperties` using one explicit pattern: either `@Component` + `@ConfigurationProperties` on the record, or `@EnableConfigurationProperties` on the owning `@Configuration` class.
 - Keep SQL XML query keys and statement intent stable and resource-scoped (for example `sql.users.find-by-id`).
+- Fallback from `INSERT/UPDATE ... RETURNING` only when the exception evidence indicates unsupported `RETURNING`; rethrow unrelated SQL grammar errors.
+- Validate generated-key fallback results explicitly and throw a deterministic data-retrieval exception when no key is returned.
+- Use `Locale.ROOT` for case normalization in machine-parsed string comparisons (for example SQL error-message feature detection).
 
 ## Review Plan Layout
 - Report repository methods added, changed, or removed.
@@ -34,4 +38,5 @@ applyTo: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*Sq
 - Never embed business orchestration logic in repository layer.
 - Never execute unparameterized SQL with user-controlled input.
 - Never mix ORM-based patterns into JDBC-first repository contracts.
+- Never duplicate the same technical identifier string literal across multiple repository statements when a constant can represent it.
 - Never apply relational SQL rules to approved non-relational repositories; enforce equivalent store-specific safety controls instead.
