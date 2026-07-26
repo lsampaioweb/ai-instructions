@@ -14,9 +14,8 @@ applyTo: "**/pom.xml, **/src/**"
 - Ask for data-store strategy only when active persistence instructions do not resolve the decision or request constraints conflict.
 - Use feature-first package organization as the default, and ask blocking clarification only when the user explicitly requests a conflicting structure.
 - Never create layer-based packages like common/api, common/exception, common/service, or common/repository; group all cross-cutting concerns and exceptions within their owning feature package.
-- Keep feature-scoped implementation classes package-private to enforce feature boundaries: all classes ending in `Impl` (ServiceImpl, RepositoryImpl, etc.) must be package-private; all @Component or @Configuration classes scoped to a single feature must be package-private; all internal mappers (whether manually written or generated) must be package-private.
+- Keep feature-scoped implementation classes package-private to enforce feature boundaries: all classes ending in `Impl` (ServiceImpl, RepositoryImpl, etc.) must be package-private; all @Component or @Configuration classes scoped to a single feature (including those wiring domain-specific components like repositories or SQL configs) must be package-private and placed within the feature package; all internal mappers (whether manually written or generated) must be package-private.
 - Expose only public interfaces, DTOs (Request, Response, DTO types), records, and public service contracts (interfaces and controllers) from a feature package.
-- Feature-scoped @Configuration classes that wire domain-specific components (such as feature repositories, feature SQL configurations) must be package-private and placed within the feature package; never make them public.
 - Ask for access policy when externally reachable HTTP endpoints, messaging endpoints, or websocket endpoints are requested without authentication and authorization boundaries.
 - Ask for runtime expectations when profiles, ports, TLS, or container runtime are not explicit.
 - For entity field and validation baseline suggestions, defer to active API-contract instructions.
@@ -32,7 +31,7 @@ applyTo: "**/pom.xml, **/src/**"
 - Exclude async-events and websocket guidance unless messaging behavior is explicitly requested or present in scope.
 
 ### Always Active
-- Read `spring-boot-pom.instructions.md` for Maven dependencies, plugins, and build governance.
+- Read `spring-boot-pom.instructions.md` for Maven project identity, dependencies, plugins, and build governance.
 - Read `spring-boot-config.instructions.md` for application properties, profiles, and externalized configuration.
 - Read `spring-boot-i18n.instructions.md` for locale behavior and message bundle governance.
 - Read `spring-boot-logging.instructions.md` for logging behavior and safe diagnostics.
@@ -63,3 +62,18 @@ applyTo: "**/pom.xml, **/src/**"
 - Read `spring-boot-api-versioning.instructions.md` when REST API endpoints are present, created, or modified.
 - Read `spring-boot-pagination.instructions.md` for REST collection endpoints unless user explicitly requests unpaged responses.
 - Read `spring-boot-actuator.instructions.md` when actuator dependency or endpoint exposure is present, created, or modified.
+
+## Spring Completion Gates
+
+### Acceptance Gates
+- Gate A: All modified Spring artifacts must satisfy every activated instruction file mapped by scope and intent.
+- Gate B: Each modified area must have at least one objective verification action (build, test, lint, or deterministic static check) with a pass result.
+- Gate C: Any temporary exception must include complete exception metadata and an unexpired review window.
+- Gate D: Completion evidence must state which gates passed or failed.
+
+### Completion-Blocking Logic
+- Block completion when any required gate fails.
+- Block completion when verification for a modified area is missing.
+- Block completion when a temporary exception is missing required metadata.
+- Block completion when a temporary exception is expired or has no removal condition.
+- Completion is allowed only when all required gates pass, or blocked items are explicitly marked as unresolved blockers with owner and next checkpoint.
