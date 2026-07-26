@@ -31,3 +31,13 @@ applyTo: "**/*SecurityConfig.java,**/security/*Permissions.java,**/security/Role
 - Never duplicate conflicting authorization logic across layers.
 - Never weaken security defaults without explicit approval.
 - Never leave role-assignment ownership ambiguous: assign roles in-module for local identity setups or explicitly document the external authority that assigns them.
+
+## Approved Exception Handling
+- Identify features or endpoints explicitly approved by user for temporary open access.
+- Distinguish between temporary exceptions and architectural security violations.
+- When a user explicitly approves temporary open access for a feature or module, document the exception with an expiration condition (e.g., "open until authentication is implemented" or "open for prototype phase").
+- Suppress authorization findings for endpoints within the approved exception scope until the condition is resolved.
+- Never silence security findings that fall outside the user's explicit approval.
+- Always keep the exception documented in code comments, configuration, or test annotations so reviewers know the decision is intentional, not missed.
+- Never treat temporary open access as permanent; require explicit re-approval or closure before production release.
+- Never apply an exception to a wider scope than the user explicitly approved.

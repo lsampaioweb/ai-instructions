@@ -13,6 +13,7 @@ applyTo: "**/*DtoMapper.java,**/*Mapper.java"
 ## Resolution Rules
 - Keep mapping logic isolated in dedicated mapper types.
 - Keep mapper contracts deterministic and side-effect free.
+- Name mapper classes with the DtoMapper suffix (e.g., CountriesDtoMapper) to signal DTO transformation; never use generic Mapper suffix for DTO-to-model or model-to-DTO conversions.
 - Use MapStruct for generated mapper implementations when the module adopts generated mapping.
 - Keep generated mappers strict with `unmappedTargetPolicy = ReportingPolicy.ERROR`.
 - Keep DTO and entity model boundaries explicit in mapper methods.

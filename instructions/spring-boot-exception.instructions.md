@@ -13,7 +13,9 @@ applyTo: "**/*Exception*.java,**/*ExceptionHandler*.java,**/*Advice*.java"
 ## Resolution Rules
 - Use centralized exception handling for API error responses.
 - Keep a stable error response contract within each module or public API surface.
+- Place exception handlers in the module root `exception` package or within the owning feature package; never create layer-based common/exception packages.
 - Map domain exceptions to explicit HTTP status codes.
+- For every custom domain exception type, add a corresponding `@ExceptionHandler` method that maps to an explicit HTTP status code and stable error response.
 - Keep validation-error handling distinct from domain-error handling.
 - When validation failures return a different payload shape (e.g., `List<ValidationError>`) than the domain-error envelope, document the intentional divergence in handler-level notes or API documentation.
 - Keep exception-to-response mapping deterministic.
