@@ -16,13 +16,20 @@ applyTo: "**/pom.xml"
 - Use the project-owner's standard `groupId` namespace unless the user explicitly requests a different organization namespace.
 - Keep project identity deterministic: set `<artifactId>` and `<name>` to the same module identifier in kebab-case.
 - Add only dependencies required by explicit scope.
+- Add a `<!-- reason -->` comment on the line immediately above every `<dependency>` block explaining why the dependency is needed (one concise sentence). This makes the dependency list self-documenting and prevents silent accumulation of unused libraries.
 - When MapStruct is used, configure both `org.mapstruct:mapstruct` and compiler annotation processing via `org.mapstruct:mapstruct-processor`.
-- When Lombok is used, declare `org.projectlombok:lombok` with `<scope>provided</scope>`; Java 23 deprecated and Java 25 removed implicit annotation processor discovery, so always add an explicit `annotationProcessorPaths` entry for `org.projectlombok:lombok` in `maven-compiler-plugin`; omitting it causes `@Slf4j`, `@Data`, and all other Lombok annotations to fail with "cannot be resolved" errors on Java 23+. No version is needed; the Spring Boot parent BOM manages it.
+- When Lombok is used, declare `org.projectlombok:lombok` with `<scope>provided</scope>`.
+- Always add an explicit `annotationProcessorPaths` entry for `org.projectlombok:lombok` in `maven-compiler-plugin`.
+- Java 23 deprecated and Java 25 removed implicit annotation processor discovery.
+- Omitting explicit Lombok annotation processor configuration causes `@Slf4j`, `@Data`, and other Lombok annotations to fail with "cannot be resolved" errors on Java 23+.
+- Do not pin a Lombok version when Spring Boot parent BOM already manages it.
 - Pin versions only when the parent BOM does not manage them.
 - Remove duplicate dependencies and redundant exclusions.
 - Prohibit JPA, Hibernate, and Spring Data repository dependencies.
 - Prefer stable, maintained libraries over niche alternatives.
-- Include test slice starter dependencies explicitly: `spring-boot-starter-webmvc-test` for `@WebMvcTest` and `spring-boot-jdbc-test` for `@JdbcTest`; neither is bundled in `spring-boot-starter-test`.
+- Include `spring-boot-starter-webmvc-test` when using `@WebMvcTest`.
+- Include `spring-boot-jdbc-test` when using `@JdbcTest`.
+- Do not assume these starters are bundled in `spring-boot-starter-test`.
 
 ## Review Plan Layout
 - Report added dependencies with purpose.
@@ -38,4 +45,5 @@ applyTo: "**/pom.xml"
 - Never add milestone, beta, or snapshot versions without explicit approval.
 - Never rely on MapStruct code generation without explicit compiler annotation-processor configuration.
 - Never rely on Lombok annotations (`@Slf4j`, `@Data`, etc.) without an explicit `annotationProcessorPaths` entry in `maven-compiler-plugin`; implicit annotation processor discovery was removed in Java 25.
+- Never add a dependency without a `<!-- reason -->` comment on the line immediately above it.
 - Never introduce plugin behavior changes without stating build impact.
