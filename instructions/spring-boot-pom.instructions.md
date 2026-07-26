@@ -12,9 +12,8 @@ applyTo: "**/pom.xml"
 
 ## Resolution Rules
 - Keep Spring Boot parent and plugin versions coherent.
-- Use Java 25 as the default baseline by defining `<java.version>25</java.version>` unless the user explicitly requests a different version.
-- Use Spring Boot 4.x as the default framework baseline unless the user explicitly requests a different version.
-- Use `io.github.lsampaioweb` as the default `groupId` unless the user explicitly requests a different organization namespace.
+- Use Java 25 and Spring Boot 4.0.0 as the default baselines unless the user explicitly requests different versions.
+- Use the project-owner's standard `groupId` namespace unless the user explicitly requests a different organization namespace.
 - Keep project identity deterministic: set `<artifactId>` and `<name>` to the same module identifier in kebab-case.
 - Add only dependencies required by explicit scope.
 - When MapStruct is used, configure both `org.mapstruct:mapstruct` and compiler annotation processing via `org.mapstruct:mapstruct-processor`.
