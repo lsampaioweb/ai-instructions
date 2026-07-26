@@ -21,6 +21,7 @@ applyTo: "**/*.java, **/application*.yml, **/messages*.properties"
 - Use UTF-8-safe content and avoid encoding regressions.
 - Keep error messages aligned with error-code policy.
 - Use a dedicated `LogMessages` component backed by `MessageSource` with `Locale.ENGLISH` for log events; never resolve log messages using the request locale.
+- Add `log.*` keys only when the same change set wires those keys through a `LogMessages` component used by application code.
 
 ## Review Plan Layout
 - Report added keys and owning feature.
@@ -34,3 +35,4 @@ applyTo: "**/*.java, **/application*.yml, **/messages*.properties"
 - Never change placeholder order without updating all locale variants.
 - Never hardcode user-facing text where message keys are required.
 - Never resolve log-level messages using the request locale; always use `Locale.ENGLISH` for application log output.
+- Never write inline hardcoded log strings in classes where `LogMessages` is available; always resolve log output via the `LogMessages` component.

@@ -17,6 +17,10 @@ applyTo: "**/src/main/java/**/*.java, **/src/test/java/**/*.java"
 - Keep sensitive data out of logs.
 - Prefer parameterized log messages and use structured log fields when the active sink/aggregation tooling supports structured ingestion.
 - Keep exception logs single-source to avoid duplication.
+- Prefer `@Slf4j` for logger declaration when Lombok is available in the module.
+- In controller classes, log only boundary-relevant warning/error conditions; avoid success-path info logs by default.
+- In service classes, log business state transitions (for example create, update, delete) at info level with stable resource identifiers.
+- In repository classes, log degraded execution paths (for example SQL feature fallback) at warn level and avoid success-path info logs by default.
 
 ## Review Plan Layout
 - Report new or changed log points with expected value.
@@ -29,3 +33,5 @@ applyTo: "**/src/main/java/**/*.java, **/src/test/java/**/*.java"
 - Never log credentials, tokens, or personal data.
 - Never use error level for normal control flow.
 - Never emit high-volume logs inside tight loops without need.
+- Never replace `@Slf4j` with manual logger fields unless the user explicitly requests that change.
+- Never log the same failure event at multiple layers when one layer already emits the full diagnostic context.
