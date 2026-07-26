@@ -12,13 +12,11 @@ applyTo: "**/src/main/resources/application*.yml"
 - Treat `spring-boot-actuator.instructions.md` as the canonical authority for endpoint-exposure and health-detail policy decisions when both contracts apply.
 
 ## Resolution Rules
-- Expose health and info by default, and include metrics only when runtime monitoring requires it.
-- Require explicit opt-in for any additional actuator endpoint.
-- Keep endpoint exposure allowlist-based.
-- Keep health details restricted when unauthenticated.
 - Keep observability settings profile-aware.
-- Keep health detail policy explicit by profile (for example development visibility versus production restriction).
-- Document every non-default exposed endpoint with reason.
+- Include metrics exposure only when runtime monitoring requires it.
+- Keep health-detail and endpoint-exposure decisions aligned with `spring-boot-actuator.instructions.md`.
+- Keep profile-level observability posture explicit (for example development visibility versus production restriction).
+- Document each non-default observability posture decision and operational reason.
 - Keep this contract focused on operational visibility scope (metrics intent, profile posture, and access boundaries), while endpoint-exposure policy remains canonical in `spring-boot-actuator.instructions.md`.
 
 ## Review Plan Layout
