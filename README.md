@@ -18,6 +18,7 @@ skills/         — reserved for SKILL.md files when on-demand domain knowledge 
 - [spring-orchestrator.agent.md](agents/spring-orchestrator.agent.md): routes create and review work, applies loop controls, and normalizes final output.
 - [spring-architect.agent.md](agents/spring-architect.agent.md): read-only architecture planning and implementation decomposition.
 - [spring-coder.agent.md](agents/spring-coder.agent.md): write-capable implementation agent.
+- [spring-meta-optimizer.agent.md](agents/spring-meta-optimizer.agent.md): post-pass optimization of AI customization rules; analyzes iteration friction and proposes generic framework-level guidance.
 - [spring-review-qa.agent.md](agents/spring-review-qa.agent.md): QA-only reviewer.
 - [spring-review-security.agent.md](agents/spring-review-security.agent.md): security-only reviewer.
 - [spring-review-performance.agent.md](agents/spring-review-performance.agent.md): performance-only reviewer.
