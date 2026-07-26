@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot Logback contract for sink routing, structured output, and resilient transport configuration in production-grade projects."
-applyTo: "**/src/main/resources/log/logback-spring.xml"
+applyTo: "**/src/main/resources/log/logback-spring.xml, **/pom.xml"
 ---
 
 # Spring Boot Logback Engine
