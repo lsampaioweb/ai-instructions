@@ -17,6 +17,7 @@ applyTo: "**/pom.xml"
 - Keep project identity deterministic: set `<artifactId>` and `<name>` to the same module identifier in kebab-case.
 - Add only dependencies required by explicit scope.
 - When MapStruct is used, configure both `org.mapstruct:mapstruct` and compiler annotation processing via `org.mapstruct:mapstruct-processor`.
+- When Lombok is used, declare `org.projectlombok:lombok` with `<scope>provided</scope>`; Java 23 deprecated and Java 25 removed implicit annotation processor discovery, so always add an explicit `annotationProcessorPaths` entry for `org.projectlombok:lombok` in `maven-compiler-plugin`; omitting it causes `@Slf4j`, `@Data`, and all other Lombok annotations to fail with "cannot be resolved" errors on Java 23+. No version is needed; the Spring Boot parent BOM manages it.
 - Pin versions only when the parent BOM does not manage them.
 - Remove duplicate dependencies and redundant exclusions.
 - Prohibit JPA, Hibernate, and Spring Data repository dependencies.
@@ -36,4 +37,5 @@ applyTo: "**/pom.xml"
 - Never use placeholder project identity values such as `demo`, `app`, or `example` when a real module name is available.
 - Never add milestone, beta, or snapshot versions without explicit approval.
 - Never rely on MapStruct code generation without explicit compiler annotation-processor configuration.
+- Never rely on Lombok annotations (`@Slf4j`, `@Data`, etc.) without an explicit `annotationProcessorPaths` entry in `maven-compiler-plugin`; implicit annotation processor discovery was removed in Java 25.
 - Never introduce plugin behavior changes without stating build impact.
