@@ -25,6 +25,7 @@ applyTo: "**/src/main/resources/application*.yml"
 - Allow environment placeholders such as `${ENV_VAR}` in source-controlled defaults when they do not disclose real secret values.
 - Use clear, stable property keys with domain prefixes for custom application properties.
 - Keep each custom property namespace owned by a specific feature, integration, or infrastructure component.
+- Keep shared configuration in the module-root config/ package only for cross-feature infrastructure properties (e.g., pagination, locale, JDBC client); keep feature-specific configuration properties in feature package config/ subdirectories and owned by that feature.
 - Keep default values safe for local development.
 - Prefer class-level configuration properties over scattered value injection.
 - Keep external configuration imports explicit, environment-safe, and non-blocking unless startup failure is intentional.

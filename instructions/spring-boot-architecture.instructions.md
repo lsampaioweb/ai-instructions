@@ -12,8 +12,9 @@ applyTo: "**/pom.xml, **/src/**"
 - Allow a primary application type plus secondary capabilities when the module combines concerns such as REST, MVC, websocket, async events, or outbound integration.
 - For persistence defaults and override behavior, defer to the active persistence-specific instruction files.
 - Ask for data-store strategy only when active persistence instructions do not resolve the decision or request constraints conflict.
-- Use feature-first package organization as the default for multi-feature modules, and ask blocking clarification only when the user explicitly requests a conflicting structure.
-- Treat feature-first organization as grouping controller, service, repository, DTO, mapper, and exception classes by domain feature when the module has more than one business feature.
+- Use feature-first package organization as the default, and ask blocking clarification only when the user explicitly requests a conflicting structure.
+- Never create layer-based packages like common/api, common/exception, common/service, or common/repository; group all cross-cutting concerns and exceptions within their owning feature package.
+- Keep feature-scoped implementation classes (Impl, internal @Component mappers, internal configs) package-private to enforce feature boundaries; expose only interfaces, DTOs, and public service contracts.
 - Ask for access policy when externally reachable HTTP endpoints, messaging endpoints, or websocket endpoints are requested without authentication and authorization boundaries.
 - Ask for runtime expectations when profiles, ports, TLS, or container runtime are not explicit.
 - For entity field and validation baseline suggestions, defer to active API-contract instructions.
