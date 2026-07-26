@@ -12,10 +12,24 @@ applyTo: "**/src/test/java/**/*.java, **/*Test.java"
 
 ## Resolution Rules
 - Use layer-appropriate test slices for the target behavior.
-- Use explicit slice annotations by layer: `@WebMvcTest` (package `org.springframework.boot.webmvc.test.autoconfigure`, dependency `spring-boot-starter-webmvc-test`) for controllers, `@JdbcTest` (package `org.springframework.boot.jdbc.test.autoconfigure`, dependency `spring-boot-jdbc-test`) for JDBC repositories, plain unit tests for services, and `@SpringBootTest` for full integration flows or context-bootstrap smoke tests.
+- Use `@WebMvcTest` for controller tests.
+- Use `@JdbcTest` for JDBC repository tests.
+- Use plain unit tests for service tests.
+- Use `@SpringBootTest` for full integration flows or context-bootstrap smoke tests.
+- For `@WebMvcTest`, use package `org.springframework.boot.webmvc.test.autoconfigure` and dependency `spring-boot-starter-webmvc-test`.
+- For `@JdbcTest`, use package `org.springframework.boot.jdbc.test.autoconfigure` and dependency `spring-boot-jdbc-test`.
 - Use `@SpringBootTest` + `@AutoConfigureMockMvc` for security-chain tests that assert actuator endpoint access; `@WebMvcTest` slices do not represent full actuator exposure.
-- When using `@JdbcTest` with an explicit datasource configured in a test profile, add `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` to prevent the slice from replacing the configured datasource.
-- When using `@JdbcTest` with custom non-Spring-Data `@Repository` implementations, explicitly `@Import` the repository implementation class and the `JdbcClient` configuration class; the slice does not component-scan custom `@Repository` beans.
+- When using `@JdbcTest`, rely on its built-in H2 auto-provisioning.
+- Do NOT add `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` in `@JdbcTest` slices by default.
+- Do NOT activate a test profile via `@ActiveProfiles("test")` in `@JdbcTest` slices.
+- Add `@AutoConfigureTestDatabase(replace=NONE)` only when a real external datasource must be preserved.
+- When using `@JdbcTest` with custom non-Spring-Data `@Repository` implementations, explicitly `@Import` the repository implementation class.
+- When using `@JdbcTest` with custom non-Spring-Data `@Repository` implementations, explicitly `@Import` the `JdbcClient` configuration class.
+- The `@JdbcTest` slice does not component-scan custom `@Repository` beans.
+- When the project uses a `LogMessages` component (`@Component` backed by `MessageSource`), declare `@MockitoBean LogMessages logMessages` in every `@WebMvcTest` class.
+- When the project uses a `LogMessages` component (`@Component` backed by `MessageSource`), declare `@MockitoBean LogMessages logMessages` in every `@JdbcTest` class.
+- `@WebMvcTest` auto-detects `@ControllerAdvice` beans that depend on `LogMessages`.
+- `@JdbcTest` does not load `spring.messages.basename`, so injecting a real `LogMessages` bean fails in the slice.
 - Any `@Configuration` class imported via `@Import` in a test slice must have `public` class visibility; a package-private configuration class causes a silent import failure when the test is in a different package.
 - Remove `@MockitoBean` stubs for beans not present in the imported slice; unused mocks signal that the slice is too narrow or the context is too wide.
 - Use `@Transactional` on database-touching `@SpringBootTest` integration tests to ensure rollback isolation between test methods.
@@ -34,6 +48,9 @@ applyTo: "**/src/test/java/**/*.java, **/*Test.java"
 - Report applied rules, blocked rules, assumptions, and residual risks.
 
 ## Safety Guards
+- Never add `@ActiveProfiles("test")` to `@JdbcTest` or `@WebMvcTest` slices.
+- Never create `application-test.yml`; keep test overrides in inline test configuration, explicit test annotations, or environment variables.
+- Never add `@AutoConfigureTestDatabase(replace=NONE)` to `@JdbcTest` when the slice can use its built-in H2 auto-provisioning.
 - Never skip failure-path assertions for changed logic.
 - Never rely only on happy-path tests for API changes.
 - Never use `@SpringBootTest` for single-layer tests that can be covered by a narrower test slice.

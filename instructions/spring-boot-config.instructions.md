@@ -14,7 +14,12 @@ applyTo: "**/src/main/resources/application*.yml"
 - Keep configuration externalized and profile-aware.
 - Keep `application.yml` as the base configuration file for each runnable module.
 - Add `application-development.yml` and `application-production.yml` when the module has distinct runtime environments.
-- Add `application-test.yml` only when tests need isolated overrides, disabled integrations, random ports, or other test-specific behavior.
+- Do NOT create `application-test.yml` for test slices by default.
+- Test slice annotations auto-provision their own infrastructure (for example, `@JdbcTest` auto-provisions an embedded H2 datasource).
+- Do NOT add an explicit test datasource profile for slices because it conflicts with auto-provisioning.
+- Do NOT force every slice test class to declare `@ActiveProfiles("test")`.
+- Never create `application-test.yml`.
+- For integration-test overrides, use inline test configuration, explicit test annotations, or environment variables instead of a dedicated `application-test.yml` file.
 - Use `production` as the default active profile in `application.yml` when the module defines profile-specific runtime files, unless the user explicitly requests another default.
 - Keep ports explicit only when runtime, TLS, container, or integration requirements need non-default values.
 - Keep one configuration-properties registration strategy per runnable module: either component-scanned properties classes or explicit `@EnableConfigurationProperties`, but not both.
@@ -47,3 +52,4 @@ applyTo: "**/src/main/resources/application*.yml"
 - Never assume environment-specific infrastructure values.
 - Never mix component-scanned and explicitly enabled registration strategies in the same module without explicit approval.
 - Never place `@EnableConfigurationProperties` on the application main class when individual `@Configuration` classes are the better owner.
+- Never create `application-test.yml`; use slice auto-provisioning, inline test configuration, explicit test annotations, or environment variables for test-time overrides.
