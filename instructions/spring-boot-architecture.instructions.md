@@ -31,6 +31,7 @@ applyTo: "**/pom.xml, **/src/**"
 - Exclude async-events and websocket guidance unless messaging behavior is explicitly requested or present in scope.
 
 ### Always Active
+- Read `spring-boot-java-style.instructions.md` for Java coding style, blank-line discipline, and method structure.
 - Read `spring-boot-pom.instructions.md` for Maven project identity, dependencies, plugins, and build governance.
 - Read `spring-boot-config.instructions.md` for application properties, profiles, and externalized configuration.
 - Read `spring-boot-i18n.instructions.md` for locale behavior and message bundle governance.
@@ -42,6 +43,7 @@ applyTo: "**/pom.xml, **/src/**"
 - Read `spring-boot-exception.instructions.md` for centralized exception handling and error response mapping.
 - Read `spring-boot-test.instructions.md` for test-layer scope and contract assertions.
 - Read `spring-boot-readme.instructions.md` for user-facing behavior and setup documentation rules.
+- Read `spring-boot-gitignore.instructions.md` for source-control hygiene and safe artifact exclusion.
 
 ### Intent-Driven Activation
 - Read `spring-boot-controller.instructions.md` when REST or MVC endpoints are present or requested.
