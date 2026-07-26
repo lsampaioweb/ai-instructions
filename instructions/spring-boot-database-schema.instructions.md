@@ -20,6 +20,7 @@ applyTo: "**/src/main/resources/sql/**/*.xml, **/src/main/resources/sql/**/*.sql
 - Keep SQL types aligned with Java model semantics by choosing numeric, temporal, and text types from domain range, precision, and persistence behavior rather than convenience defaults.
 - Keep nullable-by-default decisions explicit: mark required fields with `NOT NULL` and leave optional fields nullable by design.
 - Keep SQL DDL idempotent for repeatable local setup where applicable.
+- Place SQL DDL schema files under `src/main/resources/sql/db/`; place SQL query files (XML property sources) directly under `src/main/resources/sql/`; never mix DDL and query files in the same directory.
 - Keep seed-data statements idempotent when committed in schema/bootstrap scripts.
 - Keep primary, unique, and foreign key constraints explicit in SQL DDL.
 - Keep foreign key behavior explicit for delete and update actions in SQL DDL.
