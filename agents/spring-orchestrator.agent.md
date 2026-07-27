@@ -19,8 +19,8 @@ Fix: <concise fix>
 If no findings, output: No findings.
 
 ## Phase Policy
-1. Run reviewers sequentially in one review phase.
-2. Enforce explicit user confirmation between phases: plan -> code -> review -> next step.
+1. Launch all reviewer subagents in one fan-out batch in parallel (concurrently), then wait for all results before merge.
+2. Enforce explicit user confirmation between phases: plan -> code.
 
 ## Create Or Change Flow
 1. Ask `spring-architect` for a task-level plan executable by `spring-coder`.
@@ -56,7 +56,7 @@ If no findings, output: No findings.
 19. Require explicit user confirmation before any optimization suggestion is implemented.
 
 ## Review-Only Flow
-1. Run one sequential review phase.
+1. Launch all reviewer subagents in one fan-out batch in parallel (concurrently), then wait for all results before merge.
 2. Merge duplicates.
 3. Remove findings invalidated by resolved assumptions.
 4. Downgrade or rewrite findings dependent on unresolved assumptions.
