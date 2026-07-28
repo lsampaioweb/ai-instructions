@@ -10,6 +10,11 @@ applyTo: "**/src/main/java/**/*ErrorCode.java, **/src/main/java/**/*Exception*.j
 - Inspect message bundles for error key naming and placeholder consistency.
 - Inspect where each module owns machine-readable error codes.
 
+## Naming Conventions
+- Error-code enums or constants must be named with the `*ErrorCode` suffix (e.g., `UserErrorCode`, `PaymentErrorCode`).
+- Error-code enum values must be UPPER_SNAKE_CASE (e.g., `USER_NOT_FOUND`, `INSUFFICIENT_BALANCE`).
+- Use domain-specific error-code names (never `AppErrorCode`, `CommonErrorCode`, or overly generic names).
+
 ## Resolution Rules
 - Keep error codes stable after public release.
 - Keep message keys separate from error codes.
@@ -24,16 +29,16 @@ applyTo: "**/src/main/java/**/*ErrorCode.java, **/src/main/java/**/*Exception*.j
 - Keep machine-readable error-code fields explicit only for modules whose public error payload contract exposes an `errorCode` property.
 - Keep error-code declarations out of service orchestration logic.
 
+## Safety Guards
+- Never reuse one error code for different failure scenarios.
+- Never scatter the same error-code declaration across multiple classes in one module.
+- Never hardcode translated error text in exception classes.
+- Never remove active error codes without compatibility plan.
+
 ## Review Plan Layout
 - Report new or changed error codes with owning module.
 - Report whether each touched module uses an `ErrorCode` catalog or handler-local constants.
 - Report key-to-code mappings added or changed.
 - Report placeholder compatibility checks across locales.
 - Report deprecated error codes and migration notes.
-- Report applied rules, blocked rules, assumptions, and residual risks.
 
-## Safety Guards
-- Never reuse one error code for different failure scenarios.
-- Never scatter the same error-code declaration across multiple classes in one module.
-- Never hardcode translated error text in exception classes.
-- Never remove active error codes without compatibility plan.

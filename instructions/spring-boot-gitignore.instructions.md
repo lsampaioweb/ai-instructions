@@ -24,3 +24,8 @@ applyTo: "**/.gitignore"
 - Never commit `application-local.*` files; they are runtime-only overrides containing environment-specific secrets.
 - Never use glob patterns (`target/*`) where directory patterns (`target/`) are more precise and cover nested paths.
 - Never omit IDE exclusions; uncommitted IDE files cause noise in every developer's working copy.
+
+## Review Plan Layout
+- Report ignore patterns added, removed, or tightened.
+- Report retained exceptions such as committed `.vscode/` allowlist entries.
+- Report uncovered artifact categories that still need repository-specific ignore rules.

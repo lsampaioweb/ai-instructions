@@ -10,50 +10,41 @@ applyTo: "**/src/test/java/**/*.java, **/*Test.java"
 - Inspect active test profiles, fixtures, and test configuration boundaries.
 - Inspect assertion quality for response contracts and failure paths.
 
-## Resolution Rules
-- Use layer-appropriate test slices for the target behavior.
-- Use `@WebMvcTest` for controller tests.
-- Use `@JdbcTest` for JDBC repository tests.
-- Use plain unit tests for service tests.
-- Use `@SpringBootTest` for full integration flows or context-bootstrap smoke tests.
-- For `@WebMvcTest`, use package `org.springframework.boot.webmvc.test.autoconfigure` and dependency `spring-boot-starter-webmvc-test`.
-- For `@JdbcTest`, use package `org.springframework.boot.jdbc.test.autoconfigure` and dependency `spring-boot-jdbc-test`.
-- Use `@SpringBootTest` + `@AutoConfigureMockMvc` for security-chain tests that assert actuator endpoint access; `@WebMvcTest` slices do not represent full actuator exposure.
-- When using `@JdbcTest`, rely on its built-in H2 auto-provisioning.
-- Do NOT add `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` in `@JdbcTest` slices by default.
-- Do NOT activate a test profile via `@ActiveProfiles("test")` in `@JdbcTest` slices.
-- Add `@AutoConfigureTestDatabase(replace=NONE)` only when a real external datasource must be preserved.
-- When using `@JdbcTest` with custom non-Spring-Data `@Repository` implementations, explicitly `@Import` the repository implementation class.
-- When using `@JdbcTest` with custom non-Spring-Data `@Repository` implementations, explicitly `@Import` the `JdbcClient` configuration class.
-- The `@JdbcTest` slice does not component-scan custom `@Repository` beans.
-- When the project uses a `LogMessages` component (`@Component` backed by `MessageSource`), declare `@MockitoBean LogMessages logMessages` in every `@WebMvcTest` class.
-- When the project uses a `LogMessages` component (`@Component` backed by `MessageSource`), declare `@MockitoBean LogMessages logMessages` in every `@JdbcTest` class.
-- `@WebMvcTest` auto-detects `@ControllerAdvice` beans that depend on `LogMessages`.
-- `@JdbcTest` does not load `spring.messages.basename`, so injecting a real `LogMessages` bean fails in the slice.
-- Any `@Configuration` class imported via `@Import` in a test slice must have `public` class visibility; a package-private configuration class causes a silent import failure when the test is in a different package.
-- Remove `@MockitoBean` stubs for beans not present in the imported slice; unused mocks signal that the slice is too narrow or the context is too wide.
-- Use `@Transactional` on database-touching `@SpringBootTest` integration tests to ensure rollback isolation between test methods.
-- Use BDD-style test method names in the format `<operation>_when<Condition>_should<ExpectedResult>`.
-- Keep controller tests focused on HTTP contract behavior.
-- Keep service tests focused on business rules and edge cases.
-- Assert success and failure paths for each changed behavior.
-- Keep response-structure assertions explicit for API tests.
-- Add governance tests when architecture invariants require enforcement.
+## Spring 4 Import Requirements
+- **REQUIRED for Spring 4:** `@WebMvcTest` is located in `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest` (NOT `org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest`).
+- **REQUIRED for Spring 4:** `@JdbcTest` is located in `org.springframework.boot.jdbc.test.autoconfigure.JdbcTest` (NOT `org.springframework.boot.test.autoconfigure.jdbc.JdbcTest`).
+- **REQUIRED for Spring 4:** Mockito bean overrides use `org.springframework.test.context.bean.override.mockito.MockitoBean` (NOT deprecated `org.springframework.boot.test.mock.mockito.MockBean`).
+- **DEPRECATED IN SPRING 4:** `@MockBean` from `org.springframework.boot.test.mock.mockito.MockBean` does not exist; use `@MockitoBean` instead.
+- **DEPRECATED IN SPRING 4:** `@SpringBootTest + @AutoConfigureMockMvc` no longer auto-configures security chain testing; use explicit `SecurityMockMvcConfigurers.springSecurity()` and `webAppContextSetup()` instead.
+- Agents trained on Spring 3.x will emit wrong package paths; validate all test imports against Spring 4.0+ documentation before approval.
 
-## Review Plan Layout
-- Report added and updated tests by layer and purpose.
-- Report uncovered risk paths and planned follow-up.
-- Report profile and fixture assumptions used by tests.
-- Report architectural invariants enforced by governance tests.
-- Report applied rules, blocked rules, assumptions, and residual risks.
+## Resolution Rules
+- Use layer-appropriate test slices: `@WebMvcTest(ControllerClass.class)` for HTTP contract tests, `@JdbcTest` for repository tests, `@ExtendWith(MockitoExtension.class)` for unit tests, `@SpringBootTest` for full integration tests.
+- For `@WebMvcTest`, add `spring-boot-starter-webmvc-test` dependency and keep controller tests focused on HTTP contract behavior.
+- For `@JdbcTest`, add `spring-boot-jdbc-test` dependency; rely on built-in H2 auto-provisioning and do not override it.
+- Do NOT add `@AutoConfigureTestDatabase(replace=NONE)` by default; only add when preserving a real external datasource (rare).
+- `@JdbcTest` does not load `spring.messages.basename` or component-scan custom `@Repository` beans; for custom implementations, explicitly `@Import({RepositoryImpl.class, JdbcConfig.class})` and ensure `JdbcClient` is a `@Bean`.
+- Any `@Configuration` imported via `@Import` must be `public` and in a scannable package; package-private configuration silently fails to load beans.
+- When `LogMessages` is used in `@WebMvcTest`, declare `@MockitoBean LogMessages logMessages` (Spring 4: `org.springframework.test.context.bean.override.mockito.MockitoBean`); `@WebMvcTest` auto-detects `@ControllerAdvice` beans that depend on it.
+- For security-chain tests with `@SpringBootTest`, manually configure MockMvc using `webAppContextSetup(context).apply(springSecurity()).build()` with static imports from `org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers` and `org.springframework.test.web.servlet.setup.MockMvcBuilders`.
+- Use `@Transactional` on database-touching integration tests for rollback isolation; do NOT use `@SpringBootTest` for single-layer tests; prefer narrower slices.
+- Use BDD-style test names: `<operation>_when<Condition>_should<ExpectedResult>` (e.g., `transfer_whenSufficientBalance_shouldTransferSuccessfully`).
+- Keep service tests focused on business rules and edge cases; keep response-structure assertions explicit for API tests.
+- Assert success and failure paths for each changed behavior; add governance tests when architecture invariants require enforcement.
+- Remove unused `@MockitoBean` stubs; unused mocks signal slice misconfiguration.
 
 ## Safety Guards
-- Never add `@ActiveProfiles("test")` to `@JdbcTest` or `@WebMvcTest` slices.
-- Never create `application-test.yml`; keep test overrides in inline test configuration, explicit test annotations, or environment variables.
-- Never add `@AutoConfigureTestDatabase(replace=NONE)` to `@JdbcTest` when the slice can use its built-in H2 auto-provisioning.
-- Never skip failure-path assertions for changed logic.
-- Never rely only on happy-path tests for API changes.
-- Never use `@SpringBootTest` for single-layer tests that can be covered by a narrower test slice.
-- Never leave database state shared across integration tests when rollback isolation is required.
-- Never use test method names that hide operation, condition, or expected outcome.
-- Never couple tests to unstable internal implementation details without need.
+- [Profiles] Never use `@ActiveProfiles("test")` with `@WebMvcTest` or `@JdbcTest`; test slices ignore profiles and cause silent configuration failures. Override via `@Bean` methods, test properties, or mock injection instead.
+- [Profiles] Never create `application-test.yml`; use inline `@Bean` methods, `@Bean` + `@Profile("test")`, or environment variable overrides in test classes.
+- [Spring 4] Never import test annotations from Spring 3.x packages (`org.springframework.boot.test.autoconfigure.web.servlet.*`, `org.springframework.boot.test.mock.mockito.MockBean`); they do not exist in Spring 4.x and cause compilation failures.
+- [Assertions] Never skip failure-path assertions or rely only on happy-path tests for API changes.
+- [Assertions] Never leave database state shared across integration tests; use `@Transactional` for isolation.
+- [Assertions] Never use test names that hide operation/condition/outcome or couple tests to unstable implementation details.
+
+## Review Plan Layout
+- Report added and updated tests by layer and purpose (unit, slice, integration).
+- Report slice dependencies: which beans are mocked, which are auto-configured, which are imported.
+- Report uncovered risk paths and planned follow-up.
+- Report Spring 4 package compliance: verify all test annotations use correct Spring 4 import paths.
+- Report architectural invariants enforced by governance tests.
+

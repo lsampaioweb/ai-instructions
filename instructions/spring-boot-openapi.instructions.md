@@ -11,6 +11,11 @@ applyTo: "**/OpenApiConfig.java,**/openapi/**/*.java, **/*Controller.java, **/*A
 - Inspect version and title consistency between routes and docs.
 - Inspect whether each runnable module keeps exactly one OpenAPI configuration class.
 
+## Dependencies
+- To generate OpenAPI specifications, add `springdoc-openapi-starter-webmvc-ui` dependency in pom.xml (provides @OpenAPIDefinition, @Schema, and Swagger UI).
+- For OpenAPI without UI bundling, use `springdoc-openapi-starter-webmvc-api` instead.
+- For Spring Boot 4.0+, ensure springdoc-openapi version is 2.4.0 or higher (required for Spring Boot 4.0 compatibility).
+
 ## Resolution Rules
 - Keep one OpenAPI configuration class per runnable module.
 - Keep the configuration class name as `OpenApiConfig`.
@@ -18,20 +23,20 @@ applyTo: "**/OpenApiConfig.java,**/openapi/**/*.java, **/*Controller.java, **/*A
 - Keep OpenAPI configuration in dedicated configuration classes.
 - Place the configuration either at module root or in an `openapi` package.
 - Prefer the existing module placement unless the module is already being reorganized.
-- SpringDoc auto-detects endpoints from `@RequestMapping` annotations; `@Tag` and `@Operation` are optional and should be used consistently when a module adopts richer per-endpoint documentation.
+- SpringDoc auto-detects endpoints from `@RequestMapping` annotations; use `@Tag` and `@Operation` consistently across all touched endpoints when the module adopts richer per-endpoint documentation.
 - Keep endpoint documentation aligned with controller contracts.
 - Keep schema names stable for existing public responses.
 - Keep documentation changes synchronized with versioning rules.
-
-## Review Plan Layout
-- Report OpenAPI metadata changes.
-- Report endpoint documentation additions and updates.
-- Report schema compatibility impacts.
-- Report unresolved documentation gaps in touched scope.
-- Report applied rules, blocked rules, assumptions, and residual risks.
 
 ## Safety Guards
 - Never publish stale API docs after route contract changes.
 - Never duplicate conflicting OpenAPI configurations in one module.
 - Never change public schema semantics without versioning decision.
 - Never mix conflicting endpoint documentation styles in the same module without an explicit documentation strategy.
+
+## Review Plan Layout
+- Report OpenAPI metadata changes.
+- Report endpoint documentation additions and updates.
+- Report schema compatibility impacts.
+- Report unresolved documentation gaps in touched scope.
+

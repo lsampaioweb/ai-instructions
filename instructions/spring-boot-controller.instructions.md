@@ -10,9 +10,14 @@ applyTo: "**/*Controller.java"
 - Inspect request and response models used at API boundaries.
 - Inspect validation and error-handling integration at controller layer.
 
+## Naming Conventions
+- Controller classes must be named with the `*Controller` suffix (e.g., `UserController`, `AccountController`).
+- REST API controllers use `@RestController`; page-flow controllers use `@Controller`.
+- Use descriptive resource names in class identifiers (never `ApiController`, `WebController`, or generic names).
+
 ## Resolution Rules
 - Use class-level request mapping for every controller.
-- Use `/api/v1` as the default base prefix for REST API controllers unless the user explicitly requests a different version root.
+- REST API version prefix: governed by spring-boot-api-versioning.instructions.md.
 - Use view-flow route roots for page controllers (for example `/`, `/tasks`, `/ops`) instead of API version prefixes.
 - When CRUD entity fields are not provided, propose a minimal baseline contract for the resource and ask for confirmation or edits.
 - Use `@RestController` for JSON API endpoints and `@Controller` for server-rendered page flows.
@@ -27,16 +32,16 @@ applyTo: "**/*Controller.java"
 - Return explicit `ResponseEntity` HTTP responses with stable payload contracts for REST endpoints.
 - Return explicit view names for page controllers.
 
-## Review Plan Layout
-- Report endpoint additions, removals, and path changes.
-- Report request and response contract changes.
-- Report validation boundary behavior for each endpoint.
-- Report controller-to-service delegation compliance.
-- Report applied rules, blocked rules, assumptions, and residual risks.
-
 ## Safety Guards
 - Never place business orchestration logic in controllers.
 - Never mix `@RestController` and page-rendering responsibilities in the same controller class.
 - Never mix unrelated resource routes in one controller.
 - Never expose internal exception details in controller responses.
 - Never leave a numeric `@PathVariable` resource identifier without a positive-value constraint.
+
+## Review Plan Layout
+- Report endpoint additions, removals, and path changes.
+- Report request and response contract changes.
+- Report validation boundary behavior for each endpoint.
+- Report controller-to-service delegation compliance.
+

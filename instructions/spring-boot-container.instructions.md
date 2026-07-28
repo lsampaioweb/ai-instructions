@@ -21,14 +21,14 @@ applyTo: "**/Dockerfile, **/docker-compose.yml"
 - Keep runtime configuration profile-aware and externalized.
 - Keep container resources and mounted paths explicit.
 
+## Safety Guards
+- Never run containers with unnecessary privileges by default.
+- Never expose internal-only ports without explicit need and documentation.
+- Never ship container defaults that bypass runtime safety controls.
+
 ## Review Plan Layout
 - Report build-file changes and image behavior impact.
 - Report compose security and runtime setting changes.
 - Report healthcheck and startup profile decisions.
 - Report operational risks and mitigation notes.
-- Report applied rules, blocked rules, assumptions, and residual risks.
 
-## Safety Guards
-- Never run containers with unnecessary privileges by default.
-- Never expose internal-only ports without explicit need and documentation.
-- Never ship container defaults that bypass runtime safety controls.

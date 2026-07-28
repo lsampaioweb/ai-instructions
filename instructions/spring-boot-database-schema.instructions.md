@@ -40,15 +40,15 @@ applyTo: "**/src/main/resources/sql/**/*.xml, **/src/main/resources/sql/**/*.sql
 - Keep index strategy aligned with query access patterns.
 - Add a `CREATE INDEX IF NOT EXISTS` for every foreign key column in SQL DDL; FK columns are always candidates for JOIN and filter queries.
 
-## Review Plan Layout
-- Report table and column changes.
-- Report constraint and relation changes.
-- Report index additions or removals with query rationale.
-- Report backward-compatibility risks for schema updates.
-- Report applied rules, blocked rules, assumptions, and residual risks.
-
 ## Safety Guards
 - Never remove integrity constraints without explicit approval.
 - Never introduce destructive DDL without migration strategy.
 - Never apply schema changes that violate referential integrity rules.
 - Never add a FK constraint without a corresponding index on the FK column.
+
+## Review Plan Layout
+- Report table and column changes.
+- Report constraint and relation changes.
+- Report index additions or removals with query rationale.
+- Report backward-compatibility risks for schema updates.
+

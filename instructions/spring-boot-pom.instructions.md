@@ -31,13 +31,6 @@ applyTo: "**/pom.xml"
 - Include `spring-boot-jdbc-test` when using `@JdbcTest`.
 - Do not assume these starters are bundled in `spring-boot-starter-test`.
 
-## Review Plan Layout
-- Report added dependencies with purpose.
-- Report removed or replaced dependencies with reason.
-- Report version pin decisions and justification.
-- Report blocked dependency requests and architecture reason.
-- Report applied rules, blocked rules, assumptions, and residual risks.
-
 ## Safety Guards
 - Never upgrade unrelated dependencies in the same change.
 - Never change Java version without explicit user approval.
@@ -47,3 +40,10 @@ applyTo: "**/pom.xml"
 - Never rely on Lombok annotations (`@Slf4j`, `@Data`, etc.) without an explicit `annotationProcessorPaths` entry in `maven-compiler-plugin`; implicit annotation processor discovery was removed in Java 25.
 - Never add a dependency without a `<!-- reason -->` comment on the line immediately above it.
 - Never introduce plugin behavior changes without stating build impact.
+
+## Review Plan Layout
+- Report added dependencies with purpose.
+- Report removed or replaced dependencies with reason.
+- Report version pin decisions and justification.
+- Report blocked dependency requests and architecture reason.
+

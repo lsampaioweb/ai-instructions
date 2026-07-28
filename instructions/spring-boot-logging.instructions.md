@@ -18,16 +18,9 @@ applyTo: "**/src/main/java/**/*.java, **/src/test/java/**/*.java"
 - Prefer parameterized log messages and use structured log fields when the active sink/aggregation tooling supports structured ingestion.
 - Keep exception logs single-source to avoid duplication.
 - Prefer `@Slf4j` for logger declaration when Lombok is available in the module.
-- In controller classes, log only boundary-relevant warning/error conditions; avoid success-path info logs by default.
+- In controller classes, log only warning/error conditions; never log success paths.
 - In service classes, log business state transitions (for example create, update, delete) at info level with stable resource identifiers.
-- In repository classes, log degraded execution paths (for example SQL feature fallback) at warn level and avoid success-path info logs by default.
-
-## Review Plan Layout
-- Report new or changed log points with expected value.
-- Report level changes and production impact.
-- Report redaction controls for sensitive fields.
-- Report removed noisy logs and reason.
-- Report applied rules, blocked rules, assumptions, and residual risks.
+- In repository classes, log degraded execution paths (for example SQL feature fallback) at warn level; never log success paths.
 
 ## Safety Guards
 - Never log credentials, tokens, or personal data.
@@ -35,3 +28,10 @@ applyTo: "**/src/main/java/**/*.java, **/src/test/java/**/*.java"
 - Never emit high-volume logs inside tight loops without need.
 - Never replace `@Slf4j` with manual logger fields unless the user explicitly requests that change.
 - Never log the same failure event at multiple layers when one layer already emits the full diagnostic context.
+
+## Review Plan Layout
+- Report new or changed log points with expected value.
+- Report level changes and production impact.
+- Report redaction controls for sensitive fields.
+- Report removed noisy logs and reason.
+

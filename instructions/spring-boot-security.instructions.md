@@ -1,6 +1,6 @@
 ---
-description: "Spring Boot security contract for authentication, authorization, and endpoint protection boundaries."
-applyTo: "**/*SecurityConfig.java,**/security/*Permissions.java,**/security/Role.java,**/*Service.java"
+description: "Spring Boot security contract for authentication, authorization, service-level checks, and endpoint protection boundaries."
+applyTo: "**/*SecurityConfig.java,**/*Service.java,**/*ServiceImpl.java,**/security/*Permissions.java,**/security/Role.java,**/security/*Role.java"
 ---
 
 # Spring Boot Security Engine
@@ -9,6 +9,12 @@ applyTo: "**/*SecurityConfig.java,**/security/*Permissions.java,**/security/Role
 - Inspect security configuration, permission components, and role modeling.
 - Inspect authorization boundaries for endpoints and service methods.
 - Inspect session, CSRF, and request-matcher behavior.
+
+## Naming Conventions
+- Role enums must be named with the `*Role` suffix when used as a dedicated component (e.g., `UserRole`, `AccountRole`); plain enum names like `Role`, `Authority` are acceptable only when the enum is self-contained within a security context.
+- Permission or authority component classes must be named with the `*Permissions` or `*Permission` suffix (e.g., `UserPermissions`, `AccountPermissions`, `AdminPermission`).
+- Security configuration classes must be named with the `*SecurityConfig` suffix (e.g., `ApiSecurityConfig`, `WebSecurityConfig`).
+- Use domain-specific security component names (never `SecurityPermission`, `CommonRole`, or overly generic names).
 
 ## Resolution Rules
 - Keep authorization policy explicit at route or service boundary.
@@ -19,13 +25,6 @@ applyTo: "**/*SecurityConfig.java,**/security/*Permissions.java,**/security/Role
 - Keep authentication and authorization concerns separated from business logic.
 - Keep security decisions traceable through permission components.
 - Document temporary authentication deferrals with explicit metadata: scope, closure condition, and release checkpoint.
-
-## Review Plan Layout
-- Report protected routes and authorization rules changed.
-- Report permission logic updates and affected roles.
-- Report session and CSRF policy decisions.
-- Report unresolved security gaps in touched scope.
-- Report applied rules, blocked rules, assumptions, and residual risks.
 
 ## Safety Guards
 - Never expose mutating endpoints without explicit authorization checks.
@@ -43,3 +42,10 @@ applyTo: "**/*SecurityConfig.java,**/security/*Permissions.java,**/security/Role
 - Always keep the exception documented in code comments, configuration, or test annotations so reviewers know the decision is intentional, not missed.
 - Never treat temporary open access as permanent; require explicit re-approval or closure before production release.
 - Never apply an exception to a wider scope than the user explicitly approved.
+
+## Review Plan Layout
+- Report protected routes and authorization rules changed.
+- Report permission logic updates and affected roles.
+- Report session and CSRF policy decisions.
+- Report unresolved security gaps in touched scope.
+

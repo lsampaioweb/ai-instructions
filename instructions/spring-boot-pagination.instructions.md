@@ -29,15 +29,15 @@ applyTo: "**/*Controller.java,**/*Service.java,**/*ServiceImpl.java"
 - Keep pagination mapping in service layer aligned with API contract.
 - Extract shared pagination link-building logic (e.g., RFC-5988 Link headers) into a single common utility class when the same structure is used by two or more controllers; never copy-paste it.
 
-## Review Plan Layout
-- Report paginated endpoint behavior and defaults.
-- Report metadata fields exposed in response payloads.
-- Report sorting and boundary validation decisions.
-- Report compatibility impact on existing consumers.
-- Report applied rules, blocked rules, assumptions, and residual risks.
-
 ## Safety Guards
 - Never return unbounded collections for pageable endpoints.
 - Never omit total count metadata when contract requires pagination.
 - Never use unstable ordering for paged responses.
 - Never duplicate pagination header-building or link-generation logic across multiple controllers.
+
+## Review Plan Layout
+- Report paginated endpoint behavior and defaults.
+- Report metadata fields exposed in response payloads.
+- Report sorting and boundary validation decisions.
+- Report compatibility impact on existing consumers.
+

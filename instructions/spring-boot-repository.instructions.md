@@ -10,6 +10,12 @@ applyTo: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*Sq
 - Inspect data-access boundaries between service and repository layers.
 - Inspect SQL execution paths and exception mapping behavior.
 
+## Naming Conventions
+- Repository interfaces must be named with the `*Repository` suffix (e.g., `UserRepository`, `OrderRepository`).
+- Repository implementations must be named with the `*RepositoryImpl` suffix (e.g., `UserRepositoryImpl`, `OrderRepositoryImpl`).
+- SQL configuration property records must be named with the `*SqlConfigurationProperties` suffix (e.g., `UserSqlConfigurationProperties`).
+- Use resource entity names (never `DataRepository`, `PersistenceRepository`, or generic names).
+
 ## Resolution Rules
 - Prefer repository contract/implementation separation (`interface XyzRepository` + `XyzRepositoryImpl`) for modules with multiple persistence adapters or higher domain complexity; a single `@Repository` class is acceptable for focused modules.
 - Keep repositories JDBC or JdbcClient based.
@@ -27,16 +33,16 @@ applyTo: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*Sq
 - Validate generated-key fallback results explicitly and throw a deterministic data-retrieval exception when no key is returned.
 - Use `Locale.ROOT` for case normalization in machine-parsed string comparisons (for example SQL error-message feature detection).
 
-## Review Plan Layout
-- Report repository methods added, changed, or removed.
-- Report SQL execution and parameter-binding decisions.
-- Report exception mapping behavior for data-access failures.
-- Report persistence-strategy compliance with architecture baseline.
-- Report applied rules, blocked rules, assumptions, and residual risks.
-
 ## Safety Guards
 - Never embed business orchestration logic in repository layer.
 - Never execute unparameterized SQL with user-controlled input.
 - Never mix ORM-based patterns into JDBC-first repository contracts.
 - Never duplicate the same technical identifier string literal across multiple repository statements when a constant can represent it.
 - Never apply relational SQL rules to approved non-relational repositories; enforce equivalent store-specific safety controls instead.
+
+## Review Plan Layout
+- Report repository methods added, changed, or removed.
+- Report SQL execution and parameter-binding decisions.
+- Report exception mapping behavior for data-access failures.
+- Report persistence-strategy compliance with architecture baseline.
+
