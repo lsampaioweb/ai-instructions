@@ -1,0 +1,38 @@
+---
+description: "Spring Boot enum contract for deterministic closed-set domain values and security role mappings in production-grade projects."
+globs: "**/src/main/java/**/*Enum.java,**/src/main/java/**/security/Role.java,**/src/main/java/**/security/*Role.java"
+alwaysApply: false
+---
+
+# Spring Boot Enum
+
+## Scope & analysis
+- Inspect enum types used in API, domain, and security boundaries.
+- Inspect enum serialization and persistence-facing usage.
+- Inspect enum helper methods used by security or mapping logic.
+
+## Naming conventions
+- Name enum classes with the `*Enum` suffix (e.g. `UserStatusEnum`, `OrderStateEnum`, `RoleEnum`).
+- Security role enums may use `Role` or the `*Role` suffix when self-contained within a dedicated security context.
+- Use domain-specific enum names (never `TypeEnum`, context-free `StatusEnum`, or generic names); include the domain prefix (e.g. `UserStatusEnum`, not just `StatusEnum`). Allow plain `Role` only in a dedicated security context.
+
+## Resolution rules
+- Keep enum values stable after public release.
+- Treat adding a new enum value to a public API contract as a potentially breaking change for strict consumers; document additions in the API changelog.
+- Keep enum names expressive and domain-specific.
+- Keep enum-to-string behavior explicit when used in contracts.
+- Serialize enums as their `name()` string value in all API and message contracts; never use ordinal-based serialization.
+- Keep security enums aligned with authorization conventions.
+- Keep helper methods deterministic and side-effect free.
+- Keep hardcoded duplicate constants out of business logic.
+
+## Safety guards
+- Never repurpose existing enum values for new semantics.
+- Never introduce contract-breaking enum changes silently.
+- Never duplicate enum meaning in string literals across code.
+
+## Review output
+- Report enum values added, removed, or renamed.
+- Report serialization or contract impact for enum changes.
+- Report security-impact changes for role or authority enums.
+- Report migration notes when enum evolution is breaking.

@@ -1,0 +1,53 @@
+---
+description: "Spring Boot repository contract for JDBC-first data access, interface-implementation separation, and SQL safety."
+globs: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlColumns.java,**/*SqlConfigurationProperties.java,**/src/main/resources/sql/**/*.xml"
+alwaysApply: false
+---
+
+# Spring Boot Repository
+
+## Scope & analysis
+- Inspect repository interfaces, implementations, and SQL support types.
+- Inspect data-access boundaries between service and repository layers.
+- Inspect SQL execution paths and exception mapping behavior.
+
+## Naming conventions
+- Name repository interfaces with the `*Repository` suffix (e.g. `UserRepository`, `OrderRepository`).
+- Name repository implementations with the `*RepositoryImpl` suffix (e.g. `UserRepositoryImpl`, `OrderRepositoryImpl`).
+- Name SQL configuration property records with the `*SqlConfigurationProperties` suffix (e.g. `UserSqlConfigurationProperties`).
+- Use resource entity names (never `DataRepository`, `PersistenceRepository`, or generic names).
+
+## Resolution rules
+- Keep repository methods scoped to persistence concerns only.
+- Use `findById`, `findAll`, `findBy*`, `save`, `update`, `deleteById` as the standard method-name prefixes; keep method names consistent with operation semantics across all repositories.
+- Prefer repository contract/implementation separation (`interface XyzRepository` + `XyzRepositoryImpl`) for modules with multiple persistence adapters or higher domain complexity; a single `@Repository` class is acceptable for focused modules.
+- Keep repositories JDBC- or JdbcClient-based.
+- Keep JDBC or JdbcClient as the default for relational persistence modules.
+- Allow non-relational repository implementations only when the module is explicitly scoped to an approved non-relational store; keep key design, serialization rules, and failure mapping explicit.
+- Prohibit JPA, Hibernate, and Spring Data repository patterns.
+- Keep SQL parameters explicit and safely bound.
+- Accept pagination parameters (offset, limit, sort column) as explicit method parameters for paginated queries; never embed hardcoded limits inside SQL statements.
+- Extract repeated technical string literals (SQL parameter names, column names, table names, key names) into named constants within the repository implementation.
+- Keep repository exceptions mapped to domain-safe failures.
+- Externalize SQL statements into `@PropertySource`-backed XML property files (one file per feature); access them through a `@ConfigurationProperties` record named `XyzSqlConfigurationProperties` within the feature package.
+- Register `XyzSqlConfigurationProperties` using one explicit pattern: either `@Component` + `@ConfigurationProperties` on the record, or `@EnableConfigurationProperties` on the owning `@Configuration` class.
+- Keep SQL XML query keys and statement intent stable and resource-scoped using the taxonomy `sql.<feature>.<operation>` (for example `sql.users.find-by-id`, `sql.orders.insert`).
+- Name SQL XML property files after the owning feature (for example `users.xml`, `orders.xml`) and place them directly under `src/main/resources/sql/`.
+- Author SQL XML property sources as Java `.properties` XML documents: `DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd"` with a root `<properties>` element and one `<entry key="...">` per statement.
+- Prefer `INSERT`/`UPDATE ... RETURNING` (or equivalent single-statement write+read) for create/update paths that must return the persisted row; never issue a separate `findById` after a successful write when the write statement can return the row.
+- Fall back from `INSERT/UPDATE ... RETURNING` only when the exception evidence indicates unsupported `RETURNING`; rethrow unrelated SQL grammar errors.
+- Validate generated-key fallback results explicitly and throw a deterministic data-retrieval exception when no key is returned.
+- Use `Locale.ROOT` for case normalization in machine-parsed string comparisons (for example SQL error-message feature detection).
+
+## Safety guards
+- Never embed business orchestration logic in the repository layer.
+- Never execute unparameterized SQL with user-controlled input.
+- Never mix ORM-based patterns into JDBC-first repository contracts.
+- Never duplicate the same technical identifier string literal across multiple repository statements when a constant can represent it.
+- Never apply relational SQL rules to approved non-relational repositories; enforce equivalent store-specific safety controls instead.
+
+## Review output
+- Report repository methods added, changed, or removed.
+- Report SQL execution and parameter-binding decisions.
+- Report exception mapping behavior for data-access failures.
+- Report persistence-strategy compliance with the architecture baseline.

@@ -1,0 +1,63 @@
+---
+description: How to write Cursor AI overlays — AGENTS.md, rules, skills, prompts, instructions, and agents
+globs: "**/AGENTS.md,**/.cursor/rules/**/*.mdc,**/cursor/rules/**/*.mdc,**/skills/**/SKILL.md,**/*.prompt.md,**/*.instructions.md,**/*.agent.md"
+alwaysApply: false
+---
+
+# AI Customization Style Contract
+
+Use this when creating or editing Cursor overlays. Goal: one clear job per file, enforceable rules, minimal tokens.
+
+## Pick the right artifact
+
+| Need | Use | Notes |
+| :--- | :--- | :--- |
+| Always-on project behavior | Root `AGENTS.md` | Plain markdown; no YAML frontmatter |
+| Scoped guidance (paths, topics) | `.cursor/rules/*.mdc` | `globs` or `alwaysApply`; not for duplicating `AGENTS.md` |
+| Repeatable workflow the user invokes | `.cursor/skills/**/SKILL.md` | YAML frontmatter + procedural body |
+| Domain or stack guidance (path-scoped) | `.mdc` with `globs` | Copilot-style sources live under `vscode/instructions/` |
+| User-invoked task template | `*.prompt.md` | Frontmatter with `description` and `argument-hint` for required inputs |
+| Multi-step agent persona | `*.agent.md` | Copilot-style sources live under `vscode/agents/` |
+
+- Do not put global behavior in a rule if it belongs in `AGENTS.md`.
+- Do not duplicate the same rule across `AGENTS.md`, rules, and skills.
+
+## Write enforceable rules
+
+- Use imperative verbs for mandatory behavior (`Do`, `Never`, `Require`, `Stop`).
+- Put one behavior per bullet; split compound requirements.
+- Match section titles to the rules inside them.
+- Mark optional behavior explicitly (e.g. "Optional:").
+- Preserve literals: commands, paths, identifiers, versions — change only when wrong.
+- Remove filler, preamble, and repeated triggers that do not change behavior.
+
+## Routing and discovery
+
+**`AGENTS.md`:** No frontmatter. Title + short sections; agent loads it automatically at project root.
+
+**Rules (`.mdc`):**
+- Set `description` — what the rule does and when it applies.
+- Use `globs` for file-scoped rules; use `alwaysApply: true` only when truly universal (prefer `AGENTS.md` for that).
+- Do not use Copilot `applyTo`; Cursor uses `globs` / `alwaysApply`.
+
+**Skills (`SKILL.md`):**
+- Set `name` and `description` (purpose + when to use + required inputs if any).
+- Body = full self-contained workflow; inline migrated content from Copilot prompts/agents.
+- Never reference `*.prompt.md`, `prompts/`, `copilot-instructions.md`, or other VS Code-only paths.
+- Use `disable-model-invocation: true` when the skill must run only on explicit user invocation.
+
+**Prompts (`*.prompt.md`):**
+- Set `description` and `argument-hint` (required inputs).
+- Place this line immediately after frontmatter and before the first heading: "Always read `AGENTS.md`. You **MUST** obey all instructions from this file."
+
+## Keep overlays consistent
+
+- State each rule once; reference the canonical file from elsewhere.
+- When rules overlap (e.g. stepwise confirmation vs macros), define precedence explicitly.
+- Prefer capability wording ("search the codebase") over tool-specific names unless the tool is required.
+
+## Packaging (this repo only)
+
+- Cursor overlays live under `cursor/` (e.g. `cursor/AGENTS.md`, `cursor/rules/`, `cursor/skills/`).
+- Install into consumer projects: `AGENTS.md` at project root; rules → `.cursor/rules/`; skills → `.cursor/skills/`.
+- Leave VS Code/Copilot sources (`vscode/copilot-instructions.md`, `vscode/instructions/`, etc.) unchanged unless converting them deliberately.

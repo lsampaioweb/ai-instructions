@@ -1,0 +1,41 @@
+---
+description: "Compose and Dockerfile container rules: image structure, naming, profile activation, volume mounts, healthcheck, and log directory ownership."
+globs: "**/Dockerfile,**/docker-compose.yml"
+alwaysApply: false
+---
+
+# Spring Boot Container
+
+## Scope & analysis
+- Inspect image build files, compose orchestration, and runtime profile config.
+- Inspect container security controls and filesystem restrictions.
+- Inspect healthcheck, ports, and environment variable behavior.
+
+## Resolution rules
+- Keep container images pinned to explicit tags.
+- Keep build and runtime stages separated when multi-stage is used.
+- Keep compose services hardened with minimal privileges by default.
+- Run the Spring Boot application as a non-root user inside the container; define a dedicated `appuser` with a non-zero UID.
+- Keep capability additions exceptional and justified inline for each service.
+- Keep socket mounts read-only and justified by explicit runtime needs.
+- Keep local container run flows documented per scenario (standalone app flow or shared infrastructure flow).
+- Keep healthchecks explicit and service-appropriate (actuator endpoints for Spring apps, native probes for infrastructure services).
+- Set healthcheck with `interval=30s`, `timeout=5s`, `retries=3`, and `start_period=60s` as defaults unless operational requirements differ.
+- Keep runtime configuration profile-aware and externalized.
+- Activate the Spring profile via the `SPRING_PROFILES_ACTIVE` environment variable; never bake profile selection into the Dockerfile layer.
+- Configure JVM memory limits via the `JAVA_OPTS` environment variable; never hardcode heap or memory flags in the `CMD` or `ENTRYPOINT` instruction.
+- Keep container resources and mounted paths explicit.
+- When the application writes logs under `logging.file.path`, mount that directory as a named volume (or document stdout-only logging); never leave file logs only on the writable container layer without an explicit retention plan.
+- Prefer stdout/stderr as the primary log sink for orchestrated deployments unless operators require persisted files; keep Logback profile appenders aligned with that choice.
+- Expose port `8080` in the Dockerfile by default unless the application explicitly configures a different server port.
+
+## Safety guards
+- Never run containers with unnecessary privileges by default.
+- Never expose internal-only ports without explicit need and documentation.
+- Never ship container defaults that bypass runtime safety controls.
+
+## Review output
+- Report build-file changes and image behavior impact.
+- Report compose security and runtime setting changes.
+- Report healthcheck and startup profile decisions.
+- Report operational risks and mitigation notes.

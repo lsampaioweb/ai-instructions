@@ -1,0 +1,73 @@
+---
+description: "Global architecture baseline for Spring Boot generation and review. Apply before component-specific rules."
+globs: "**/pom.xml,**/src/**"
+alwaysApply: false
+---
+
+# Architecture Governance Baseline
+
+## Cross-Reference Guidance
+
+### Clarification Triggers
+- Treat application type as unresolved when the request does not identify `rest-web`, `mvc-web`, `console-cli`, `batch-worker`, or `integration-adapter`; do not generate implementation until the type is explicit.
+- Allow a primary application type plus secondary capabilities when the module combines concerns such as REST, MVC, websocket, async events, or outbound integration.
+- For persistence defaults and override behavior, defer to the active persistence-specific rules.
+- Treat data-store strategy as unresolved only when active persistence rules do not resolve the decision or request constraints conflict; do not generate persistence implementation until the strategy is explicit.
+- Use feature-first package organization as the default; treat package structure as unresolved only when the user explicitly requests a conflicting structure.
+- Use `com.<organization>.<module-name>` as the root Java package; derive it from the project `groupId` and `artifactId`; never use generic root packages like `com.example` or `com.demo`.
+- Never create layer-based packages like common/api, common/exception, common/service, or common/repository; group all cross-cutting concerns and exceptions within their owning feature package.
+- Keep feature-scoped implementation classes package-private to enforce feature boundaries: all classes ending in `Impl` (ServiceImpl, RepositoryImpl, etc.) must be package-private; all @Component or @Configuration classes scoped to a single feature (including those wiring domain-specific components like repositories or SQL configs) must be package-private and placed within the feature package; all internal mappers (whether manually written or generated) must be package-private.
+- Expose only public interfaces, DTOs (Request, Response, DTO types), records, and public service contracts (interfaces and controllers) from a feature package.
+- Treat access policy as unresolved when externally reachable HTTP endpoints, messaging endpoints, or websocket endpoints are requested without authentication and authorization boundaries; do not generate endpoint implementation until boundaries are explicit.
+- Treat runtime expectations as unresolved when profiles, ports, TLS, or container runtime are not explicit; do not generate environment-specific configuration until these are stated.
+- For entity field and validation baseline suggestions, defer to active API-contract rules.
+- For REST list pagination and sorting defaults, defer to active pagination rules.
+- When user text explicitly requests default options, apply defaults from active component rules without re-asking covered decisions.
+- Before generating blocking questions, scan all activated rules for governed defaults; suppress any question whose answer is already explicitly stated as a rule or default in an activated file.
+- When configuration properties are introduced, defer registration and test-slice behavior to the active config and test rules.
+
+### Rule Reference
+
+Cursor auto-applies rules by their `globs`. These references cover intent-based activation — cases where context or domain intent determines applicability beyond file-path patterns.
+
+- Apply `spring-boot-java-style` for Java coding style, blank-line discipline, and method structure before creating or modifying any `**/*.java` files in `src/`.
+- Apply `spring-boot-pom` for Maven project identity, dependencies, plugins, and build governance when `pom.xml` needs changes.
+- Apply `spring-boot-config` for application properties, profiles, and externalized configuration when `application*.yml` files need changes.
+- Apply `spring-boot-i18n` for locale behavior and message-bundle governance when introducing user-facing text, message keys, or locale configuration.
+- Apply `spring-boot-logging` for logging behavior and safe diagnostics before adding or modifying log statements in `**/*.java`.
+- Apply `spring-boot-logback` for logback configuration and safe logging when `logback-spring.xml` or logging dependencies in `pom.xml` need changes.
+- Apply `spring-boot-enum` for closed-set domain values and role-enum governance before creating or modifying enum types in `**/*Enum.java`.
+- Apply `spring-boot-error-code` for machine-readable API error-code mapping when error handling, exception mapping, or error messages in properties are introduced.
+- Apply `spring-boot-exception` for centralized exception handling and error-response mapping when creating or modifying `**/*Exception*.java`, `**/*ExceptionHandler*.java`, or `**/*Advice*.java`.
+- Apply `spring-boot-test` for test-layer scope and contract assertions before creating or modifying test files in `**/src/test/java/**/` or `**/*Test.java`.
+- Apply `spring-boot-readme` for user-facing behavior and setup documentation when README or `*.md` files need changes.
+- Apply `spring-boot-controller` when creating or modifying `**/*Controller.java` files for REST or MVC endpoints.
+- Apply `spring-boot-openapi` when creating or modifying OpenAPI configuration, API endpoint classes, or controllers needing API documentation.
+- Apply `spring-boot-security` when creating or modifying `**/*SecurityConfig.java`, `**/*Service.java`, `**/*ServiceImpl.java`, or endpoint protection for HTTP, REST, MVC, actuator, or websocket surfaces.
+- Apply `spring-boot-service` when creating or modifying `**/*Service.java` or `**/*ServiceImpl.java` for business orchestration and transaction management.
+- Apply `spring-boot-thymeleaf` when creating or modifying server-rendered page controllers (`**/*PageController.java`), routes, or `templates/**/*.html`.
+- Apply `spring-boot-http-client` when creating or configuring outbound HTTP client classes, adapters, or HTTP integration configuration.
+- Apply `spring-boot-websocket` when creating or modifying WebSocket or STOMP messaging endpoints (`**/*Socket*.java`, `**/*Stomp*.java`).
+- Apply `spring-boot-async-events` when implementing asynchronous event publication, consumption, or listener processing (`**/*Event*.java`, `**/*Publisher*.java`, `**/*Consumer*.java`, `**/*Listener*.java`).
+- Apply `spring-boot-repository` when creating or modifying repository classes or the data-access layer (`**/*Repository.java`, `**/*RepositoryImpl.java`, `**/*SqlColumns.java`, `**/*SqlConfigurationProperties.java`).
+- Apply `spring-boot-database-schema` when creating or modifying SQL DDL files (`**/*.xml`, `**/*.sql`) in `src/main/resources/sql/`.
+- Apply `spring-boot-referential-integrity` when defining foreign keys, constraints, or relational integrity rules in SQL schema files.
+- Apply `spring-boot-dto-mapper` when creating or modifying DTO mapper classes (`**/*DtoMapper.java`) for model transformations.
+- Apply `spring-boot-api-versioning` when creating or modifying REST API endpoints (`**/*Controller.java`, `**/*Api.java`) or related request/response DTOs to manage versioning strategy.
+- Apply `spring-boot-pagination` when implementing paginated collection endpoints in `**/*Controller.java` or pagination logic in `**/*Service.java`, `**/*ServiceImpl.java`.
+- Apply `spring-boot-actuator` when configuring actuator endpoint exposure, management server port, metrics visibility, profile-level observability posture, or health-check security in `**/*SecurityConfig.java` or `application*.yml`.
+
+## Spring Completion Gates
+
+### Acceptance Gates
+- Gate A: All modified Spring artifacts must satisfy every activated rule mapped by scope and intent.
+- Gate B: Each modified area must have at least one objective verification action (build, test, lint, or deterministic static check) with a pass result.
+- Gate C: Any temporary exception must include complete exception metadata and an unexpired review window.
+- Gate D: Completion evidence must state which gates passed or failed.
+
+### Completion-Blocking Logic
+- Block completion when any required gate fails.
+- Block completion when verification for a modified area is missing.
+- Block completion when a temporary exception is missing required metadata.
+- Block completion when a temporary exception is expired or has no removal condition.
+- Allow completion only when all required gates pass, or blocked items are explicitly marked as unresolved blockers with owner and next checkpoint.

@@ -1,0 +1,34 @@
+---
+description: "README structure rules: recommended sections and no-filler-prose policy for Spring Boot project documentation."
+globs: "README.md,**/README.md,docs/**/*.md,documentation/**/*.md"
+alwaysApply: false
+---
+
+# Spring Boot README
+
+## Scope & analysis
+- Inspect README and project-documentation markdown files touched by the task.
+- Inspect whether runtime prerequisites and run steps are explicit.
+- Inspect whether API behavior and security assumptions are documented.
+
+## Resolution rules
+- Include at minimum: project title with one-line description, Prerequisites, Getting started (verbatim run commands), and Configuration reference; add an API reference section or link when the module exposes a public API.
+- Keep each README scoped to its project or module purpose.
+- Keep prerequisites explicit and version-aware.
+- Keep run instructions executable verbatim without manual substitution.
+- Document Docker Compose run commands when the module includes a `docker-compose.yml`.
+- Document authentication and authorization behavior when applicable.
+- Document endpoint contracts or link to canonical API documentation.
+- Keep architecture decisions discoverable with concise rationale and link to deeper technical docs instead of duplicating long walkthroughs.
+- When a module changes pagination/sort allowlists, datasource env requirements, or DDL indexes that affect list access paths, document those in Configuration reference or API reference in the same doc sync; never leave operators to discover them only from code.
+
+## Safety guards
+- Never document commands that contradict the enforced architecture baseline.
+- Never omit breaking behavioral changes from user-facing docs.
+- Never introduce ambiguous setup steps that cannot be reproduced.
+
+## Review output
+- Report sections added, removed, or reordered.
+- Report run-flow changes and environment assumptions.
+- Report security and API-documentation updates.
+- Report links added to deeper technical docs.
