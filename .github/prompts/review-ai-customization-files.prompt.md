@@ -7,11 +7,11 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 
 ## 1. Scope & Analysis
 1. Target only user-provided scope. If missing, stop and request inputs.
-2. Load and parse the applicable style baseline for the current scope.
+2. Load and apply the style contract from `.github/instructions/ai-customization.instructions.md`.
 3. Establish active cross-file references across target directories.
 
 ## 2. Resolution Rules
-- **Scanning Rigor:** Scan 100% of files in scope. Sampling is prohibited.
+- **Scanning Rigor:** Scan 100% of files in scope.
 - **Audit Checklist:** Inspect every file along six dimensions:
   1. Duplicate rules (intra-file and cross-file).
   2. Conflicting rules (direct and soft conflicts).
@@ -23,8 +23,9 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 - **Status Classification:** PASS (9–10) | WARN (7–8) | FAIL (0–6).
 
 ## 3. Safety Guards
-- **Execution Boundary:** Read-only audit. Do not edit files or execute mutations until explicit user confirmation.
-- **Fix Application Rule:** If authorized, modify only approved items. Non-targeted text remains unchanged.
+- Never sample.
+- **Execution Boundary:** Apply changes only after explicit user confirmation.
+- **Fix Application Rule:** If authorized, modify only approved items.
 
 ## 4. Review Plan Layout
 

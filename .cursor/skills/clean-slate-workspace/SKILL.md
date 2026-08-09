@@ -1,41 +1,37 @@
 ---
 name: clean-slate-workspace
 description: >-
-  Remove only this chat's created artifacts from the active workspace for a
-  clean restart. Use when the user asks to clean the slate, remove session
-  artifacts, or invokes /clean-slate-workspace. Optional: scope notes or
-  exclusions.
+  Remove only artifacts created in the current chat so the workspace can restart
+  cleanly. Use when the user asks for a clean slate, cleanup of chat-created
+  files, or invokes /clean-slate-workspace. Optional: scope notes or exclusions.
 disable-model-invocation: true
 ---
 
-# Clean Slate Workspace
+# Clean Slate Workspace Engine
 
-- Obey `AGENTS.md` (project root or `cursor/AGENTS.md`).
-- Read-only until the user explicitly confirms deletion.
-- Optional: honor user-provided scope notes or exclusions.
+- Obey `AGENTS.md` (project root).
+- Never delete user-authored files or ambiguous-ownership artifacts without treating them as user-authored.
 
-## Scope & analysis
+## 1. Scope & Analysis
 
-1. Inspect conversation artifacts in the active workspace.
-2. List all files, plans, repo memory, session memory, and temporary artifacts created in this chat.
-3. Determine ownership for each artifact.
-4. If no session-created artifacts exist, state that explicitly and stop.
+- Inspect current conversation artifacts in the active workspace.
+- List all files, plans, repo memory, session memory, and temporary artifacts created in this chat.
+- Determine ownership for each artifact.
 
-## Resolution rules
+## 2. Resolution Rules
 
-- Never delete until inspection is complete and targets are listed.
+- Do not delete anything until inspection is complete and targets are listed.
 - Ask for explicit confirmation before deletion.
 - Delete only artifacts created in this chat.
 - Treat ambiguous ownership as user-authored.
-- Never delete or modify user-authored files.
-- Never touch persistent user-level memories or reusable customizations unless they were created for this workspace in this chat.
+- Do not delete or modify user-authored files.
+- Do not touch persistent user-level memories or reusable customizations unless they were created for this workspace in this chat.
 - Remove empty directories left by deletions.
 - Verify workspace cleanliness after deletion.
+- If no session-created artifacts exist, state that explicitly and stop without performing any deletions.
 
-## Output
+## 3. Review Plan Layout
 
-After the confirmed cleanup (or a no-op stop), report:
-
-- **Deleted:** paths removed
-- **Preserved:** paths intentionally kept
-- **Uncertainties:** leftovers needing manual review (or `none`)
+- Report what was deleted.
+- Report what was intentionally preserved.
+- Report uncertainties or leftovers requiring manual review.

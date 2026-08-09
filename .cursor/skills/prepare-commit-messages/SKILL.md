@@ -8,29 +8,40 @@ description: >-
 disable-model-invocation: true
 ---
 
-# Prepare Commit Messages
+# Logical Git Commit Engine
 
-- Obey `AGENTS.md` (project root or `cursor/AGENTS.md`).
+- Obey `AGENTS.md` (project root).
 - If the user provides a path or feature-scope filter, limit analysis to that scope.
 
-## Scope & analysis
+## 1. Scope & Analysis
 
-- Inspect uncommitted changes with `git status` and `git diff`.
+- Inspect uncommitted changes (`git status`, `git diff`).
 - Cluster files into atomic, reversible commits.
-- Order commits so foundational changes (config, schemas, dependencies) precede feature layers.
-- Group files strictly by feature domain (e.g. `auth`, `payment`); never group by technical layer.
-- Documentation gate: if markdown documentation exists for changed code but lacks corresponding updates, flag the affected docs and recommend running `/review-and-sync-docs` before proceeding.
+- **Sort Order:** Foundational changes (config, schemas, deps) must be committed before feature layers.
+- **Grouping Boundary:** Group files strictly by **feature domain** (e.g., `auth`, `payment`).
+- **Documentation Gate:** If Markdown documentation exists for changed code but contains no corresponding updates, flag the affected docs and recommend running `/review-and-sync-docs` before proceeding.
 
-## Resolution rules
+## 2. Resolution Rules
 
-- Use Conventional Commits only: `type(scope): description`. Never invent custom types.
-- Use a feature domain or infrastructure area as the scope; never a technical-layer identifier.
-- Write the description in imperative present tense, max 50 characters, no trailing period.
-- Write the body to document the *why* and the *impact* only; never list modified files or duplicate the diff.
-- Append `Closes #123` or tracking IDs in the footer when detected in the branch name or context.
-- Flag any cluster with mixed or unclear concerns for manual review.
+- **Commit Format:** Use Conventional Commits only: `type(scope): description`.
+- **Scope Rule:** Use a feature domain or infrastructure area.
+- **Description Rule:** Imperative, present tense, max 50 characters, no trailing period.
+- **Body Rule:** Document the *why* and the *impact* only.
+- **Footer Rule:** Append `Closes #123` or tracking IDs if detected in branch or context.
 
-## Commit plan layout
+## 3. Safety Guards
+
+- **Execution Boundary:** Read-only analysis. Do not execute any Git commands until the commit plan is confirmed.
+- **Ask for Confirmation:** Output: `Proceed with executing this automated commit sequence? [yes/no]`
+- **Post-approval:** Run `git add` and `git commit` sequentially for each cluster.
+- Verify success after each commit before proceeding to the next cluster.
+- Never group files by technical layer; group strictly by feature domain.
+- Never use technical-layer identifiers as the commit scope.
+- Never list modified files or duplicate diff data in the commit body.
+- If files in a cluster span more than one feature domain, flag the cluster and stop.
+- Never use commit types not defined by the Conventional Commits specification.
+
+## 4. Review Plan Layout
 
 Output this plan layout:
 
@@ -44,23 +55,15 @@ Output this plan layout:
   - `path/to/file1`
   - `path/to/file2`
 - **Execution Message Blueprint:**
+  ```gitcommit
+  type(scope): description
 
-```gitcommit
-type(scope): description
-
-Why this change is needed and its impact.
-```
+  Why this change is needed and its impact.
+  ```
 
 ---
 
 ### Documentation Gate Verification
 
 - **Status:** [CLEAR | PENDING SYNC]
-- **Details:** `none` when no documentation gaps are detected; otherwise list missing or unsynced documentation updates.
-
-## Safety guards
-
-- Read-only analysis: never execute state-changing Git commands (`git add`, `git commit`) before the plan is confirmed.
-- End the plan with: `Proceed with executing this automated commit sequence? [yes/no]`
-- Stop and wait for explicit user confirmation before executing any Git commands.
-- After approval, run `git add` and `git commit` sequentially for each cluster; verify success at each step.
+- **Details:** <State "none" if no documentation gaps are detected; otherwise list missing or unsynced documentation updates>

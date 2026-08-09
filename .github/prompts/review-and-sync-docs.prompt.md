@@ -13,23 +13,23 @@ argument-hint: "Optional: scope, folder path, or feature-area filter."
 ## 2. Resolution Rules
 - **Execution Target:** Update Markdown only when code or configuration changes alter documented behavior or setup.
 - **README Boundary:** Update `*.md` only when the mapped change affects onboarding, execution, or architecture.
-- **Style Match:** Match existing formatting and voice.
+- **Style Match:** Match existing formatting, heading style, and list conventions.
 - **Correction Protocol — Content:** Repair stale instructions, outdated keys, and deprecated paths.
 - **Correction Protocol — References:** Resolve broken links and replace obsolete examples.
 
 ## 3. Safety Guards
-- **Forbidden:** Do not invent features, parameters, properties, or runtime behavior absent from the codebase.
+- **Execution Boundary:** Apply Markdown edits only after the read-only plan is presented and the user explicitly confirms.
+- Do not invent features, parameters, properties, or runtime behavior absent from the codebase.
 - **Uncertainty Gate:** If a documentation update cannot be verified with available code context, stop and ask focused questions before editing.
 
 ## 4. Review Plan Layout
 Present a read-only update plan before applying edits:
-```
-Synced Files:
+
+### Synced Files
 - path/to/doc1.md
 
-Structural Updates:
+### Structural Updates
 - <what changed and why>
 
-Verification Points:
+### Verification Points
 - <uncertainties requiring confirmation>
-```

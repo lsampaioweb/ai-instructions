@@ -17,15 +17,16 @@ argument-hint: "Required: #file:path/to/file and the new content to add"
 - Prefer exact heading match.
 - If no exact heading match exists, use the nearest section by heading-keyword overlap.
 - If no suitable section exists, propose a new section.
-- Place new content at the logically correct position within the target section; append at the end only when the new content belongs last.
+- Place new content at the logically correct position within the target section.
+- Append at the end of the section only when the new content belongs last.
 - Preserve existing formatting exactly: spacing, indentation, capitalization.
 - Do not introduce unrelated formatting changes.
 - If duplicate content exists, update the existing content instead of adding a second copy.
-- Correct only clear grammar errors (e.g., subject-verb agreement, missing articles). Do not rephrase sentences.
+- Correct only clear grammar errors (e.g., subject-verb agreement, missing articles).
 
 ## 3. Safety Guards
 - Do not change non-targeted sections.
-- Do not alter formatting outside the selected insertion target.
+- Never rephrase sentences.
 
 ## 4. Review Plan Layout
 - Report one status: `ADDED`, `UPDATED`, or `SKIPPED`.

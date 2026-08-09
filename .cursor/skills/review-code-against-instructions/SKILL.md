@@ -1,45 +1,92 @@
 ---
 name: review-code-against-instructions
 description: >-
-  Bidirectional audit of code against instruction files and instruction coverage
-  against the codebase. Use when the user asks to review code against
+  Bidirectional audit of code against instruction/rule overlays and overlay
+  coverage against the codebase. Use when the user asks to review code against
   instructions, check instruction coverage, or invokes
-  /review-code-against-instructions. Optional: target path, module, file, or glob.
+  /review-code-against-instructions. Optional: target path, module, file, or
+  glob.
 disable-model-invocation: true
 ---
 
 # Review Code And Instruction Coverage
 
-- Obey `AGENTS.md` (project root or `cursor/AGENTS.md`).
-- Prefer architecture guidance from `cursor/rules/spring-boot-architecture.mdc` when present.
+- Obey `AGENTS.md` (project root).
+- Prefer architecture guidance from `.cursor/rules/spring-boot-architecture.mdc` when present.
 - Read-only audit; edit only user-approved items after explicit approval.
 
-## Scope
+## 1. Scope & Analysis
 
-- Target only the user-provided path, module, file, or glob.
-- No target provided → confirm a full-repo scan with the user before proceeding. Never invent a narrow scope.
-- Scan 100% of the target scope. Do not sample.
-- Base all conclusions on files that actually exist in scope. Do not guess.
+1. Resolve the target scope from the user-provided input. If missing, confirm a full-repo scan with the user before proceeding. Never invent a narrow scope.
+2. Identify all applicable rules/overlays for the target scope.
+3. Establish active cross-references between code files and overlay rules.
 
-## Analysis
+## 2. Resolution Rules
 
-- Check code against applicable overlays; flag implementation that does not follow active rules.
-- Check overlays against the real codebase; flag recurring patterns, missing constraints, or missing governance.
-- Resolve applicable rules from `cursor/rules/*.mdc` and installed `.cursor/rules/*.mdc` first.
-- Optional: also read `vscode/instructions/*.instructions.md` as Copilot-source evidence when auditing.
-- Map source path globs / `applyTo` patterns to active overlays for the target scope.
-- If no overlays exist for the target scope, infer the minimum enforceable initial set from the code.
-- When proposing new overlays for Cursor, use `cursor/rules/*.mdc` (not `.github/instructions/` or a required `vscode/instructions/` dependency).
-- Distinguish required violations, optional gaps, and ambiguous cases.
-- Treat missing required overlay coverage as a problem.
-- For each finding, state the problem briefly and give one minimal remediation action.
+- **Bidirectional Audit:** Check code against rules/overlays; check rules/overlays against code.
+- **Code Violations:** Flag places where the implementation does not follow the active rules.
+- **Overlay Gaps:** Flag recurring code patterns, missing constraints, or missing governance that should be added.
+- **Coverage Absence:** If no rules/overlays exist for the target scope, infer the minimum enforceable initial set from the code and propose it.
+- **New File Placement:** Place proposed Cursor rules in `.cursor/rules/*.mdc` (not `.github/instructions/`).
+- **Optional Source Evidence:** Also read `.github/instructions/*.instructions.md` as Copilot-source evidence when auditing.
+- **Evidence Rule:** Base all conclusions on files that actually exist in scope. Do not guess.
+- **Scanning Rigor:** Scan the full target scope. Do not sample.
+- **Finding Format:** For each finding, state the problem briefly and give one minimal remediation action.
+- **Classification:** Distinguish required violations, optional gaps, and ambiguous cases.
+- **Coverage Gate:** Treat missing required overlay coverage as a problem.
+- **Deduplication Rule:** Merge repeated observations that share the same root cause into one finding.
+- **Compression Rule:** Do not list compliant files, retained overlays, or exhaustive inventories unless they are necessary to explain a finding.
+- **Reference Precision:** Include line references when they are available without guesswork.
 
-## Report layout
+## 3. Safety Guards
 
-1. **Scope reviewed**
-2. **Code violating instructions** — Required violations → Optional gaps → Ambiguous cases; within each group sort High → Low
-3. **Instructions missing code rules**
-4. **Instruction files to create, update, retain, or delete**
-5. **Final verdict:** `READY` or `NEEDS FIXES`
+- **Execution Boundary:** Read-only audit. Do not edit files until the user explicitly asks to apply changes.
+- **Uncertainty Gate:** If context is insufficient to validate a finding, state uncertainty explicitly and stop.
 
-Each finding: file path + line (when available), brief problem, one minimal remediation.
+## 4. Review Plan Layout
+
+Use this exact markdown schema:
+
+### Scope
+
+- **Target:** <scope>
+- **Audit mode:** <full workspace|targeted>
+- **Rules applied:** <only the rules/overlays that materially affected findings>
+
+### Required Violations
+
+- **[id] - [High|Medium|Low]** <brief problem statement>
+   - **Rule:** <rule/overlay name>
+   - **Evidence:** <file path and line reference>
+   - **Minimal remediation:** <one minimal action>
+
+### Optional Gaps
+
+- **[id] - [Low|Medium]** <brief problem statement>
+   - **Rule:** <rule/overlay or coverage area>
+   - **Evidence:** <file path and line reference>
+   - **Minimal remediation:** <one minimal action>
+
+### Ambiguous Cases
+
+- **[id] - [Ambiguous]** <brief uncertainty statement>
+   - **Evidence:** <file path and line reference>
+   - **Next check:** <one minimal validation step>
+
+### Overlay Coverage Gaps
+
+- **<rule/overlay or coverage area>**
+   - **Missing rule:** <brief gap statement>
+   - **Evidence:** <file path and line reference>
+   - **Minimal remediation:** <one minimal action>
+
+### File Actions
+
+- **Update:** <path> - <brief reason>
+- **Create:** <path> - <brief reason>
+- **Delete:** <path> - <brief reason>
+
+### Verdict
+
+- **READY** or **NEEDS FIXES**
+- **Reason:** <one-sentence rationale>

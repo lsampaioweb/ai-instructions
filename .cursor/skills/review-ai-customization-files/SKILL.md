@@ -3,44 +3,83 @@ name: review-ai-customization-files
 description: >-
   Audit AI customization overlays for duplicates, conflicts, and enforceability;
   emit a structured scored report. Use when the user asks to review or audit
-  customization files, or invokes /review-ai-customization-files.
-  Requires user-provided file, list, folder, or glob.
+  customization files, or invokes /review-ai-customization-files. Requires
+  user-provided file, list, folder, or glob.
 disable-model-invocation: true
 ---
 
-# Review AI Customization Files
+# AI Customization Audit Engine
 
-- Obey `AGENTS.md` (project root or `cursor/AGENTS.md`).
+- Obey `AGENTS.md` (project root).
 - Read-only audit; edit only user-approved items after explicit approval; leave non-targeted text unchanged.
+- Load style baseline (first match): `.cursor/rules/ai-customization.mdc` → `.github/instructions/ai-customization.instructions.md` → ask.
 
-## Scope & analysis
+## 1. Scope & Analysis
 
-1. Target only user-provided scope. If missing, stop and request inputs. Never invent scope.
-2. Load style baseline (first match): repo `cursor/rules/ai-customization.mdc` → repo `vscode/instructions/ai-customization.instructions.md` → `~/.agents/instructions/ai-customization.instructions.md` → ask.
+1. Target only user-provided scope. If missing, stop and request inputs.
+2. Load and parse the applicable style baseline for the current scope.
 3. Establish active cross-file references across target directories.
 
-## Resolution rules
+## 2. Resolution Rules
 
-- Scan 100% of files in scope. Do not sample.
-- Inspect every file: duplicates, conflicts (incl. soft — precedence clash, or overlapping `applyTo`/`globs`/`paths` with contradictory verbs), verbosity, directives, frontmatter, token efficiency.
-- **Scoring (0–10 per file):** Clarity = `round(avg(frontmatter, token_efficiency))`; Enforceability = directives; Consistency = dedicated 0–2 (≥2 files → cross-file vocab/routing 2/1/0; single file → internal agree 2/1/0); Brevity = verbosity; Conflict-Free = `round(avg(duplicates, conflicts))`. Total = column sum, round half-up. PASS 9–10 | WARN 7–8 | FAIL 0–6.
+- **Scanning Rigor:** Scan 100% of files in scope.
+- **Audit Checklist:** Inspect every file along six dimensions:
+  1. Duplicate rules (intra-file and cross-file).
+  2. Conflicting rules (direct and soft conflicts — including overlapping `applyTo`/`globs`/`paths` with contradictory verbs).
+  3. Verbosity (filler and low-signal prose).
+  4. Directives (ambiguous or non-enforceable phrasing).
+  5. Frontmatter (routing patterns, discoverability).
+  6. Token efficiency (density; reward high-signal literals; penalize descriptive bloat).
+- **Scoring Protocol:** Score each file 0–10. Assign 0–2 per dimension with factual justification. Map dimensions as follows: Clarity = frontmatter + token efficiency (2 checklist items → 1 column), Enforceability = directives, Consistency = cross-file alignment, Brevity = verbosity, Conflict-Free = duplicates + conflicts (2 checklist items → 1 column).
+- **Status Classification:** PASS (9–10) | WARN (7–8) | FAIL (0–6).
 
-## Report layout
+## 3. Safety Guards
+
+- Never sample; partial coverage invalidates the audit.
+- **Execution Boundary:** Read-only audit. Do not edit files or execute mutations until explicit user confirmation.
+- **Fix Application Rule:** If authorized, modify only approved items. Non-targeted text remains unchanged.
+
+## 4. Review Plan Layout
+
+Use this exact markdown schema:
 
 ### Scope
-- Files scanned, assumptions applied, cross-file comparison (N/A when <2 files)
 
-### Findings
-Critical → High → Medium → Low. One block per finding: severity + type, location + line, why it matters, minimal fix.
+- **Files scanned:** <list>
+- **Assumptions applied:** <list>
+
+### Findings (Ordered by Severity: Critical | High | Medium | Low)
+
+Use one block per finding.
+
+---
+
+#### [ID] - [SEVERITY] - [TYPE]
+
+- **Location:** `<file path>` + line
+- **Why it matters:** <technical impact explanation>
+- **Minimal Fix:** <actionable, direct resolution step>
+
+---
 
 ### Scorecard
-Table: File | Total | Clarity | Enforceability | Consistency | Brevity | Conflict-Free | Status
+
+| File | Total (0–10) | Clarity | Enforceability | Consistency | Brevity | Conflict-Free | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| <path> | <score> | <score> | <score> | <score> | <score> | <score> | [PASS\|WARN\|FAIL] |
 
 ### Quick Wins
-Checkbox list of high-impact edits.
+
+- [ ] **<Component Name>:** <Actionable high-impact edit>
+- [ ] **<Component Name>:** <Actionable high-impact edit>
 
 ### Cross-File Comparison Matrix
-Include only when ≥2 files in scope. Columns: Overlay Pair | Targeted Domain | Operational Friction | Strategic Recommendation
+
+| Overlay Pair | Targeted Domain | Operational Friction | Strategic Recommendation |
+| :--- | :--- | :--- | :--- |
+| file1 vs file2 | <domain context> | <conflict details> | <resolution path> |
 
 ### Final Verdict
-**READY** — all PASS/WARN, no Critical/High findings. **NEEDS FIXES** — structural barriers present.
+
+- **[READY]** — All files PASS/WARN, no Critical/High findings.
+- **[NEEDS FIXES]** — Structural barriers present.
