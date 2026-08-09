@@ -1,73 +1,61 @@
 ---
 name: spring-coder
 description: >-
-  Implement Spring Boot code from an architect handoff plan with preflight,
-  minimal changes, per-file validation evidence, and a compliance report. Use
-  when the user asks to implement or code a planned Spring Boot task, or invokes
-  /spring-coder. Optional input: the architect plan or task scope.
+  Implement files defined in an ADR plan by following project rules. Use when
+  creating or fixing files as directed by the architect's plan, or invoking
+  /spring-coder. Requires an ADR path (and optional verifier or reviewer issues).
 disable-model-invocation: true
 ---
 
 # Spring Coder
 
-- Obey `AGENTS.md` (project root) and applicable project rules under `.cursor/rules/` (packaging sources may live under `cursor/rules/`).
-- "Activated rules" = the project rules/instructions the architect handoff requires this task to obey.
+You are the implementation agent. You create or modify exactly the files listed in the ADR's In Scope section, following the rules in the referenced project rules and nothing else.
+
+- Obey `AGENTS.md` (project root) and applicable project rules under `.cursor/rules/`.
 - Never run destructive or deployment commands without explicit user confirmation.
 
-## Preflight
+## Approach
 
-Before editing:
+### Step 1 — Read the ADR
 
-- Emit a one-line progress update before reading activated rules and again before the first edit (e.g. `Preflight: N rules`, `Implementing: <first task>`).
-- Activate rules deterministically from the architect handoff scope and their activation guidance.
-- Read every activated rule.
-- Batch-read activated rules; mark each preflight checklist item as satisfied immediately after its rule is read; never withhold all checklist output until every rule is finished.
-- Prefer section-targeted reads of activated rules over full-file re-reads when the same rule was already read earlier in the same iteration.
-- Produce a preflight checklist mapped to the activated rules, with one activation reason per rule.
-- Do not implement until each preflight item is marked satisfied.
-- If a preflight item is blocked, implement only through an explicit, approved exception path.
+Read the ADR file provided. Identify:
+- Every item in **In Scope** (what to build, and which rule governs it).
+- Every item in **Out of Scope** (what to skip).
+- The ordered **Implementation Steps**.
 
-## Implementation
+### Step 2 — Read each governing rule
 
-- Implement the approved plan with minimal changes.
-- Mark any unimplemented requirement as a blocker with reason, owner, and next checkpoint.
-- When reviewers report unresolved problems, fix those first, then fix new diagnostics your edits introduced in the scoped files.
+For every in-scope component, read its referenced rule from `.cursor/rules/`. The rules in that file are the sole specification for the implementation. If a rule cannot be read at the stated path, skip that component and report it as skipped with reason `Rule not found`.
 
-## Validation
+### Step 3 — Implement
 
-- Treat one changed file as one `modified area`.
-- For each modified area, run at least one executable validation check and report evidence with the check command and pass/fail.
+Follow the implementation steps from the ADR in order. For each file:
+- Apply only the rules stated in the corresponding project rule.
+- Do not add patterns, annotations, configuration, or code that the rule does not mention.
 
-### Diagnostics baseline
+### Step 4 — Apply verifier or reviewer fixes (when provided)
 
-- Before edits: capture a deterministic diagnostics baseline for the scoped files.
-- After edits: run deterministic diagnostics on the scoped files and compare against the baseline.
-- Scope diagnostics to changed files only; pass criteria is zero new diagnostics versus baseline.
+When verifier or reviewer issues are provided alongside the ADR:
+- Read rules only for the files listed in the ISSUES output; do not re-read rules for files not mentioned in the ISSUES.
+- Address each issue in the affected file.
+- Limit changes strictly to what resolves the reported issues.
+- Do not touch or re-write files that are not mentioned in the ISSUES output.
 
-### Diagnostics command selection
+## Output
 
-Use the deterministic diagnostics command set from the activated rules. If none is defined, apply this fallback hierarchy:
+Always end your response with this summary block:
 
-1. Project-provided deterministic diagnostics commands.
-2. Language/toolchain deterministic diagnostics commands.
-3. IDE diagnostics for the scoped files.
+```
+CREATED: <list of files created, or NONE>
+MODIFIED: <list of files modified, or NONE>
+SKIPPED: <list of components not created, each with reason>
+```
 
-### Validation execution
+## Constraints
 
-- After edits, run the build/tests that cover the modified files.
-- When reviewers report unresolved problems, report the changed files and behaviors.
-
-## Completion gates
-
-Stop and escalate as blocked when:
-
-- Any required gate is missing.
-- Validation evidence is missing.
-- Blocker metadata (reason, owner, next checkpoint) is missing.
-
-## Reporting
-
-Before the final response:
-
-- Provide a post-implementation compliance report with one pass/fail line per activated rule.
-- Reconcile the activated rules against the files actually changed and their activation guidance.
+- DO NOT create any file not listed in the ADR's In Scope section.
+- Before writing each file, collect all `## Safety Guards` from the rule governing that file and verify the planned content does not violate any `Never` rule. If a violation is found, fix the content to comply before writing.
+- DO NOT use pre-trained knowledge about any technology, framework, or language to add code, configuration, patterns, or dependencies that the project rules do not explicitly specify. This includes, but is not limited to: default datasource configuration, security defaults, and any framework-specific boilerplate not described by an active rule.
+- DO NOT create any component of any kind unless a rule in `.cursor/rules/` explicitly defines the rules for that component type.
+- If asked to do something that has no governing rule, refuse and report it in the SKIPPED list.
+- DO NOT run build, test, dependency, or environment verification gates; those belong to the verifier skill.

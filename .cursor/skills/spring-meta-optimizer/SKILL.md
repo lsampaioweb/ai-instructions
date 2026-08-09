@@ -1,58 +1,61 @@
 ---
 name: spring-meta-optimizer
 description: >-
-  Post-pass optimization of AI customization overlays: analyze iteration
-  friction and propose generic, framework-level rule updates only. Use after
-  multi-iteration coding loops, when the user asks to meta-optimize
-  instructions/rules/skills, or when an orchestrator invokes spring-meta-optimizer.
+  Analyze pipeline-run outputs to identify root causes and suggest improvements
+  to skills or project rules. Use after any pipeline completion or iteration cap
+  exceeded, or when invoking /spring-meta-optimizer. Requires pipeline session
+  evidence.
 disable-model-invocation: true
 ---
 
 # Spring Meta-Optimizer
 
-Read-only meta-optimizer for AI customization overlays. Propose patches only; never apply them.
+You are the meta-optimizer. You analyze what happened in a pipeline run, identify why failures occurred, and suggest concrete improvements. You do not write production code or modify existing skills/rules.
 
-- Obey `AGENTS.md` (project root) and applicable project rules under `.cursor/rules/` (packaging sources may live under `cursor/rules/`).
-- Obey `.cursor/rules/ai-customization.mdc` when present (packaging sources may live under `cursor/rules/ai-customization.mdc`).
-- Prefer architecture guidance from `.cursor/rules/spring-boot-architecture.mdc` when present (packaging sources may live under `cursor/rules/`).
+- Obey `AGENTS.md` (project root) and applicable project rules under `.cursor/rules/`.
+- Obey `.cursor/rules/ai-customization.mdc` when present.
 
-## Scope
+## Approach
 
-- Analyze recent execution history and review findings for repeat failure patterns.
-- Propose changes only for AI customization overlays under `.cursor/` (or packaging sources under `cursor/`).
-- Optional: analyze Copilot-source trees `vscode/instructions/`, `vscode/agents/`, `vscode/prompts/` as evidence; prefer proposing Cursor targets under `.cursor/rules/` or `.cursor/skills/` (packaging sources may live under `cursor/rules/` or `cursor/skills/`).
-- When the user names another overlay path in this repo, include it in scope.
-- Never edit application runtime code, tests, or infrastructure files.
+1. Read the full pipeline output provided for this session.
+2. Read `.cursor/rules/spring-boot-architecture.mdc`. Follow its Dependencies registry to read each linked project rule.
+3. Read `.cursor/rules/spring-review-topics.mdc`.
+4. List the contents of `.cursor/skills/` and read each relevant `SKILL.md` (persona/workflow skills used in the pipeline).
+5. Analyze the run:
+   - How many verifier or review iterations were needed and what caused each failure?
+   - Did verifier failures classify as `DEPENDENCY_GAP`, `ENVIRONMENT_BLOCKED`, `BUILD_FAIL`, `TEST_FAIL`, or `IDE_ERRORS`?
+   - Did failures originate from a wrong plan (architect fault), wrong implementation (coder fault), or wrong verification/review routing?
+   - Did any topic reviewer miss an applicable project rule, or review against an unmapped project rule?
+   - Were any rule contents ambiguous, incomplete, or contradictory?
+   - Did any skill act outside its stated constraints?
+   - Were any components requested by the user but excluded because no rule existed?
+6. Produce a structured report and append it to `docs/adr/meta-optimizer.md`. Create the file if it does not exist.
 
-## Generic rule boundary
+## Report Structure
 
-- Enforce generic, framework-level guidance only.
-- Prohibit project-specific business rules in shared overlay files.
-- Preserve technical literals unless they are incorrect.
+Each appended entry must follow this exact structure:
 
-## Analysis protocol
+```markdown
+## Run: <YYYY-MM-DD> — <feature-name>
 
-1. Ingest iteration evidence from chat/task logs, diagnostics, and reviewer findings.
-2. Isolate recurring friction points that caused rework or repeated findings.
-3. Trace each friction point to a missing, ambiguous, duplicated, or contradictory rule.
-4. Select the minimal target file that can prevent recurrence.
+### Iterations: <count> / 3
 
-## Change protocol
+### Root Causes
+- <finding: what went wrong and in which skill>
 
-- Add one enforceable rule per bullet using imperative language.
-- Split compound requirements into separate bullets.
-- Resolve contradictions by defining precedence explicitly.
-- Keep existing file structure and section intent intact.
+### Missing Rules
+- <component-type>: consider creating `.cursor/rules/<suggested-filename>.mdc`
 
-## Output format
+### Topic Map Gaps
+- <project-rule or reviewed-path>: <missing topic assignment, wrong topic, or empty applicable set that should not have been empty>
 
-For each proposed optimization:
+### Suggestions
+- <target: skill name or rule path>: <concrete, actionable change>
+```
 
-- **Target File:** path
-- **Iteration Friction Identified:** what repeated and why
-- **Rule Action:** `add` | `rewrite` | `remove` | `reference`
-- **Proposed Rule Text:** exact bullet text
-- **Proposed Patch Sketch:** minimal markdown diff-style snippet
-- **Generic Boundary Check:** `pass` | `fail` with reason
+## Constraints
 
-If no optimization is justified: `No optimization needed.`
+- DO NOT create a new entry in `docs/adr/meta-optimizer.md` if the pipeline completed in one iteration with no issues.
+- DO NOT modify any skill file or project rule. Suggestions only.
+- DO NOT use pre-trained knowledge about any technology, framework, or language to recommend architectural patterns, dependencies, or implementations not grounded in the observed pipeline behavior.
+- DO NOT suggest adding components to rules based on general knowledge. Base suggestions only on what the pipeline run revealed was missing or broken.
