@@ -1,0 +1,22 @@
+---
+description: "Review-topic registry for focused reviewer skills. Use when routing project rules by topic for QA, security, database, i18n, or performance review."
+globs: "**/spring-review-*/SKILL.md,**/spring-orchestrator/SKILL.md,**/spring-verifier/SKILL.md"
+alwaysApply: false
+---
+
+# Spring Review Topics
+
+## Rules
+
+- Treat this file as the canonical mapping between review topics and project rules under `.cursor/rules/`.
+- Keep each project rule in exactly one topic.
+- Resolve applicable project rules for a review run as follows:
+  1. Start from the project rules mapped to the active topic.
+  2. Keep a mapped project rule only when its `globs` matches at least one path under review, or the ADR maps that rule to a reviewed file.
+  3. If the filtered set is empty, return `STATUS: PASS` with an empty `ISSUES` section.
+- Leave these project rules intentionally unreviewed by topic reviewers: `.cursor/rules/spring-boot-readme.mdc`, `.cursor/rules/spring-review-topics.mdc`, `.cursor/rules/ai-customization.mdc`.
+- Topic `qa`: `.cursor/rules/spring-boot-architecture.mdc`, `.cursor/rules/spring-boot-java-style.mdc`, `.cursor/rules/spring-boot-logging.mdc`, `.cursor/rules/spring-boot-controller.mdc`, `.cursor/rules/spring-boot-service.mdc`, `.cursor/rules/spring-boot-test.mdc`, `.cursor/rules/spring-boot-dto-mapper.mdc`, `.cursor/rules/spring-boot-openapi.mdc`, `.cursor/rules/spring-boot-pom.mdc`, `.cursor/rules/spring-boot-application.mdc`, `.cursor/rules/spring-boot-enum.mdc`, `.cursor/rules/spring-boot-error-code.mdc`, `.cursor/rules/spring-boot-api-versioning.mdc`, `.cursor/rules/spring-boot-thymeleaf.mdc`, `.cursor/rules/spring-boot-websocket.mdc`, `.cursor/rules/spring-boot-container.mdc`, `.cursor/rules/spring-boot-gitignore.mdc`.
+- Topic `security`: `.cursor/rules/spring-boot-security.mdc`, `.cursor/rules/spring-boot-config.mdc`, `.cursor/rules/spring-boot-actuator.mdc`, `.cursor/rules/spring-boot-http-client.mdc`, `.cursor/rules/spring-boot-exception.mdc`.
+- Topic `database`: `.cursor/rules/spring-boot-repository.mdc`, `.cursor/rules/spring-boot-database-schema.mdc`, `.cursor/rules/spring-boot-model.mdc`.
+- Topic `i18n`: `.cursor/rules/spring-boot-i18n.mdc`.
+- Topic `performance`: `.cursor/rules/spring-boot-pagination.mdc`, `.cursor/rules/spring-boot-async-events.mdc`.

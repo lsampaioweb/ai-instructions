@@ -1,0 +1,22 @@
+---
+description: "Spring Boot domain model contract for JDBC-first internal model types, boundary isolation, and persistence-free field declarations."
+applyTo: "**/*Model.java"
+---
+
+# Spring Boot Domain Model Engine
+
+## Naming Conventions
+- Name domain model types with the `*Model` suffix (e.g., `HolidayModel`, `AccountModel`).
+
+## Rules
+- Declare domain model types as Java records when all fields are set at construction time and the type is immutable.
+- Declare a compact canonical constructor in domain model records to validate required field invariants using `Objects.requireNonNull`.
+- Declare no instance methods in domain model records beyond what the Java record specification generates; delegate all business operations to the service layer.
+- Place domain model types inside the owning feature package.
+- Keep domain model types free of persistence annotations.
+- Keep domain model types free of HTTP transport annotations and validation annotations.
+- Use only primitive or standard Java types for all domain model fields.
+- Use immutable collection types (e.g., `List.copyOf(...)`) for any collection-typed field in a domain model record.
+
+## Safety Guards
+- Never use a domain model type directly as a controller method parameter or return type.
