@@ -1,49 +1,35 @@
 ---
 description: "API versioning rules: coexistence strategy, deprecation headers, and DTO evolution across versions."
-applyTo: "**/*Api.java, **/*Request.java, **/*Response.java, **/*OpenApiConfig*.java, **/*Test.java"
+applyTo: "**/*Controller.java"
 ---
 
 # Spring Boot API-Versioning Engine
 
-## Scope & Analysis
-- Inspect API route prefixes and versioning strategy in controllers.
-- Inspect request and response compatibility across touched endpoints.
-- Inspect whether changes are additive or breaking.
-- Apply this contract to REST API controllers only.
-- Exclude MVC page controllers from version-prefix enforcement and govern them under the Thymeleaf contract.
-
-## Resolution Rules
-- Use URL path versioning with an explicit `/api/v1` prefix for REST endpoints.
-- Use integer version numbers in the format `/api/vN` (e.g., `/api/v1`, `/api/v2`); never use floating-point or date-based version identifiers.
+## Rules
+- Use URL path versioning with an explicit `/api/v1` prefix for all REST endpoints.
+- Use integer version numbers in the format `/api/vN` (e.g., `/api/v1`, `/api/v2`).
+- Do not use floating-point or date-based version identifiers such as `/api/v1.1` or `/api/2024-01`.
 - Exclude MVC page controllers and view routes from API version-prefix enforcement.
-- Keep one canonical versioning strategy across the project.
-- Keep version changes explicit in controller or API route mappings.
-- Prefer a shared controller-level base-path constant when the versioned route is reused across methods or tests.
+- Use one canonical versioning strategy across the entire project.
+- Declare version changes explicitly in controller route mappings.
+- Declare a shared base-path constant at the controller class level when the versioned route is reused across methods.
 - Keep v1 changes additive and backward compatible.
-- Create a new API version for breaking contract changes.
-- Keep request and response DTO changes backward compatible within v1.
-- Use version-specific DTO suffixes when payload contracts diverge across versions (e.g., `UserV1Response`, `UserV2Response`); share the same DTO only when the payload is identical across versions.
+- Treat these changes as additive and backward compatible: adding optional request fields with defaults, adding new response fields, and adding new endpoints.
+- Create a new API version for every breaking contract change.
+- Treat these changes as breaking: removing or renaming a field, changing a field type, making an optional field required, removing an endpoint, changing an endpoint path, or changing an HTTP method.
+- Keep request and response DTO changes backward compatible within the same version.
+- Use version-specific DTO suffixes when payload contracts diverge across versions (e.g., `HolidayV1Response`, `HolidayV2Response`).
+- Share the same DTO across versions only when the payload contract is identical.
 - Keep route versioning distinct from OpenAPI document version metadata.
-- Document API route version behavior in API-facing documentation.
-- Keep controller and integration tests aligned with the active versioned route prefix.
-- When v2 or later is introduced, keep old and new versions available side by side until deprecation is explicit.
-- Announce deprecated API versions via `Deprecation` and `Sunset` response headers per RFC 8594; always set both headers together when a version is scheduled for removal.
-- Maintain a deprecated API version for at least one full release cycle after the deprecation announcement; never remove a version in the same release that deprecates it.
+- Keep controller tests aligned with the active versioned route prefix.
+- When v2 or later is introduced, keep old and new versions available side by side until the old version is explicitly deprecated.
 - When v2 or later is introduced, document migration notes and client impact.
+- Announce a deprecated API version via a `Deprecation` response header per RFC 8594.
+- Announce a deprecated API version via a `Sunset` response header per RFC 8594.
+- Always set both `Deprecation` and `Sunset` headers together when a version is scheduled for removal.
+- Maintain a deprecated API version for at least one full release cycle after the deprecation announcement; remove a version only in a later release than the one that deprecates it.
 
 ## Safety Guards
-- Never introduce breaking changes silently inside v1 routes.
 - Never mix REST API versioned routes and unversioned REST routes in the same public API surface.
-- Never change a v1 request or response contract in a breaking way without creating a new version.
-- Never remove an older API version before documenting migration and deprecation behavior.
-- Never mix incompatible payload contracts under same route version.
-- Never apply multiple versioning strategies in the same project.
-
-## Review Plan Layout
-- Report REST routes that define or reuse versioned base paths.
-- Report additive versus breaking change classification for touched request and response contracts.
-- Report whether DTO changes remain backward compatible within the active route version.
-- Report whether OpenAPI metadata and route versioning remain semantically aligned.
-- Report whether controller or integration tests lock the versioned route prefix.
-- Report migration notes and coexistence behavior when a new API version is introduced.
-
+- Never introduce breaking changes silently inside an existing versioned route.
+- Never mix incompatible payload contracts under the same route version.

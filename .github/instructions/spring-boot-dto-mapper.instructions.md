@@ -1,48 +1,36 @@
 ---
 description: "Spring Boot DTO-mapper contract for deterministic model mapping and boundary-safe transformations."
-applyTo: "**/*DtoMapper.java"
+applyTo: "**/*Request.java, **/*Response.java, **/*DtoMapper.java"
 ---
 
 # Spring Boot DTO-Mapper Engine
 
-## Scope & Analysis
-- Inspect mapper interfaces and mapper classes used by touched features.
-- Inspect mapping coverage between request, entity, and response models.
-- Inspect update-mapping behavior for partial and full updates.
-
-## Dependencies
-- When using MapStruct for generated mappers, add `org.mapstruct:mapstruct` dependency (provides `@Mapper` annotation); for annotation processor and compiler configuration, follow `spring-boot-pom.instructions.md`.
-
 ## Naming Conventions
-- DTO mapper classes must be named with the `*DtoMapper` suffix (e.g., `UserDtoMapper`, `OrderDtoMapper`).
-- Mapper implementation classes that use MapStruct should follow the same `*DtoMapper` naming (e.g., `UserDtoMapper`, not `UserMapperImpl`).
-- Use domain-specific mapper names with DtoMapper suffix (never generic `Mapper`, `DomainMapper`, or `EntityMapper` alone; add the entity prefix).
+- Name inbound DTO types with the `*Request` suffix (e.g., `CreateHolidayRequest`, `UpdateHolidayRequest`).
+- Name outbound DTO types with the `*Response` suffix (e.g., `HolidayResponse`).
+- Name DTO mapper interfaces with the `*DtoMapper` suffix (e.g., `HolidayDtoMapper`).
+- Use domain-prefixed mapper names (never `Mapper`, `DomainMapper`, or `EntityMapper` without a domain-entity prefix).
 
-## Resolution Rules
+## Rules
+- For MapStruct dependency and annotation processor configuration, follow `spring-boot-pom.instructions.md`.
+- For domain/persistence model annotation bans, defer to `spring-boot-model.instructions.md`.
+- Declare request and response DTO types as Java records.
+- Declare all request and response DTO records as `public`.
+- Apply Bean Validation constraints (`@NotBlank`, `@NotNull`, `@Email`, `@Positive`) on all required request DTO fields.
+- Use i18n message keys as the `message` attribute value on all Bean Validation constraints on request DTO fields.
 - Keep mapping logic isolated in dedicated mapper types.
-- Keep mapper contracts deterministic and side-effect free.
-- Declare DTO mapper classes as package-private unless the mapper is explicitly shared across multiple feature packages; a feature-scoped mapper must not be public.
-- Use MapStruct for generated mapper implementations when the module adopts generated mapping.
-- Set `componentModel = "spring"` on all MapStruct `@Mapper` interfaces to produce Spring-managed beans injectable via constructor.
-- Keep generated mappers strict with `unmappedTargetPolicy = ReportingPolicy.ERROR`.
-- Keep DTO and entity model boundaries explicit in mapper methods.
-- Keep request DTO strategy explicit: use operation-specific request DTOs when create/update validation diverges, or a shared request DTO when validation and semantics are identical.
-- Keep public API responses mapped to dedicated `*Response` DTO types.
-- Keep update mapping explicit for mutable entity fields.
-- Use `NullValuePropertyMappingStrategy.IGNORE` for partial-update mappings to preserve existing field values; use `NullValuePropertyMappingStrategy.SET_TO_NULL` for full-replacement mappings.
-- Define explicit list-mapping methods (e.g., `List<UserResponse> toResponseList(List<User> users)`) in mapper interfaces when collection mapping is needed; rely on MapStruct's auto-generation from the element method.
+- Declare a mapper interface as public only when it is shared across two or more distinct feature packages.
+- Use MapStruct for all mapper implementations when the module adopts generated mapping.
+- Set `componentModel = "spring"` on every `@Mapper` interface.
+- Set `unmappedTargetPolicy = ReportingPolicy.ERROR` on every `@Mapper` interface.
+- Use operation-specific request DTOs (`CreateXRequest`, `UpdateXRequest`) when create and update validation diverges.
+- Map all public API responses to dedicated `*Response` DTO types.
+- Annotate partial-update mapping methods with `@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)`.
+- Annotate full-replacement mapping methods with `@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)`.
+- Define explicit collection mapping methods (e.g., `List<HolidayResponse> toResponseList(List<Holiday> items)`) in the mapper interface when collection mapping is needed.
+- Suppress an unmapped field only with an explicit `@Mapping(target = "field", ignore = true)` annotation.
 
 ## Safety Guards
-- Never bypass mapper layer by copying fields in controllers.
-- Never return domain or persistence entity objects directly from public API endpoints.
-- Never mix MapStruct and ad-hoc manual mapper styles inside the same feature module without explicit approval.
-- Never reuse one generic request DTO type across create and update operations when validation rules differ.
-- Never hide unmapped fields without explicit reason.
-- Never mix transport-model logic into persistence models.
-
-## Review Plan Layout
-- Report mapper methods added or changed.
-- Report field mappings added, ignored, or transformed.
-- Report unmapped-field decisions and justification.
-- Report boundary-leak risks between API and persistence models.
-
+- Never add business logic inside a mapper method.
+- Never bypass the mapper layer by copying fields directly in controller or service classes.
+- Never mix MapStruct and ad-hoc manual mapping styles inside the same feature module.

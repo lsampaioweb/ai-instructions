@@ -5,45 +5,42 @@ applyTo: "**/pom.xml"
 
 # Spring Boot POM Engine
 
-## Scope & Analysis
-- Inspect parent, dependency management, dependencies, plugins, and build profiles.
-- Detect version overrides and duplicate dependency declarations.
-- Detect dependencies that conflict with architecture constraints.
+## Naming Conventions
+- Use `br.com.lsampaioweb` as the standard `groupId` for all modules unless the user explicitly requests a different organization namespace.
+- Set `<artifactId>` and `<name>` to the same identifier in kebab-case.
+- When `<artifactId>` already represents the primary feature/module name, treat that segment as canonical and do not duplicate it in planned Java package paths.
 
-## Resolution Rules
-- Use Java 25 and Spring Boot 4.1.0 as the default baselines.
+## Rules
+- Set the Spring Boot parent to version `4.1.0`.
+- Set the Java version to `25`.
+- Set `<version>` to `0.1.0` as the default stable project version when the user has not specified a version.
 - Keep Spring Boot parent and plugin versions coherent.
-- Use the project-owner's standard `groupId` namespace unless the user explicitly requests a different organization namespace.
-- Keep project identity deterministic: set `<artifactId>` and `<name>` to the same module identifier in kebab-case.
-- Set `<description>` to a one-sentence summary of the module's purpose; never leave it empty or set to Spring Initializr placeholder text such as 'Demo project for Spring Boot'.
-- Set `<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>` in `<properties>`; never allow platform-default or unset source encoding.
-- Add only dependencies required by explicit scope.
-- Add a `<!-- reason -->` comment on the line immediately above every `<dependency>` block explaining why the dependency is needed (one concise sentence). This makes the dependency list self-documenting and prevents silent accumulation of unused libraries.
-- Declare all test-only dependencies with `<scope>test</scope>`; never include test libraries in compile or runtime scope.
-- Remove duplicate dependencies and redundant exclusions.
-- Prohibit JPA, Hibernate, and Spring Data repository dependencies.
-- Prefer stable, maintained libraries over niche alternatives.
-- When MapStruct is used, configure both `org.mapstruct:mapstruct` and compiler annotation processing via `org.mapstruct:mapstruct-processor`.
-- When Lombok is used, declare `org.projectlombok:lombok` with `<scope>provided</scope>` and add an explicit `annotationProcessorPaths` entry for `org.projectlombok:lombok` in `maven-compiler-plugin`; implicit annotation processor discovery was removed in Java 25.
-- Do not pin a Lombok version when Spring Boot parent BOM already manages it.
-- Pin versions only when the parent BOM does not manage them.
-- Include `spring-boot-starter-webmvc-test` when using `@WebMvcTest`.
-- Include `spring-boot-jdbc-test` when using `@JdbcTest`.
-- Do not assume these starters are bundled in `spring-boot-starter-test`.
+- Declare `<relativePath />` on the `<parent>` block to force Maven to resolve the parent from the remote repository.
+- Set `<description>` to a one-sentence summary of the module's purpose.
+- Set `<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>` in `<properties>`.
+- Add only dependencies required by the explicit feature scope.
+- Before introducing code that imports a type from an optional module, verify that the required artifact is already declared in `pom.xml` or add it in the same change.
+- Resolve required artifacts from concrete imports and annotations first, then write or update source files that depend on them.
+- Declare `<dependency>` entries in this order: (1) Spring Boot starters, (2) third-party libraries, (3) internal or project-owned dependencies, (4) test-scoped dependencies.
+- Pin a `<version>` on a dependency only when the Spring Boot parent BOM does not already manage it.
+- Extract pinned third-party versions into named `<properties>` entries (e.g., `<springdoc.version>3.0.1</springdoc.version>`) and reference them via `${property}` in dependency blocks.
+- Remove duplicate `<dependency>` declarations and redundant `<exclusion>` entries.
+- Add a `<!-- <one-sentence explanation> -->` comment on the line immediately above every `<dependency>` block stating why the dependency is needed.
+- Declare test-only dependencies with `<scope>test</scope>`.
+- Keep compile/test artifact decisions deterministic: avoid speculative dependency additions that are not justified by concrete imports, annotations, or instruction-file mandates.
+- When tests need `Pageable` web binding support, use `org.springframework.boot:spring-boot-data-commons` with `<scope>test</scope>` instead of adding alternate pagination helper libraries.
+- Declare `spring-boot-devtools` with `<scope>runtime</scope>` and `<optional>true</optional>` when development-time auto-restart is needed.
+- When MapStruct is used, declare `org.mapstruct:mapstruct` as a compile dependency and `org.mapstruct:mapstruct-processor` in `annotationProcessorPaths` within `maven-compiler-plugin`.
+- When Lombok is used, declare `org.projectlombok:lombok` with `<scope>provided</scope>` and add it to `annotationProcessorPaths` within `maven-compiler-plugin`.
+- Configure `<workingDirectory>${project.basedir}</workingDirectory>` in `spring-boot-maven-plugin` to enable correct devtools auto-restart behavior.
 
 ## Safety Guards
+- Never set `<artifactId>` or `<name>` to placeholder values such as `demo`, `app`, or `example`.
+- Never leave empty placeholder elements (`<url />`, `<licenses>`) generated by Spring Initializr in the committed pom.
+- Never change the Java version without explicit user approval.
+- Never add a milestone, beta, or snapshot version without explicit user approval.
 - Never upgrade unrelated dependencies in the same change.
-- Never change Java version without explicit user approval.
-- Never use placeholder project identity values such as `demo`, `app`, or `example` when a real module name is available.
-- Never add milestone, beta, or snapshot versions without explicit approval.
-- Never rely on MapStruct code generation without explicit compiler annotation-processor configuration.
-- Never rely on Lombok annotations (`@Slf4j`, `@Data`, etc.) without an explicit `annotationProcessorPaths` entry in `maven-compiler-plugin`; implicit annotation processor discovery was removed in Java 25.
-- Never add a dependency without a `<!-- reason -->` comment on the line immediately above it.
-- Never introduce plugin behavior changes without stating build impact.
-
-## Review Plan Layout
-- Report added dependencies with purpose.
-- Report removed or replaced dependencies with reason.
-- Report version pin decisions and justification.
-- Report blocked dependency requests and architecture reason.
-
+- Never add `jakarta.persistence`, `hibernate-core`, `spring-boot-starter-data-jpa`, or any ORM dependency.
+- Never add embedded in-memory database dependencies (H2, Derby, etc.) for test scope unless the user explicitly requires an in-memory store.
+- Never add third-party pagination libraries to work around missing Spring Data web test support.
+- Never duplicate the module segment as an immediate child feature segment in planned source paths (invalid example: `.../holidays/holidays/...`).

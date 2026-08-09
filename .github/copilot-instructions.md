@@ -8,6 +8,7 @@ applyTo: "**"
 ## Language & Communication
 - Output strictly in English.
 - Maintain a direct, technical tone. Omit conversational filler, prefaces, or summaries.
+- Provide as little context as possible, but as much as required.
 
 ## Critical Evaluation & Tool Discipline
 - Never run destructive commands (`rm -rf`, `git push`, database drops) without explicit user confirmation.
@@ -28,6 +29,5 @@ Intercept, expand, and enforce the following hashtag modifiers when appended to 
 | Macro | Meaning | Execution Behavior |
 | :--- | :--- | :--- |
 | **`#DMS`** | *Validate proposal logic.* | Analyze and validate the structural soundness against constraints before execution. |
-| **`#ALT`** | *Suggest a different design.* | Propose a complementary or alternative design vector that improves quality. |
 | **`#OTS`** | *Permit proactive improvements.* | Permit clean-code optimizations or superior algorithmic patterns beyond the initial prompt. |
 | **`#FIX`** | *Execute all identified corrections.* | Apply proposed non-destructive fixes immediately. |

@@ -1,12 +1,10 @@
 ---
-description: How to write Cursor AI overlays — AGENTS.md, rules, skills, prompts, instructions, and agents
+description: "Style contract for Cursor AI overlays: structure, wording, conflict handling, and artifact routing for enforceable guidance."
 globs: "**/AGENTS.md,**/.cursor/rules/**/*.mdc,**/cursor/rules/**/*.mdc,**/skills/**/SKILL.md,**/*.prompt.md,**/*.instructions.md,**/*.agent.md"
 alwaysApply: false
 ---
 
 # AI Customization Style Contract
-
-Use this when creating or editing Cursor overlays. Goal: one clear job per file, enforceable rules, minimal tokens.
 
 ## Pick the right artifact
 
@@ -15,40 +13,64 @@ Use this when creating or editing Cursor overlays. Goal: one clear job per file,
 | Always-on project behavior | Root `AGENTS.md` | Plain markdown; no YAML frontmatter |
 | Scoped guidance (paths, topics) | `.cursor/rules/*.mdc` | `globs` or `alwaysApply`; not for duplicating `AGENTS.md` |
 | Repeatable workflow the user invokes | `.cursor/skills/**/SKILL.md` | YAML frontmatter + procedural body |
-| Domain or stack guidance (path-scoped) | `.mdc` with `globs` | Copilot-style sources live under `vscode/instructions/` |
-| User-invoked task template | `*.prompt.md` | Frontmatter with `description` and `argument-hint` for required inputs |
-| Multi-step agent persona | `*.agent.md` | Copilot-style sources live under `vscode/agents/` |
+| Domain or stack guidance (path-scoped) | `.mdc` with `globs` | Copilot sources live under `.github/instructions/` |
+| User-invoked Copilot task template | `*.prompt.md` | Frontmatter with `description` and `argument-hint` |
+| Multi-step Copilot agent persona | `*.agent.md` | Copilot sources live under `.github/agents/` |
 
 - Do not put global behavior in a rule if it belongs in `AGENTS.md`.
 - Do not duplicate the same rule across `AGENTS.md`, rules, and skills.
 
-## Write enforceable rules
+## Rules
 
-- Use imperative verbs for mandatory behavior (`Do`, `Never`, `Require`, `Stop`).
-- Put one behavior per bullet; split compound requirements.
-- Match section titles to the rules inside them.
-- Mark optional behavior explicitly (e.g. "Optional:").
-- Preserve literals: commands, paths, identifiers, versions — change only when wrong.
-- Remove filler, preamble, and repeated triggers that do not change behavior.
+- Keep frontmatter discoverable: `description` must state when to use the file.
+- Remove routing noise: avoid vague descriptors that do not improve file selection.
+- Use directive language: write mandatory rules with imperative verbs.
+- Keep optional behavior explicit: mark optional rules with an explicit optional tag.
+- Use one rule per bullet: each bullet must express one enforceable behavior.
+- Split compound bullets: break combined requirements into separate rules.
+- Keep sections purpose-specific: section title and rule scope must match.
+- Move off-topic rules: relocate unrelated content to a dedicated section.
+- Minimize low-signal wording: remove filler that does not change execution.
+- Shorten verbose statements: keep the same meaning with fewer words.
+- Preserve technical literals: do not alter commands, code, paths, URLs, identifiers, config keys, or versions unless incorrect.
+- Resolve duplication deliberately: keep one canonical statement and reference it from secondary files.
+- Resolve contradictions explicitly: define precedence or rewrite to remove conflict.
+- State each constraint once in the strongest clear polarity; do not restate a Rules bullet as its negation in Safety Guards or in the same bullet.
+- Do not append `; never …` (or equivalent) inside a Rules bullet when that prohibition is already covered by the Must form or by Safety Guards.
+- Prefer one canonical file for cross-cutting policy; secondary files use a one-line deferral and must not copy the rule.
+- Before adding a preference: search for an existing rule covering the decision; merge or reference instead of appending. Add a rule only when it changes a default decision and does not duplicate an existing rule.
 
-## Routing and discovery
+### Rule File Rules (`.mdc`)
 
-**`AGENTS.md`:** No frontmatter. Title + short sections; agent loads it automatically at project root.
-
-**Rules (`.mdc`):**
 - Set `description` — what the rule does and when it applies.
-- Use `globs` for file-scoped rules; use `alwaysApply: true` only when truly universal (prefer `AGENTS.md` for that).
+- Set `globs` to the most specific pattern that covers the target files without over-matching.
+- Use `alwaysApply: true` only when truly universal (prefer `AGENTS.md` for that).
 - Do not use Copilot `applyTo`; Cursor uses `globs` / `alwaysApply`.
+- Use this canonical section order for engine rules: `## Dependencies` (if applicable), `## Naming Conventions` (if applicable), `## Rules`, `## Approved Exception Handling` (if applicable), `## Safety Guards` (if applicable).
+- Omit `## Scope & Analysis` and `## Review Plan Layout` / `## Review output` from engine rules.
+- Use `## Dependencies` only for real Maven/starter requirements or essential cross-topic deferrals; do not list files already activated by `globs` or architecture intent references.
+- Omit `## Safety Guards` when empty; if present, each bullet must forbid a behavior not already implied by Rules (asymmetric / high-cost prohibitions only: irreversible ops, security footguns, common agent failure modes, scope-creep bans).
+- Keep `## Approved Exception Handling` only when temporary exceptions are a first-class protocol for that domain; put design alternatives in Rules.
+- Order rules within each section to match the top-to-bottom structure of the governed file.
+- Place rules about elements that appear earlier in the target file before rules about elements that appear later.
 
-**Skills (`SKILL.md`):**
+### Skill File Rules (`SKILL.md`)
+
 - Set `name` and `description` (purpose + when to use + required inputs if any).
+- Write `description` to include specific trigger phrases that enable discovery.
 - Body = full self-contained workflow; inline migrated content from Copilot prompts/agents.
-- Never reference `*.prompt.md`, `prompts/`, `copilot-instructions.md`, or other VS Code-only paths.
+- Never reference `*.prompt.md`, `prompts/`, `copilot-instructions.md`, or other VS Code-only paths as runtime dependencies.
 - Use `disable-model-invocation: true` when the skill must run only on explicit user invocation.
+- Include a `## Constraints` (or equivalent global constraints) section in every persona/workflow skill that plans or generates code.
+- Include a rule that prohibits using pre-trained knowledge for any decision not covered by an activated project rule.
+- Prefer capability wording ("search the codebase") over tool-specific names unless the tool is required.
 
-**Prompts (`*.prompt.md`):**
-- Set `description` and `argument-hint` (required inputs).
-- Place this line immediately after frontmatter and before the first heading: "Always read `AGENTS.md`. You **MUST** obey all instructions from this file."
+### Copilot source rules (when editing `.github/`)
+
+- Keep prompt frontmatter explicit: `argument-hint` must state required input.
+- List in agent `tools` only what the agent role requires; omit all other tools.
+- Grant the `agent` tool only to orchestrator agents.
+- Ensure non-orchestrator agents do not include the `agent` tool.
 
 ## Keep overlays consistent
 
@@ -56,8 +78,7 @@ Use this when creating or editing Cursor overlays. Goal: one clear job per file,
 - When rules overlap (e.g. stepwise confirmation vs macros), define precedence explicitly.
 - Prefer capability wording ("search the codebase") over tool-specific names unless the tool is required.
 
-## Packaging (this repo only)
+## Packaging (this repo)
 
-- Cursor overlays live under `cursor/` (e.g. `cursor/AGENTS.md`, `cursor/rules/`, `cursor/skills/`).
-- Install into consumer projects: `AGENTS.md` at project root; rules → `.cursor/rules/`; skills → `.cursor/skills/`.
-- Leave VS Code/Copilot sources (`vscode/copilot-instructions.md`, `vscode/instructions/`, etc.) unchanged unless converting them deliberately.
+- Cursor overlays live under `.cursor/` (`AGENTS.md` at project root; rules → `.cursor/rules/`; skills → `.cursor/skills/`).
+- Leave VS Code/Copilot sources (`.github/copilot-instructions.md`, `.github/instructions/`, etc.) unchanged unless converting them deliberately.

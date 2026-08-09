@@ -1,42 +1,31 @@
 ---
-description: "Spring Boot HTTP client contract for deterministic outbound calls, bounded resilience behavior, and secure integration boundaries in production-grade projects."
-applyTo: "**/src/main/java/**/*Http*Client*.java, **/src/main/java/**/*Http*Adapter*.java, **/src/main/java/**/config/**/*Http*Configuration*.java, **/src/main/java/**/config/**/*Http*Properties*.java, **/src/main/resources/application*.yml"
+description: "Spring Boot HTTP client contract for deterministic outbound calls, bounded resilience behavior, and secure integration boundaries."
+applyTo: "**/src/main/java/**/*HttpClient*.java, **/src/main/java/**/*HttpAdapter*.java, **/src/main/java/**/*HttpConfiguration*.java, **/src/main/java/**/*HttpProperties*.java"
 ---
 
-# Spring Boot HTTP-Client Engine
+# Spring Boot HTTP Client
 
-## Scope & Analysis
-- Inspect client configuration classes and external endpoint properties.
-- Inspect service methods that perform outbound HTTP calls.
-- Inspect error handling, timeouts, and response mapping behavior.
+## Naming Conventions
+- Suffix HTTP client classes with `HttpClient`.
+- Suffix HTTP adapter classes with `HttpAdapter`.
+- Suffix HTTP configuration properties classes with `HttpProperties`.
+- Name HTTP client `@Configuration` classes with the `*HttpConfiguration` suffix (e.g., `UserHttpConfiguration`, `PaymentHttpConfiguration`).
 
-## Dependencies
-- For RestTemplate-based outbound calls (imperative), no dedicated starter required (available in `spring-boot-starter-web` or `spring-boot-starter-webmvc`).
-- For WebClient-based outbound calls (reactive), add `spring-boot-starter-webflux` dependency in pom.xml.
-- For HTTP client resilience with retry and circuit breaker patterns, add `resilience4j-spring-boot3` or `spring-cloud-starter-circuitbreaker-resilience4j` when failure recovery is required.
-
-## Resolution Rules
-- Keep outbound client configuration centralized in config classes.
-- Use `RestClient` (Spring Framework 6.1+) as the default for imperative HTTP calls; use `WebClient` only when reactive streams are required.
+## Rules
+- Keep outbound client configuration centralized in a dedicated configuration class.
+- Use `RestClient` (Spring Framework 6.1+) as the default for imperative HTTP calls.
+- Use `WebClient` only when reactive streams are required.
 - Keep endpoint URLs and credentials externalized in properties.
-- Keep external-call initialization explicit and deterministic.
-- Keep outbound connection and read timeout values explicit and externally configurable for all integrations with externally owned APIs.
+- Bind HTTP client properties using `@ConfigurationProperties` annotated with `@Validated`.
+- Inject `RestClient.Builder` into the `*HttpClient` class and construct the `RestClient` instance in a `@PostConstruct` method using the bound properties.
 - Use `connectionTimeout=5s` and `readTimeout=30s` as default timeout values unless the remote API's SLA explicitly requires different values.
-- Keep error handling explicit for non-success HTTP responses.
-- Keep status-specific failure mapping explicit when remote APIs expose known error classes.
-- Apply retry logic only for idempotent HTTP methods (GET, PUT, DELETE, HEAD); never auto-retry POST or PATCH without explicit idempotency confirmation from the remote API.
-- Keep generic response mapping type-safe.
-- Keep outbound request construction isolated from controller layer.
+- Register `.onStatus()` handlers on every `RestClient` call chain to map HTTP error responses to domain exceptions before they propagate to the service caller.
+- Map known remote API error classes to named feature-scoped exceptions in the `.onStatus()` handler.
+- Apply retry logic only for idempotent HTTP methods (GET, PUT, DELETE, HEAD), or for POST/PATCH when the remote API explicitly confirms idempotency.
+- Use `ParameterizedTypeReference` for all generic response types (e.g., `List<T>`, `PagedModel<EntityModel<T>>`) to preserve type information at deserialization.
+- Use `UriComponentsBuilder` for all dynamic URL construction in outbound calls.
 
 ## Safety Guards
-- Never hardcode external URLs or secrets in service logic.
-- Never ignore non-success responses from external APIs.
 - Never mix outbound transport concerns into domain models.
 - Never disable SSL/TLS certificate verification for outbound HTTP connections.
-
-## Review Plan Layout
-- Report client config and property changes.
-- Report outbound call behavior changes and affected integrations.
-- Report error and fallback behavior for remote failures.
-- Report compatibility risks for external API contract changes.
-
+- Never log outbound request bodies or authorization headers.

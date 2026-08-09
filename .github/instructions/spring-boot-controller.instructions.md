@@ -5,46 +5,33 @@ applyTo: "**/*Controller.java"
 
 # Spring Boot Controller Engine
 
-## Scope & Analysis
-- Inspect controller class routing structure and endpoint design.
-- Inspect request and response models used at API boundaries.
-- Inspect validation and error-handling integration at controller layer.
-
 ## Naming Conventions
-- Controller classes must be named with the `*Controller` suffix (e.g., `UserController`, `AccountController`).
-- REST API controllers use `@RestController`; page-flow controllers use `@Controller`.
-- Use descriptive resource names in class identifiers (never `ApiController`, `WebController`, or generic names).
+- Name controller classes with the `*Controller` suffix (e.g., `HolidayController`, `AccountController`).
+- Use descriptive resource names in controller class identifiers (never `ApiController` or `WebController`).
 
-## Resolution Rules
-- Use class-level request mapping for every controller.
-- REST API version prefix: governed by spring-boot-api-versioning.instructions.md.
-- Use view-flow route roots for page controllers (for example `/`, `/tasks`, `/ops`) instead of API version prefixes.
-- When CRUD entity fields are not provided, treat the resource contract as unresolved; propose a minimal baseline and do not generate implementation until the contract is confirmed.
-- Use method-level HTTP verb mappings for each operation.
-- Use constructor injection for controller dependencies.
+## Rules
+- Annotate REST API controllers with `@RestController`.
+- Annotate page-flow controllers with `@Controller`.
+- Use class-level `@RequestMapping` for every controller.
+- Use method-level HTTP verb annotations (`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`) for each operation.
 - Keep controller logic thin and delegate business rules to services.
-- Return explicit `ResponseEntity` HTTP responses with stable payload contracts for REST endpoints.
-- Return HTTP 201 (Created) with the created resource for POST operations; HTTP 200 (OK) for GET and PUT; HTTP 204 (No Content) for DELETE operations.
-- Return HTTP 200 with an empty collection when a GET collection endpoint has no matching results; never return HTTP 404 for an empty but valid collection.
-- Return HTTP 404 when a single-resource GET finds no matching resource; never return HTTP 200 with a null or empty body.
-- Return explicit view names for page controllers.
-- Use `@Valid` on all `@RequestBody` parameters to enforce request validation at the API boundary.
-- Apply `@Positive` (or `@Min(1)`) to numeric `@PathVariable` resource-identifier parameters in REST endpoints.
-- Do not apply numeric-positive constraints to non-numeric identifiers (for example `String` IDs).
-- Validate incoming payloads at boundary when applicable.
-- Extract repeated technical string literals (for example route fragments, query parameter names, message-key constants) into named constants within the controller class.
+- Return `ResponseEntity` with a typed `*Response` DTO for all REST endpoints.
+- Include a `Location` response header on HTTP 201 responses pointing to the created resource URL.
+- Build the `Location` URI using `UriComponentsBuilder` injected as a method parameter in the POST handler.
+- Return HTTP 200 OK for GET and PUT operations.
+- Return HTTP 200 with an empty collection for GET collection endpoints that produce no results.
+- Return HTTP 201 Created with the created resource body for POST operations.
+- Return HTTP 204 No Content for DELETE operations.
+- Return HTTP 404 when a DELETE operation targets a non-existent resource.
+- Return HTTP 404 when a single-resource GET finds no matching resource.
+- Return explicit view names for page-flow controller methods.
+- Apply `@Valid` to all `@RequestBody` parameters.
+- Apply `@Positive` to numeric `@PathVariable` resource-identifier parameters.
+- Map `Optional<T>` service returns via `.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build())`.
 
 ## Safety Guards
-- Never place business orchestration logic in controllers.
+- Never call `Optional.get()` directly on a service-returned `Optional<T>`.
 - Never mix `@RestController` and page-rendering responsibilities in the same controller class.
-- Never mix unrelated resource routes in one controller.
+- Never mix unrelated resource routes in one controller class.
 - Never expose internal exception details in controller responses.
-- Never leave a numeric `@PathVariable` resource identifier without a positive-value constraint.
-- Never use `@RequestBody` on GET or DELETE methods; pass filters and identifiers through path variables or request parameters only.
-
-## Review Plan Layout
-- Report endpoint additions, removals, and path changes.
-- Report request and response contract changes.
-- Report validation boundary behavior for each endpoint.
-- Report controller-to-service delegation compliance.
-
+- Never use `@RequestBody` on GET or DELETE methods.

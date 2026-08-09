@@ -1,61 +1,69 @@
 ---
-description: "Database schema conventions: type sizing, naming standards, constraints, and nullability defaults for SQL artifacts."
+description: "Database schema and referential-integrity contract: types, naming, constraints, FK actions, and SQL artifact layout."
 applyTo: "**/src/main/resources/sql/**/*.xml, **/src/main/resources/sql/**/*.sql"
 ---
 
 # Spring Boot Database-Schema Engine
 
-## Scope & Analysis
-- Inspect SQL DDL files for table, constraint, and index definitions.
-- Inspect foreign key relations and delete/update strategies in SQL DDL.
-- Inspect SQL/XML naming conventions and data-type consistency.
+## Naming Conventions
+- Use singular snake_case for table names; avoid generic tokens such as `tbl`, `data`, or `obj`.
+- Name primary key columns as `<table_name>_id` (never standalone `id`).
+- Name foreign key columns as `<referenced_table_name>_id`.
+- Name non-key columns with domain-qualified semantics (never standalone `name`, `value`, `type`, `status`, or `date`).
+- Name primary key constraints as `pk_<table_name>`.
+- Name foreign key constraints as `fk_<source_table>_<target_table>`.
+- Name unique constraints as `uq_<table_name>_<column_name>`.
+- Name check constraints as `ck_<table_name>_<rule_name>`.
+- Name non-unique indexes as `ix_<table_name>_<column_name>`.
+- Name unique indexes as `ux_<table_name>_<column_name>`.
+- For composite constraints or indexes, append column tokens in declaration order separated by underscores.
 
-## Resolution Rules
+## Rules
+
+### Clarification gates
+- When the user prompt does not specify lifecycle, retention, archival, or delete semantics for a new table or column, treat the schema design as unresolved and ask the user before generating DDL.
+- When a new relation introduces business-data deletion, retention, archival, or historical-movement consequences and the user prompt is silent, treat the delete behavior as unresolved and ask the user before finalizing the constraint action.
+
 - Use PostgreSQL as the default relational system-of-record for CRUD modules unless request constraints require a different store.
-- Allow in-memory relational storage only for explicit local or demo scope.
-- For new CRUD resources with unspecified entity attributes, treat the schema contract as unresolved; do not generate implementation until table name, required columns, uniqueness, nullability, and key strategy are explicit in the request.
-- Enforce deterministic SQL naming conventions across table, column, index, and constraint identifiers; do not allow per-task naming drift.
-- Use singular snake_case for table names and avoid generic table tokens such as `tbl`, `data`, or `obj`; allow `_tmp` only for explicit temporary-table intent documented with a short DDL comment describing lifecycle and cleanup trigger.
-- Name primary key columns as `<table_name>_id`; do not use generic standalone names such as `id`.
-- Name foreign key columns as `<referenced_table_name>_id` and keep the referenced table token explicit.
-- Name non-key columns with domain-qualified semantics; do not use ambiguous standalone names such as `name`, `value`, `type`, `status`, or `date` without a domain qualifier.
-- Use `pk_<table_name>` for primary key constraints.
-- Use `fk_<source_table>_<target_table>` for foreign key constraints.
-- Use `uq_<table_name>_<column_name>` for unique constraints.
-- Use `ck_<table_name>_<rule_name>` for check constraints.
-- Use `ix_<table_name>_<column_name>` for non-unique indexes and `ux_<table_name>_<column_name>` for unique indexes.
-- For composite unique constraints or composite indexes, append column tokens in declaration order using underscores.
-- When business terminology is insufficient to produce deterministic, domain-qualified names, treat naming as unresolved; do not finalize schema until explicit domain terms are provided.
-- Apply naming examples for consistency checks: good `customer_account.customer_account_id`, `customer_account.account_display_name`, `order_item.product_id`, `fk_order_item_product`, and `ix_order_item_order_id`; avoid `customer_account.id`, `customer_account.name`, `order_item.product`, `fk_order_item_prod_tbl`, and `idx1`.
-- Treat deterministic naming-rule violations as blocking for schema approval.
-- Default primary keys and row identifiers to `INTEGER` for standard CRUD business tables; use `SMALLINT` only for clearly bounded low-cardinality domains expected to stay below 32767 rows for the full lifecycle, and use `BIGINT` only when stated scale expectations or lifetime cardinality can exceed `INTEGER` limits.
-- When expected row count, identifier growth, or retention horizon is unclear enough to justify `SMALLINT` or `BIGINT` instead of the default `INTEGER`, treat key type as unresolved; do not finalize key or counter column types until maximum rows and growth horizon are explicit in the request.
-- Declare integer primary keys using `GENERATED ALWAYS AS IDENTITY`; never use `SERIAL` or `BIGSERIAL`.
-- Keep SQL types aligned with Java model semantics by choosing numeric, temporal, and text types from domain range, precision, and persistence behavior rather than convenience defaults.
-- Use `TEXT` for variable-length string columns with no business-rule length limit; use `VARCHAR(n)` only when the domain enforces a maximum character length.
-- Use `DATE` for calendar-day business fields and `TIMESTAMPTZ` (timestamp with time zone) for event-time and audit fields; never use `TIMESTAMP` without time zone for persisted data.
-- Keep nullable-by-default decisions explicit: mark required fields with `NOT NULL` and leave optional fields nullable by design.
-- Use hard delete (physical `DELETE`) by default; implement soft delete with a `deleted_at TIMESTAMPTZ` column only when explicitly requested.
-- Add `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()` and `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()` to every business table; omit only for pure lookup or reference tables with no lifecycle.
+- Default primary keys and row identifiers to `INTEGER`.
+- Use `SMALLINT` only for clearly bounded low-cardinality domains expected to stay below 32,767 rows for the full lifecycle.
+- Use `BIGINT` only when stated scale expectations or lifetime cardinality can exceed `INTEGER` limits.
+- Declare integer primary keys using `GENERATED ALWAYS AS IDENTITY`.
+- Use `TEXT` for variable-length string columns with no business-rule length limit.
+- Use `VARCHAR(n)` only when the domain enforces a maximum character length.
+- Use `NUMERIC(precision, scale)` for monetary or decimal columns.
+- Use `DATE` for calendar-day business fields.
+- Use `TIMESTAMPTZ` (timestamp with time zone) for event-time and audit fields.
+- Model application-owned closed-set domains through lookup/reference tables plus foreign-key columns in business tables.
+- Keep a stable domain code column in each lookup/reference table for idempotent seed data and application mapping.
+- Mark required columns with `NOT NULL`.
+- Leave optional columns nullable by design.
+- Keep delete mode, retention window, historical-table strategy, and archival behavior as explicit design decisions for every new business table.
+- Add `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()` and `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()` to every business table.
+- Omit `created_at` and `updated_at` audit columns only for pure lookup or reference tables with no lifecycle.
 - Declare columns in this order within every table: primary key, required foreign keys, business columns, optional foreign keys, audit columns (`created_at`, `updated_at`) last.
-- Keep SQL DDL idempotent for repeatable local setup where applicable.
-- Place SQL DDL schema files under `src/main/resources/sql/db/`; place SQL query files (XML property sources) directly under `src/main/resources/sql/`; never mix DDL and query files in the same directory.
-- Keep seed-data statements idempotent when committed in schema/bootstrap scripts.
+- Keep SQL DDL idempotent.
+- Add succinct SQL comments before each business table, lookup/reference table, idempotent seed-data block, and non-obvious index.
+- Place SQL DDL schema files under `src/main/resources/sql/db/`.
+- Place SQL query files (XML property sources) directly under `src/main/resources/sql/`.
+- Keep seed-data statements idempotent and stable across reruns, including lookup/reference seeds.
 - Keep primary, unique, and foreign key constraints explicit in SQL DDL.
-- Always declare both `ON DELETE` and `ON UPDATE` actions on every FK constraint; never declare one without the other.
-- Use `ON DELETE RESTRICT` and `ON UPDATE CASCADE` as the default FK action pair; use `ON DELETE CASCADE` only for child records with no independent existence; use `ON DELETE SET NULL` only for optional associations.
-- Keep index strategy aligned with query access patterns.
-- Add a `CREATE INDEX IF NOT EXISTS` for every foreign key column in SQL DDL; FK columns are always candidates for JOIN and filter queries.
+- Declare unique and check constraints as named `CONSTRAINT` clauses (e.g., `CONSTRAINT uq_users_email UNIQUE (email)`) rather than inline column keywords.
+- Declare both `ON DELETE` and `ON UPDATE` actions on every FK constraint.
+- Use `ON DELETE RESTRICT` and `ON UPDATE CASCADE` as the default FK action pair.
+- Use hard delete (physical `DELETE`) only when the user explicitly confirms there is no soft-delete, archival, or historical-retention requirement.
+- Implement soft delete with a `deleted_at TIMESTAMPTZ` column only when explicitly requested; document the retention and cleanup strategy alongside the schema change.
+- Use `ON DELETE CASCADE` only for child records with no independent existence.
+- Use `ON DELETE SET NULL` only for optional associations.
+- Add a `CREATE INDEX IF NOT EXISTS` for every foreign key column in SQL DDL.
+- Treat every non-foreign-key index as an explicit query-shape decision; when the user prompt does not justify that index, ask before generating it.
+- Declare the FK column as nullable for every optional association that uses `ON DELETE SET NULL`.
+- When adding a FK constraint to a table with existing data, use `NOT VALID` to add the constraint without scanning existing rows, then run `VALIDATE CONSTRAINT` in a separate transaction.
+- For hierarchical or tree-structured data, declare a self-referencing FK on the parent column (e.g., `parent_id REFERENCES same_table(id)`) with `ON DELETE CASCADE` when child nodes have no independent existence.
+- Keep domain invariants enforced by explicit SQL constraints and relation actions.
 
 ## Safety Guards
-- Never remove integrity constraints without explicit approval.
-- Never introduce destructive DDL without migration strategy.
-- Never apply schema changes that violate referential integrity rules.
-- Never add a FK constraint without a corresponding index on the FK column.
-
-## Review Plan Layout
-- Report table and column changes.
-- Report constraint and relation changes.
-- Report index additions or removals with query rationale.
-- Report backward-compatibility risks for schema updates.
-
+- Never remove integrity or referential constraints without explicit approval.
+- Never introduce destructive DDL without a migration strategy.
+- Never introduce delete flows that bypass relation safeguards.
+- Never accept integrity-breaking updates without controlled migration.

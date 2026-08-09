@@ -1,39 +1,35 @@
 ---
 description: "Compose and Dockerfile container rules: image structure, naming, profile activation, volume mounts, healthcheck, and log directory ownership."
-applyTo: "**/Dockerfile, **/docker-compose.yml"
+applyTo: "**/Dockerfile, **/docker-compose.yml, **/docker-compose.yaml, **/compose.yml"
 ---
 
-# Spring Boot Container Engine
+# Spring Boot Container
 
-## Scope & Analysis
-- Inspect image build files, compose orchestration, and runtime profile config.
-- Inspect container security controls and filesystem restrictions.
-- Inspect healthcheck, ports, and environment variable behavior.
-
-## Resolution Rules
+## Rules
+- Use an official Eclipse Temurin JRE image as the base image for runtime stages.
 - Keep container images pinned to explicit tags.
 - Keep build and runtime stages separated when multi-stage is used.
 - Keep compose services hardened with minimal privileges by default.
-- Run the Spring Boot application as a non-root user inside the container; define a dedicated `appuser` with a non-zero UID.
+- Set `restart: "unless-stopped"` as the default container restart policy.
+- Set `read_only: true` on all compose services.
+- Declare `tmpfs` mounts for writable runtime directories such as `/tmp` with `noexec,nosuid` options when `read_only: true` is set.
+- Set `cap_drop: ["ALL"]` on every compose service by default.
+- Set `security_opt: ["no-new-privileges:true"]` on every compose service.
+- Run the Spring Boot application as a non-root user inside the container.
+- Define a dedicated `appuser` with a non-zero UID for the application user.
 - Keep capability additions exceptional and justified inline for each service.
 - Keep socket mounts read-only and justified by explicit runtime needs.
-- Keep local container run flows documented per scenario (standalone app flow or shared infrastructure flow).
+- Document the standalone app flow and the shared infrastructure flow as separate run scenarios.
 - Keep healthchecks explicit and service-appropriate (actuator endpoints for Spring apps, native probes for infrastructure services).
 - Set healthcheck with `interval=30s`, `timeout=5s`, `retries=3`, and `start_period=60s` as defaults unless operational requirements differ.
 - Keep runtime configuration profile-aware and externalized.
-- Activate the Spring profile via the `SPRING_PROFILES_ACTIVE` environment variable; never bake profile selection into the Dockerfile layer.
-- Configure JVM memory limits via the `JAVA_OPTS` environment variable; never hardcode heap or memory flags in the `CMD` or `ENTRYPOINT` instruction.
-- Keep container resources and mounted paths explicit.
+- Activate the Spring profile via the `SPRING_PROFILES_ACTIVE` environment variable.
+- Configure JVM flags via the `JAVA_TOOL_OPTIONS` environment variable.
 - Expose port `8080` in Dockerfile by default unless the application explicitly configures a different server port.
+- Set explicit CPU and memory resource limits (`cpus`, `mem_limit`, `mem_reservation`) on every compose service.
 
 ## Safety Guards
-- Never run containers with unnecessary privileges by default.
+- Never bake profile selection into the Dockerfile layer.
+- Never hardcode heap or memory flags in the `CMD` or `ENTRYPOINT` instruction.
+- Never use `JAVA_OPTS` as the JVM flags variable.
 - Never expose internal-only ports without explicit need and documentation.
-- Never ship container defaults that bypass runtime safety controls.
-
-## Review Plan Layout
-- Report build-file changes and image behavior impact.
-- Report compose security and runtime setting changes.
-- Report healthcheck and startup profile decisions.
-- Report operational risks and mitigation notes.
-

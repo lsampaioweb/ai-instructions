@@ -1,40 +1,47 @@
 ---
-description: "Spring Boot logging contract for secure, consistent, and operationally useful application log events in production-grade projects."
-globs: "**/src/main/java/**/*.java,**/src/test/java/**/*.java"
+description: "Spring Boot logging contract for application log events, Logback appenders, rotation, and profile-level log routing."
+globs: "**/*Controller.java,**/*Service.java,**/*ServiceImpl.java,**/*Repository.java,**/*RepositoryImpl.java,**/*Filter.java,**/*Interceptor.java,**/*Advice.java,**/src/main/resources/**/logback-spring.xml"
 alwaysApply: false
 ---
+# Spring Boot Logging Engine
 
-# Spring Boot Logging
-
-## Scope & analysis
-- Inspect log statements in touched code paths.
-- Classify logs by level, intent, and operational value.
-- Detect noisy, duplicate, or context-free log lines.
-
-## Resolution rules
+## Rules
+- Use `@Slf4j` for logger declaration in every class that emits log events.
+- Use `*LogMessages` components to resolve all log message strings through i18n keys.
+- Pass the resolved string as the sole argument to the `log.LEVEL()` call.
+- Add the request correlation identifier to MDC under the key `traceId` before processing begins.
+- Clear `traceId` from MDC after request processing completes.
+- Include correlation identifiers when available in log statements.
 - Log events with clear operational value.
 - Use consistent level semantics across features.
-- Include correlation identifiers when available.
-- Add the request correlation identifier to MDC under the key `traceId` before processing begins; make it automatically available in all log statements within the request thread.
-- Keep sensitive data out of logs.
-- Prefer parameterized log messages and use structured log fields when the active sink/aggregation tooling supports structured ingestion.
+- Use DEBUG level for development-time diagnostic events that have no operational value in production.
+- In controller classes, log only warning and error conditions.
+- In service classes, log business state transitions (create, update, delete) at INFO level with stable resource identifiers.
+- In repository classes, log degraded execution paths (for example, SQL feature fallback) at WARN level.
+- Log unexpected exceptions at ERROR level.
+- Log known domain failures that map to 4xx responses at WARN level.
 - Keep exception logs single-source to avoid duplication.
-- Log unexpected exceptions (unmapped, unhandled) at ERROR level; log known domain failures that map to 4xx responses at WARN level; never use ERROR level for client errors.
-- Prefer `@Slf4j` for logger declaration when Lombok is available in the module.
-- When a `LogMessages` component is available in the module, use it for user-facing log message resolution; for debug and trace technical log lines where no message key applies, use `@Slf4j` directly; defer LogMessages structure and locale behavior to the `spring-boot-i18n` rule.
-- In controller classes, log only warning/error conditions; never log success paths.
-- In service classes, log business state transitions (for example create, update, delete) at info level with stable resource identifiers.
-- In repository classes, log degraded execution paths (for example SQL feature fallback) at warn level; never log success paths.
+- Use parameterized log messages instead of string concatenation.
+- Use structured log fields when the active logging sink supports structured ingestion.
+- Place `logback-spring.xml` under `src/main/resources/log/` to align with the `classpath:log/logback-spring.xml` reference declared in `application.yml`.
+- Source application name from `spring.application.name` into context variable `APPLICATION_NAME`.
+- Source log directory from `logging.file.path` into context variable `LOG_DIR` with `defaultValue="./logs"`.
+- Configure a `Console` appender with encoder pattern: `%black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%logger{60}): %msg%n%throwable`
+- Configure a `RollingFile` appender with encoder pattern: `%d{ISO8601} %-5level [%t] %logger{60}: %msg%n%throwable`
+- Set the active log file path in the `RollingFile` appender: `<file>${LOG_DIR}/${APPLICATION_NAME}.log</file>`.
+- Set `SizeAndTimeBasedRollingPolicy` on the `RollingFile` appender with archived file pattern: `${LOG_DIR}/archived/${APPLICATION_NAME}-%d{yyyy-MM-dd}.%i.gz`
+- Set rotation limits: `maxFileSize=10MB`, `maxHistory=7`, `totalSizeCap=1GB`.
+- Declare all rotation limits explicitly in the rolling policy.
+- Route the `RollingFile` appender through an async appender named `File`.
+- Declare elements in this order within the async appender: `queueSize`, `discardingThreshold`, `appender-ref`.
+- Set `queueSize=512` and `discardingThreshold=0` on the async appender.
+- Route the `debug` profile to Console and File appenders with root level `DEBUG`.
+- Route the `development` profile to Console and File appenders with root level `INFO`.
+- Route the `default | production` profiles to the File appender only with root level `INFO`.
+- Use structured encoders when the log aggregation sink requires structured ingestion.
 
-## Safety guards
+## Safety Guards
+- Never emit high-volume logs inside tight loops.
 - Never log credentials, tokens, or personal data.
-- Never use error level for normal control flow.
-- Never emit high-volume logs inside tight loops without need.
-- Never replace `@Slf4j` with manual logger fields unless the user explicitly requests that change.
-- Never log the same failure event at multiple layers when one layer already emits the full diagnostic context.
-
-## Review output
-- Report new or changed log points with expected value.
-- Report level changes and production impact.
-- Report redaction controls for sensitive fields.
-- Report removed noisy logs and reason.
+- Never route sensitive data to unprotected appenders.
+- Never disable error logging for application failures.

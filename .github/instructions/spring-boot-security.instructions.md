@@ -1,61 +1,55 @@
 ---
 description: "Spring Boot security contract for authentication, authorization, service-level checks, and endpoint protection boundaries."
-applyTo: "**/*SecurityConfig.java,**/*Service.java,**/*ServiceImpl.java,**/security/*Permissions.java,**/security/Role.java,**/security/*Role.java"
+applyTo: "**/*SecurityConfig.java, **/security/**/*.java"
 ---
 
-# Spring Boot Security Engine
-
-## Scope & Analysis
-- Inspect security configuration, permission components, and role modeling.
-- Inspect authorization boundaries for endpoints and service methods.
-- Inspect session, CSRF, and request-matcher behavior.
+# Spring Boot Security
 
 ## Naming Conventions
-- Role enums must be named with the `*Role` suffix when used as a dedicated component (e.g., `UserRole`, `AccountRole`); plain enum names like `Role`, `Authority` are acceptable only when the enum is self-contained within a security context.
-- Permission or authority component classes must be named with the `*Permissions` or `*Permission` suffix (e.g., `UserPermissions`, `AccountPermissions`, `AdminPermission`).
-- Security configuration classes must be named with the `*SecurityConfig` suffix (e.g., `ApiSecurityConfig`, `WebSecurityConfig`).
-- Use domain-specific security component names (never `SecurityPermission`, `CommonRole`, or overly generic names).
+- Role enums dedicated as a component must use the `*Role` suffix (e.g., `UserRole`, `AccountRole`).
+- Plain enum names like `Role` or `Authority` are acceptable only when the enum is self-contained within a security context.
+- Permission or authority component classes must use the `*Permissions` or `*Permission` suffix (e.g., `UserPermissions`, `AccountPermissions`, `AdminPermission`).
+- Security configuration classes must use the `*SecurityConfig` suffix (e.g., `ApiSecurityConfig`, `WebSecurityConfig`).
+- Use domain-specific security component names (never `SecurityPermission` or `CommonRole`).
 
-## Resolution Rules
+## Rules
 - Keep security defaults deny-oriented for mutating operations.
-- Use JWT stateless authentication (Bearer token) by default for REST APIs; use session-cookie authentication for server-rendered MVC applications.
-- Set access token expiry to 24 hours by default; never issue non-expiring tokens.
+- Declare security configuration using a `@Bean SecurityFilterChain` method.
+- End every `SecurityFilterChain` with `anyRequest().denyAll()` to reject all unmatched routes by default.
+- Apply `@Order` to every `SecurityFilterChain` bean when more than one filter chain is declared in the same module.
+- Use JWT stateless authentication (Bearer token) by default for REST APIs.
+- Use session-cookie authentication for server-rendered MVC applications.
+- Set access token expiry to 24 hours by default.
 - Keep authorization policy explicit at route or service boundary.
-- Keep coarse-grained and fine-grained authorization rules consistent.
-- Keep role and authority mapping centralized in security model.
 - Use `ADMIN` and `USER` as the default role set unless the user explicitly defines a different set.
-- Provision users in-module via `UserDetailsService` by default; document explicitly when an external identity provider manages roles instead.
-- Use `BCryptPasswordEncoder` with default strength (10) for password hashing; never store plain-text or weakly hashed passwords.
-- When the module provisions users in-process (for example via `UserDetailsService`), every `Role` enum value must map to at least one provisioned principal in an active profile; for externally managed identity providers, document where role assignment is enforced.
-- Disable CSRF protection for stateless JWT REST APIs; enable CSRF protection for session-based MVC applications.
-- Retain Spring Security's default HTTP security headers (HSTS, X-Frame-Options, X-Content-Type-Options); never disable them without explicit justification.
-- Configure CORS with explicit allowed-origin lists in production profiles; never allow wildcard origins (`*`) in production.
+- Provision users in-module via `UserDetailsService` by default.
+- When an external identity provider manages roles, document that decision explicitly.
+- Use `BCryptPasswordEncoder` with default strength (10) for password hashing.
+- Externalize JWT signing keys through environment variables or a secrets manager.
+- When the module provisions users in-process via `UserDetailsService`, every `Role` enum value must map to at least one provisioned principal in an active profile.
+- When an external identity provider manages identity, document where role assignment is enforced.
+- Disable CSRF protection for stateless JWT REST APIs.
+- Disable CSRF protection when using HTTP Basic authentication.
+- Enable CSRF protection for session-based MVC applications.
+- Retain Spring Security's default HTTP security headers (HSTS, X-Frame-Options, X-Content-Type-Options).
+- Configure CORS with explicit allowed-origin lists in production profiles.
 - Keep authentication and authorization concerns separated from business logic.
-- Keep security decisions traceable through permission components.
-- Document temporary authentication deferrals with explicit metadata: scope, closure condition, and release checkpoint.
-- For service orchestration, transaction boundaries, and collaborator structure, defer to `spring-boot-service.instructions.md`.
+- Document temporary authentication deferrals per Approved Exception Handling.
 
 ## Approved Exception Handling
-- Identify features or endpoints explicitly approved by user for temporary open access.
-- Distinguish between temporary exceptions and architectural security violations.
-- When a user explicitly approves temporary open access for a feature or module, document the exception with an expiration condition (e.g., "open until authentication is implemented" or "open for prototype phase").
-- Suppress authorization findings for endpoints within the approved exception scope until the condition is resolved.
-- Never silence security findings that fall outside the user's explicit approval.
-- Always keep the exception documented in code comments, configuration, or test annotations so reviewers know the decision is intentional, not missed.
-- Never treat temporary open access as permanent; require explicit re-approval or closure before production release.
-- Never apply an exception to a wider scope than the user explicitly approved.
+- When temporary open access is approved for a feature or module, document the exception with an expiration condition (e.g., "open until authentication is implemented").
+- Keep the exception documented in code comments, configuration, or test annotations so reviewers can identify it as intentional.
 
 ## Safety Guards
 - Never expose mutating endpoints without explicit authorization checks.
+- Never extend `WebSecurityConfigurerAdapter`.
 - Never duplicate conflicting authorization logic across layers.
 - Never weaken security defaults without explicit approval.
-- Never leave role-assignment ownership ambiguous: assign roles in-module for local identity setups or explicitly document the external authority that assigns them.
 - Never leave unresolved `TODO` or `FIXME` markers inside active security route rules.
-- Never hardcode JWT signing keys; always externalize them through environment variables or a secrets manager.
-
-## Review Plan Layout
-- Report protected routes and authorization rules changed.
-- Report permission logic updates and affected roles.
-- Report session and CSRF policy decisions.
-- Report unresolved security gaps in touched scope.
-
+- Never issue non-expiring tokens.
+- Never store plain-text or weakly hashed passwords.
+- Never disable Spring Security's default HTTP security headers without explicit justification.
+- Never allow wildcard origins (`*`) in production CORS configuration.
+- Never silence security findings that fall outside explicitly approved exceptions.
+- Never treat temporary open access as permanent.
+- Never apply a security exception to a wider scope than explicitly approved.

@@ -1,38 +1,30 @@
 ---
 description: "Spring Boot service contract for business orchestration, transaction boundaries, and dependency-safe application logic."
-applyTo: "**/*Service.java,**/*ServiceImpl.java"
+applyTo: "**/*Service.java, **/*ServiceImpl.java"
 ---
 
 # Spring Boot Service Engine
 
-## Scope & Analysis
-- Inspect service interface contracts and implementation behavior.
-- Inspect transaction boundaries for read and write operations.
-- Inspect dependency usage and orchestration responsibilities.
-
 ## Naming Conventions
-- Service interfaces must be named with the `*Service` suffix (e.g., `UserService`, `PaymentService`).
-- Service implementations must be named with the `*ServiceImpl` suffix (e.g., `UserServiceImpl`, `PaymentServiceImpl`).
-- Use descriptive business domain names (never `BusinessService`, `OperationService`, or generic names).
+- Name service interfaces with the `*Service` suffix (e.g., `HolidayService`, `PaymentService`).
+- Name service implementations with the `*ServiceImpl` suffix (e.g., `HolidayServiceImpl`, `PaymentServiceImpl`).
+- Use descriptive, domain-specific names for all service types (never `BusinessService`, `OperationService`, or `AppService`).
 
-## Resolution Rules
-- Keep business orchestration in service layer.
-- Prefer service contract/implementation separation (`interface XyzService` + `XyzServiceImpl`) for business modules with multiple collaborators or evolving API contracts; a focused single `@Service` class is acceptable for simple integration or utility services.
-- Always apply `@Transactional(readOnly = true)` to service methods that only read data; apply `@Transactional` without `readOnly` for write operations; never omit transaction annotations for persistence workflows.
-- Use `REQUIRED` (the default) transaction propagation for service methods that participate in or start a transaction; use `REQUIRES_NEW` only when the operation must commit independently of the outer transaction.
-- Keep service methods aligned with API and repository contracts.
-- Return domain-layer objects or DTOs from service methods; never return raw persistence entities from service methods called by controllers.
-- Catch persistence-layer exceptions at the service boundary and rethrow as domain exceptions (e.g., `ResourceNotFoundException`, `DuplicateResourceException`); never let raw `DataAccessException` or SQL exceptions propagate to controllers.
-- Keep external integration calls encapsulated in service boundaries.
-- For authorization annotations, role checks, and permission enforcement, defer to `spring-boot-security.instructions.md`.
+## Rules
+- For authorization annotations and role enforcement, defer to `spring-boot-security.instructions.md`.
+- Place `@Service` on the implementation class, not on the interface.
+- Implement all cross-feature orchestration and business decision logic in service classes.
+- Use a service interface paired with a `*ServiceImpl` implementation for business modules that have multiple collaborators or evolving API contracts.
+- Use a single `@Service` class without a separate interface for simple integration or utility services.
+- Apply `@Transactional(readOnly = true)` to service methods that only read data.
+- Apply `@Transactional` to service methods that perform write operations.
+- Apply `@Transactional` annotations at the method level.
+- Use `REQUIRED` transaction propagation for service methods that participate in or start a transaction.
+- Use `REQUIRES_NEW` propagation only when the operation must commit independently of the outer transaction.
+- Return domain model objects or response DTOs from service methods.
+- Catch unwrapped persistence-layer exceptions at the service boundary and rethrow as domain exceptions (e.g., `ResourceNotFoundException`, `DuplicateResourceException`).
+- When a repository lookup returns empty `Optional<T>` for a required resource, throw the appropriate domain exception at the service boundary.
+- Route all outbound integration calls through service methods.
 
 ## Safety Guards
-- Never move business rules into controllers or repositories.
-- Never introduce implicit transaction behavior for critical writes.
-
-## Review Plan Layout
-- Report added or changed service methods and behavior.
-- Report transaction-boundary decisions and justification.
-- Report dependency changes and orchestration impact.
-- Report contract compatibility with existing callers.
-
+- Never re-wrap a feature-scoped exception already thrown by the repository for the same SQL failure.

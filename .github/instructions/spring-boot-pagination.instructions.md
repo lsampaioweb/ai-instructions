@@ -1,46 +1,36 @@
 ---
 description: "Spring Boot pagination contract for pageable queries, deterministic ordering, and consistent paged response metadata."
-applyTo: "**/*Controller.java,**/*Service.java,**/*ServiceImpl.java"
+applyTo: "**/*Controller.java, **/*Pagination*.java, **/src/main/resources/application*.yml"
 ---
 
 # Spring Boot Pagination Engine
 
-## Scope & Analysis
-- Inspect listing endpoints for page, size, and sort behavior.
-- Inspect service and repository handling of pageable inputs.
-- Inspect response payload metadata for pagination consistency.
-- Inspect where pagination defaults and max limits are sourced.
-
-## Resolution Rules
-- Use Spring Data Pageable as the default pagination strategy for collection endpoints; use custom validated `page`/`size` parameters only when Spring Data integration is not available.
-- Declare `Pageable` as a direct controller method parameter for paginated endpoints; never wrap it in request DTOs or adapter objects.
-- Keep pagination semantics consistent across resources.
-- Externalize pagination defaults and limits in configuration, not in controllers.
-- Use `spring.data.web.pageable` properties for Spring Data Pageable defaults.
-- Use typed `@ConfigurationProperties` (for example `app.pagination.*`) for custom pagination defaults and limits.
-- Configure `page=0`, `size=20`, and `max=100` as the definitive defaults in `spring.data.web.pageable` or `app.pagination.*` properties unless a business requirement explicitly overrides them; never invent custom values without documented justification.
-- Return paged responses with metadata for total elements and pages when the endpoint contract is paginated.
-- Always include `content`, `totalElements`, `totalPages`, `page` (current page index), and `size` (page size) in paged response payloads; map Spring's `Page<T>` to a stable custom response DTO to avoid exposing Spring internal fields in the public API contract.
-- Use zero-based page numbering (page 0 is the first page); document this convention explicitly in OpenAPI annotations and API documentation so consumers know page 0 returns the first result set.
-- Keep sort behavior deterministic for repeatable results.
-- Use ascending sort by a stable resource key by default for paginated endpoints unless the module contract defines different sorting defaults.
-- When using custom pagination, accept sort via a `sort` request parameter in `field,asc|desc` format, consistent with Spring Data Pageable conventions; never invent a proprietary sort format.
-- Validate page and size boundaries with explicit defaults.
-- Enforce explicit max-page-size protection when custom pagination configuration exists.
-- Validate custom `page`/`size` constraints in the service layer once per use case and reuse that path across endpoints.
-- Avoid repeating numeric fallback literals across multiple controllers.
-- Extract shared pagination link-building logic (e.g., RFC-5988 Link headers) into a single common utility class when the same structure is used by two or more controllers; never copy-paste it.
-- Keep pagination mapping in service layer aligned with API contract.
+## Rules
+- Treat every REST GET collection endpoint as paginated by default.
+- Use Spring Data `Pageable` as the default pagination strategy for collection endpoints.
+- Use custom validated `page`/`size` parameters only when Spring Data integration is not available.
+- Require an explicit documented exception before using a non-paginated GET collection endpoint.
+- When a non-paginated GET collection endpoint is explicitly approved, define and enforce a deterministic server-side result limit.
+- Apply `@Min(0)` to the `page` `@RequestParam` and `@Positive` to the `size` `@RequestParam` when using custom pagination.
+- Declare `Pageable` as a direct controller method parameter for paginated endpoints.
+- Store pagination defaults and limits in configuration properties, not in controller classes.
+- Use `spring.data.web.pageable` properties for Spring Data `Pageable` defaults.
+- Use typed `@ConfigurationProperties` (e.g., `app.pagination.*`) for custom pagination defaults and limits.
+- Configure `page=0`, `size=20`, and `max=100` as the definitive pagination defaults in `spring.data.web.pageable` or `app.pagination.*` properties.
+- Return paged responses that include `content`, `totalElements`, `totalPages`, `page`, and `size` fields.
+- Map Spring's `Page<T>` to a stable custom `*PageResponse` DTO before returning it from any endpoint.
+- Use zero-based page numbering.
+- Document zero-based page numbering explicitly in OpenAPI annotations for every paginated endpoint.
+- Use ascending sort by a stable resource key as the default sort order for paginated endpoints.
+- Accept sort via a `sort` request parameter in `field,asc|desc` format when using custom pagination.
+- Declare an explicit allowlist of valid sort field names for each paginated endpoint.
+- Reject unknown sort fields with HTTP 400.
+- Enforce a max-page-size limit when custom pagination configuration exists.
+- Validate custom `page`/`size` constraints in the service layer once per use case.
+- Normalize out-of-range pagination inputs: clamp `page` to `0` if negative and `size` to `1` if zero or negative.
+- Return an empty `content` list with correct total-count metadata when the requested page exceeds the total number of available pages.
+- Extract shared pagination link-building logic into a single utility class in the `shared` package when the same structure is used by two or more features.
 
 ## Safety Guards
-- Never return unbounded collections for pageable endpoints.
-- Never omit total count metadata when contract requires pagination.
-- Never use unstable ordering for paged responses.
-- Never duplicate pagination header-building or link-generation logic across multiple controllers.
-
-## Review Plan Layout
-- Report paginated endpoint behavior and defaults.
-- Report metadata fields exposed in response payloads.
-- Report sorting and boundary validation decisions.
-- Report compatibility impact on existing consumers.
-
+- Never return unbounded collections for paginated endpoints.
+- Never invent custom pagination default values without documented justification.

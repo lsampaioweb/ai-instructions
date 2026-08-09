@@ -1,48 +1,48 @@
 ---
 description: "Spring Boot i18n contract for message-key governance, locale behavior, and translation-safe output."
-globs: "**/*Service.java,**/*Controller.java,**/application*.yml,**/messages*.properties"
+globs: "**/messages*.properties,**/application*.yml,**/*Messages.java,**/*LogMessages.java,**/i18n/**/*.java"
 alwaysApply: false
 ---
+# Spring Boot I18N Engine
 
-# Spring Boot I18N
+## Naming Conventions
+- Name message-source component classes with the `*Messages` or `*LogMessages` suffix (e.g., `ApplicationMessages`, `UserLogMessages`).
+- Use the `*LogMessages` suffix explicitly for log-event resolution components (e.g., `PaymentLogMessages`, `OrderLogMessages`).
+- Use domain-specific component names (never `Messages`, `AppMessages`, or `LogMessages` without a domain prefix).
 
-## Scope & analysis
-- Inspect message bundles, locale coverage, and key consistency.
-- Detect missing keys, orphan keys, and inconsistent placeholders.
-- Detect hardcoded user-facing strings in code touched by the task.
-
-## Naming conventions
-- Name message-source component classes (when used) with the `*Messages` or `*LogMessages` suffix (e.g. `ApplicationMessages`, `UserLogMessages`).
-- For log-event resolution components, use the `*LogMessages` suffix explicitly (e.g. `PaymentLogMessages`, `OrderLogMessages`).
-- Message keys in properties files must follow the namespace pattern: `validation.*` for request validation errors, `error.*` for domain errors, `openapi.*` for API documentation, and `log.*` for log messages.
-- Use domain-specific message component names (never `Messages`, `AppMessages`, or generic names without context).
-
-## Resolution rules
-- Use message keys for user-facing text.
-- Place message bundles under `src/main/resources/i18n/messages.properties` with locale-specific variants named `messages_en.properties`, `messages_pt_BR.properties`, etc.; set `spring.messages.basename=i18n/messages` in `application.yml`.
-- Set `spring.messages.encoding=UTF-8` in `application.yml`; always save `.properties` files in UTF-8 encoding.
-- Keep `spring.messages.use-code-as-default-message=false` (the default) in all profiles; never set it to `true` in production, as it silently hides missing translation keys.
+## Rules
+- Set `spring.messages.basename=i18n/messages` in `application.yml`.
+- Set `spring.messages.encoding=UTF-8` in `application.yml`.
+- Place message bundles under `src/main/resources/i18n/`; name locale variants `messages.properties`, `messages_pt_BR.properties`, etc.
+- Use UTF-8-safe content in all message bundle files.
+- Use `# Section Name` comments inside `.properties` files to group keys by namespace.
 - Keep key naming stable and domain-oriented.
-- Use message-key namespaces that reflect the message category: `validation.*` for request validation errors, `error.*` for domain/application errors, `openapi.*` for API documentation strings, `log.*` for log-event messages resolved through `LogMessages`.
-- Keep placeholders indexed and consistent across locales.
-- Keep error messages aligned with error-code policy.
+- Use the `error.validation.*` namespace for Bean Validation constraint messages.
+- Use the `error.*` namespace for domain errors; keep error text only in the bundle.
+- Use the `api.*` namespace for API response messages.
+- Use the `openapi.*` namespace for API documentation strings.
+- Use the `log.*` namespace for log-event messages.
+- Keep placeholders indexed and consistent across all locale variants.
+- Keep identical key sets across all locale variants; add every new key to all locale files simultaneously.
 - Use `Accept-Language` as the default locale negotiation strategy for API and web flows.
-- Use `en` and `pt-BR` as baseline defaults unless the project or user explicitly defines a different supported locale set.
-- Add fallback behavior for unsupported locales.
-- Use UTF-8-safe content and avoid encoding regressions.
-- Use a dedicated `LogMessages` component backed by `MessageSource` with `Locale.ENGLISH` for log events; never resolve log messages using the request locale.
-- Add `log.*` keys only when the same change set wires those keys through a `LogMessages` component used by application code.
-- For logger declaration patterns and log-level semantics, defer to the `spring-boot-logging` rule.
+- Use `en` and `pt-BR` as baseline defaults unless the project explicitly defines a different supported locale set.
+- Resolve all user-facing text in Java classes through message keys.
+- Declare each `*LogMessages` component as a `public class` annotated with `@Component`.
+- Place each `*LogMessages` component in an `i18n` sub-package of the module root or owning feature.
+- Place a module-root `*LogMessages` component (e.g., `AppLogMessages`) in `<root-package>.i18n` when the component is consumed by cross-cutting shared classes such as `@RestControllerAdvice` or `@ControllerAdvice`.
+- Use feature-scoped `*LogMessages` components (e.g., `HolidayLogMessages` in `holiday.i18n`) only when the component is consumed exclusively within that feature.
+- Use dedicated `*LogMessages` components backed by `MessageSource` with `Locale.ENGLISH` for log events.
+- Expose a `get(String key, Object... args)` method on each `*LogMessages` component that resolves messages with `Locale.ENGLISH`.
+- Expose a `get(Locale locale, String key, Object... args)` overload on each `*LogMessages` component for caller-specified locale resolution.
+- Keep the locale-aware overload signature fixed as `get(Locale locale, String key, Object... args)`.
+- Implement `get(String key, Object... args)` by delegating to `get(Locale.ENGLISH, key, args)`.
+- Keep `messages_pt_BR.properties` entries written in natural Portuguese with correct orthography and diacritics.
+- Add `log.*` keys only when the same change wires those keys through a `*LogMessages` component used by application code.
+- Add `openapi.*` keys only when the same change includes an OpenAPI component governed by a component-creation rule.
+- Add `error.validation.*` and `error.*` keys only when the same change includes the controller or service component that produces those validation errors or domain failures.
 
-## Safety guards
+## Safety Guards
+- Never set `spring.messages.use-code-as-default-message=true`.
 - Never remove keys that are still referenced.
-- Never change placeholder order without updating all locale variants.
-- Never hardcode user-facing text where message keys are required.
-- Never resolve log-level messages using the request locale; always use `Locale.ENGLISH` for application log output.
-- Never write inline hardcoded log strings in classes where `LogMessages` is available; always resolve log output via the `LogMessages` component.
-
-## Review output
-- Report added keys and owning feature.
-- Report changed keys and compatibility impact.
-- Report locale coverage gaps and planned follow-up.
-- Report fallback behavior used for missing translations.
+- Never concatenate string fragments to construct a user-facing message.
+- Never import a feature-scoped `*LogMessages` component from a class in the `shared` package; use the module-root `*LogMessages` instead.

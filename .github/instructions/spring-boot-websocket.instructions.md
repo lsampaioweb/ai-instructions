@@ -3,38 +3,29 @@ description: "WebSocket/STOMP rules: endpoint topology, message flow contract, l
 applyTo: "**/*Socket*.java, **/*Stomp*.java"
 ---
 
-# Spring Boot WebSocket Engine
+# Spring Boot WebSocket
 
-## Scope & Analysis
-- Inspect WebSocket broker configuration and endpoint registration.
-- Inspect message routing handlers and destination prefixes.
-- Inspect event publication and realtime status API behavior.
-
-## Dependencies
-- To use Spring Boot WebSocket/STOMP, add `spring-boot-starter-websocket` dependency in pom.xml.
-- For persistent message delivery or broker-backed failover, add `spring-boot-starter-amqp` (RabbitMQ) alongside WebSocket configuration.
-
-## Resolution Rules
+## Rules
 - Keep STOMP endpoint and destination prefixes explicit.
-- Use `/app` as the application destination prefix for client-to-server messages, `/topic` for server-to-client broadcast subscriptions, and `/queue` for point-to-point messages.
+- Declare all STOMP destination prefix strings as `private static final String` constants in the configuration class.
+- Use `/app` as the application destination prefix for client-to-server messages.
+- Use `/topic` for server-to-client broadcast subscriptions.
+- Use `/queue` for point-to-point messages.
+- Use `/ws` as the default STOMP endpoint path unless the module explicitly requires a different path.
+- Call `.withSockJS()` on every STOMP endpoint registration for browser transport fallback compatibility.
 - Keep allowed-origin strategy externalized through configuration.
-- Allow wildcard origins only for explicitly documented development/local profiles; production profiles must define constrained origin patterns.
-- Authenticate WebSocket connections at the HTTP handshake phase using the same authentication token as REST endpoints; never allow unauthenticated connections to application-level STOMP destinations.
-- Configure heartbeat intervals explicitly (`outgoingHeartbeat=10000ms`, `incomingHeartbeat=10000ms`) to keep idle STOMP connections alive; never rely on default zero heartbeat values.
-- Keep message mapping and broadcast targets deterministic.
-- Keep event publication isolated from transport handlers.
-- Keep connection state tracking in dedicated components.
-- Keep websocket and REST status contracts aligned.
+- Permit wildcard origins only for explicitly documented development or local profiles.
+- Require constrained origin patterns for production profiles.
+- Authenticate WebSocket connections at the HTTP handshake phase using the same authentication token as REST endpoints.
+- Configure heartbeat intervals explicitly (`outgoingHeartbeat=10000ms`, `incomingHeartbeat=10000ms`).
+- Annotate every STOMP message handler parameter with `@Payload` to make the message source explicit.
+- Use declarative `@SendTo` for simple, single-destination broadcasts.
+- Use `SimpMessagingTemplate` when the broadcast destination is dynamic or computed at runtime.
+- Keep message mapping destinations and broadcast target addresses statically defined as constants.
+- Route all `SimpMessagingTemplate` and `ApplicationEventPublisher` calls through a dedicated event publisher class.
+- Track WebSocket session lifecycle (connect/disconnect) events in a dedicated `@Component`, not in message handler classes.
 
 ## Safety Guards
 - Never expose websocket endpoints with uncontrolled origin policy.
-- Never allow wildcard origin policy in production profiles.
-- Never publish mutable payload state across async boundaries.
+- Never allow unauthenticated connections to application-level STOMP destinations.
 - Never couple broker configuration changes with unrelated features.
-
-## Review Plan Layout
-- Report endpoint and broker configuration changes.
-- Report message route changes and delivery impact.
-- Report event publication flow and listener effects.
-- Report connection-state visibility and API behavior changes.
-
