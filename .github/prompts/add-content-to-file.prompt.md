@@ -26,19 +26,22 @@ argument-hint: "Required: #file:path/to/file and the new content to add"
 
 ## 3. Safety Guards
 - Do not change non-targeted sections.
-- Never rephrase sentences.
+- Never rephrase sentences; grammar corrections limited to inflection or missing articles are exempt.
 
 ## 4. Review Plan Layout
-- Report one status: `ADDED`, `UPDATED`, or `SKIPPED`.
-- Report location by section and line.
-- Report duplicate handling.
-- Report wording improvements.
-- Use `none` when no duplicates or improvements exist.
-- Otherwise use a semicolon-separated list.
+Use this exact markdown schema:
 
-**Output:**
-```
-✓ ADDED | UPDATED | SKIPPED
-Location: [Section] (line X)
-Duplicates: [none | item1; item2] | Improvements: [none | item1; item2]
-```
+### Scope
+- Target: <file path>
+- Mode: <read-only | apply-after-confirmation>
+
+### Result
+- Summary: <ADDED | UPDATED | SKIPPED>
+
+### Evidence
+- <file path>:<line> - <location and what changed>
+- Duplicates: <none | item1; item2>
+- Improvements: <none | item1; item2>
+
+### Next Action
+- <single minimal next step or `none`>

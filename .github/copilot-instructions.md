@@ -13,9 +13,8 @@ applyTo: "**"
 ## Critical Evaluation & Tool Discipline
 - Never run destructive commands (`rm -rf`, `git push`, database drops) without explicit user confirmation.
 - Evaluate proposals critically. Identify flawed premises directly and propose concrete fixes.
-- Do not open files blindly; target context using `find` or `grep`.
 - Halt execution and report blockers if a task exceeds 10 tool operations without visible progress.
-- Use 2 spaces for indentation. Never use tabs.
+- Always use 2 spaces for indentation.
 - Format modified programming language files using VS Code tools.
 - Prefix every terminal command with one literal leading space when invoking an interactive shell command so Bash history configured with `ignorespace` does not record agent-issued commands.
 

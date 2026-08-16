@@ -31,27 +31,23 @@ argument-hint: "Optional: path or feature-scope filter."
 - Never use commit types not defined by the Conventional Commits specification.
 
 ## 4. Review Plan Layout
-Output this plan layout:
+Use this exact markdown schema:
 
-### Proposed Commit Sequence Plan
+### Scope
+- Target: <workspace or filtered scope>
+- Mode: <read-only | apply-after-confirmation>
 
----
+### Result
+- Summary: <number of commit clusters>
+- Documentation gate: CLEAR | PENDING SYNC
 
-### Commit [N]: `type(scope): description`
+### Sequence
+- S1 | Header: `type(scope): description` | Files: <path1; path2>
+- S<N> | Header: `type(scope): description` | Files: <path...>
 
-- **Target Files to Stage:**
-  - `path/to/file1`
-  - `path/to/file2`
-- **Execution Message Blueprint:**
-  ```gitcommit
-  type(scope): description
+### Evidence
+- Commit body blueprint: `Why this change is needed and its impact.`
+- Documentation gap details: <none | item1; item2>
 
-  Why this change is needed and its impact.
-  ```
-
----
-
-### Documentation Gate Verification
-
-- **Status:** [CLEAR | PENDING SYNC]
-- **Details:** <State "none" if no documentation gaps are detected; otherwise list missing or unsynced documentation updates>
+### Next Action
+- <single minimal next step or `Proceed with executing this automated commit sequence? [yes/no]`>

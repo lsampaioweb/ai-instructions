@@ -23,13 +23,19 @@ argument-hint: "Optional: scope, folder path, or feature-area filter."
 - **Uncertainty Gate:** If a documentation update cannot be verified with available code context, stop and ask focused questions before editing.
 
 ## 4. Review Plan Layout
-Present a read-only update plan before applying edits:
+Use this exact markdown schema:
 
-### Synced Files
-- path/to/doc1.md
+### Scope
+- Target: <scope>
+- Mode: <read-only | apply-after-confirmation>
 
-### Structural Updates
-- <what changed and why>
+### Result
+- Summary: <synced files and primary update outcome>
 
-### Verification Points
-- <uncertainties requiring confirmation>
+### Evidence
+- Synced files: <none | path1; path2>
+- Structural updates: <none | item1; item2>
+- Verification points: <none | item1; item2>
+
+### Next Action
+- <single minimal next step or `none`>

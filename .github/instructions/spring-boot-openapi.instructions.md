@@ -25,4 +25,5 @@ applyTo: "**/OpenApiConfig.java, **/openapi/**/*.java, **/src/main/resources/app
 - When an `OpenApiConfig` component is created or modified, add matching `openapi.*` keys in all active locale bundles (`messages.properties` and locale variants) in the same change.
 - Keep the configured `springdoc.swagger-ui.path` and `springdoc.api-docs.path` values consistent across base and profile-specific `application*.yml` files unless a profile-specific override is explicitly required and documented.
 - Apply `@Tag` and `@Operation` consistently across all touched endpoints when the module adopts per-endpoint documentation.
-- Keep public schema names and semantics stable; never change them without an explicit versioning decision documented in the same change.
+- Keep public schema names and semantics stable.
+- Document any schema-name or semantics change with a versioning decision in the same change.

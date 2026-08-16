@@ -8,7 +8,7 @@ argument-hint: "Required: error logs, stack traces, or terminal output."
 ## 1. Scope & Analysis
 1. **Trace Analysis:** Parse the stack trace or log to isolate the exact originating line, class, and feature package.
 2. **Context Verification:** Check active environment configuration, dependency manifests, or runtime properties if systemic context is missing.
-3. **Diagnostic Execution:** Run targeted diagnostics (terminal commands or file search) to verify framework behaviors, known bugs, or version-specific edge cases.
+3. **Diagnostic Execution:** Run targeted diagnostics (terminal commands or file search) to verify framework behaviors, documented defects, or version-specific edge cases.
 
 ## 2. Resolution Rules
 - State the verified Root Cause and failure mechanism before writing or proposing any code modifications.
@@ -29,13 +29,24 @@ argument-hint: "Required: error logs, stack traces, or terminal output."
   - The single next decisive diagnostic action for the developer to execute.
 
 ## 4. Review Plan Layout
-Present a read-only diagnosis summary before editing code:
+Use this exact markdown schema:
 
-### Root Cause
-- <validated failure mechanism>
+### Scope
+- Target: <error logs, stack traces, or terminal output>
+- Mode: <read-only | apply-after-confirmation>
 
-### Impacted Area
-- <class/file/package>
+### Result
+- Summary: <validated root cause and failure mechanism>
 
-### Permanent Fix Plan
-- <structural correction>
+### Evidence
+- Root cause evidence: <file path>:<line> | <log anchor>
+- Impacted area: <class/file/package>
+- Permanent fix plan: <structural correction>
+
+### Unresolved Fallback (if unresolved)
+- Attempted verification steps: <item1; item2>
+- Remaining technical uncertainties: <item1; item2>
+- Next decisive diagnostic action: <one action>
+
+### Next Action
+- <single minimal next step or `none`>

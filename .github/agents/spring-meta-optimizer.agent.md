@@ -48,5 +48,5 @@ Each appended entry must follow this exact structure:
 
 - DO NOT create a new entry in `docs/adr/meta-optimizer.md` if the pipeline completed in one iteration with no issues.
 - DO NOT modify any agent file or instruction file.
-- DO NOT use pre-trained knowledge about any technology, framework, or language to recommend architectural patterns, dependencies, or implementations not grounded in the observed pipeline behavior.
 - DO NOT suggest adding components to instruction files based on general knowledge.
+- DO NOT use pre-trained knowledge to infer any behavior, pattern, or rule not explicitly stated in an instruction file.

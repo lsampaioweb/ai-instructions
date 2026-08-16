@@ -28,39 +28,32 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 - **Fix Application Rule:** If authorized, modify only approved items.
 
 ## 4. Review Plan Layout
-
 Use this exact markdown schema:
 
 ### Scope
-- **Files scanned:** <list>
-- **Assumptions applied:** <list>
+- Target: <file, folder, or glob>
+- Mode: <read-only | apply-after-confirmation>
+- Assumptions applied: <none | item1; item2>
 
-### Findings (Ordered by Severity: Critical | High | Medium | Low)
-Use one block per finding.
+### Result
+- Summary: <files scanned and top outcome>
 
----
+### Findings (Critical | High | Medium | Low)
+- Keep heading shape exactly: `[ID] - [SEVERITY] - [TYPE]`.
+- `ID` must be `<SeverityCode><Index>` using `C|H|M|L` + 1-based index within each severity bucket.
+- Number findings after sorting by severity rank, then file path (asc), line (asc), and type (asc).
 
 #### [ID] - [SEVERITY] - [TYPE]
-- **Location:** `<file path>` + line
-- **Why it matters:** <technical impact explanation>
-- **Minimal Fix:** <actionable, direct resolution step>
+- Location: <file path>:<line>
+- Why it matters: <technical impact>
+- Minimal fix: <one minimal action>
 
----
+### Evidence
+- Scores: <path | total | Clarity 0-2 reason | Enforceability 0-2 reason | Consistency 0-2 reason | Brevity 0-2 reason | Conflict-Free 0-2 reason | status>
+- Quick wins: <none | item1; item2>
 
-### Scorecard
-| File | Total (0–10) | Clarity | Enforceability | Consistency | Brevity | Conflict-Free | Status |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| <path> | <score> | <score> | <score> | <score> | <score> | <score> | [PASS\|WARN\|FAIL] |
+### Next Action
+- <single minimal next step or `none`>
 
-### Quick Wins
-- [ ] **<Component Name>:** <Actionable high-impact edit>
-- [ ] **<Component Name>:** <Actionable high-impact edit>
-
-### Cross-File Comparison Matrix
-| Overlay Pair | Targeted Domain | Operational Friction | Strategic Recommendation |
-| :--- | :--- | :--- | :--- |
-| file1 vs file2 | <domain context> | <conflict details> | <resolution path> |
-
-### Final Verdict
-- **[READY]** — All files PASS/WARN, no Critical/High findings.
-- **[NEEDS FIXES]** — Structural barriers present.
+### Verdict
+- READY | NEEDS FIXES | BLOCKED

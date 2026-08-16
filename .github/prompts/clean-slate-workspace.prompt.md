@@ -22,6 +22,19 @@ argument-hint: "Optional: scope notes or exclusions"
 - If no session-created artifacts exist, state that explicitly and stop.
 
 ## 3. Review Plan Layout
-- Report what was deleted.
-- Report what was intentionally preserved.
-- Report uncertainties or leftovers requiring manual review.
+Use this exact markdown schema:
+
+### Scope
+- Target: <active workspace>
+- Mode: <read-only | apply-after-confirmation>
+
+### Result
+- Summary: <what was deleted and what was preserved>
+
+### Evidence
+- Deleted: <none | item1; item2>
+- Preserved: <none | item1; item2>
+- Uncertainties: <none | item1; item2>
+
+### Next Action
+- <single minimal next step or `none`>

@@ -23,7 +23,18 @@ Run the linker from the target repository root. The script creates hardlinks to 
 ```bash
 export AI_INSTRUCTIONS_REPO=/absolute/path/to/ai-instructions
 cd /absolute/path/to/consumer-project
+
+# Link all frameworks
 "$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github
+
+# Link only Spring Boot assets
+"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github spring-boot
+
+# Link only Ansible assets
+"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github ansible
+
+# Link multiple frameworks
+"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github spring-boot ansible
 ```
 
 To install the Cursor overlays into the same consumer repository:
@@ -32,12 +43,14 @@ To install the Cursor overlays into the same consumer repository:
 export AI_INSTRUCTIONS_REPO=/absolute/path/to/ai-instructions
 cd /absolute/path/to/consumer-project
 "$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" cursor
+"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" cursor spring-boot
 ```
 
 ## Configuration reference
 
-- `github` mode links [copilot-instructions.md](.github/copilot-instructions.md), [.github/agents](.github/agents), [.github/hooks](.github/hooks), [.github/instructions](.github/instructions), [.github/prompts](.github/prompts), and the reserved [.github/skills](.github/skills) tree into the consumer repository.
-- `cursor` mode links [AGENTS.md](.cursor/AGENTS.md), [.cursor/rules](.cursor/rules), and [.cursor/skills](.cursor/skills) into the consumer repository.
+- `github` mode always links [copilot-instructions.md](.github/copilot-instructions.md), [.github/hooks](.github/hooks), and [.github/prompts](.github/prompts). When no framework is specified, all [.github/agents](.github/agents) and [.github/instructions](.github/instructions) files are also linked. When one or more frameworks are specified, only agents and instructions whose filenames match that framework's prefix pattern are linked.
+- `cursor` mode always links [AGENTS.md](.cursor/AGENTS.md) and [.cursor/rules](.cursor/rules). [.cursor/skills](.cursor/skills) are framework-filtered using the same prefix-matching rules.
+- Available frameworks: `ansible`, `spring-boot`, `python`, `typescript`, `go`.
 - Existing destination files are replaced before relinking; source files in this repository are never modified.
 
 ## Agent Catalog
@@ -48,11 +61,11 @@ cd /absolute/path/to/consumer-project
 - [spring-verifier.agent.md](.github/agents/spring-verifier.agent.md): verification gate agent. Runs dependency preflight, build, test, environment classification, and IDE diagnostics. Use when: validating a plan before implementation or validating created or modified files after implementation.
 - [spring-documenter.agent.md](.github/agents/spring-documenter.agent.md): documentation agent. Creates or updates README.md based only on files produced by the current pipeline run. Use when: all reviewers have passed and the pipeline is complete.
 - [spring-meta-optimizer.agent.md](.github/agents/spring-meta-optimizer.agent.md): pipeline optimizer. Analyzes all agent outputs from a pipeline run to identify root causes and suggest improvements to agents or instruction files. Use when: after any pipeline completion or iteration cap exceeded.
-- [spring-review-qa.agent.md](.github/agents/spring-review-qa.agent.md): QA topic reviewer.
-- [spring-review-security.agent.md](.github/agents/spring-review-security.agent.md): security topic reviewer.
-- [spring-review-performance.agent.md](.github/agents/spring-review-performance.agent.md): performance topic reviewer.
-- [spring-review-i18n.agent.md](.github/agents/spring-review-i18n.agent.md): i18n topic reviewer.
-- [spring-review-database.agent.md](.github/agents/spring-review-database.agent.md): database topic reviewer.
+- [spring-review-qa.agent.md](.github/agents/spring-review-qa.agent.md): QA reviewer. Reviews code-quality instruction files for created or modified files. Use when: reviewing code quality, style, controller/service/test rules, or general code compliance after implementation.
+- [spring-review-security.agent.md](.github/agents/spring-review-security.agent.md): security reviewer. Reviews security instruction files for created or modified files. Use when: reviewing security guard compliance, sensitive-data handling, configuration hardening, or security-specific rule coverage after implementation.
+- [spring-review-performance.agent.md](.github/agents/spring-review-performance.agent.md): performance reviewer. Reviews performance-related instruction files for created or modified files. Use when: reviewing pagination, async processing, or performance-specific rule coverage after implementation.
+- [spring-review-i18n.agent.md](.github/agents/spring-review-i18n.agent.md): i18n reviewer. Reviews internationalization instruction files for created or modified files. Use when: reviewing message keys, locale behavior, translated output, or i18n-specific rule coverage after implementation.
+- [spring-review-database.agent.md](.github/agents/spring-review-database.agent.md): database reviewer. Reviews database instruction files for created or modified files. Use when: reviewing repository code, schema files, models, or JDBC-first data access after implementation.
 
 ## Cursor overlays
 
@@ -83,6 +96,11 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 |---|---|---|
 | [copilot-instructions.md](.github/copilot-instructions.md) | `**` | Always-on behavioral baseline for directness, scope control, anti-hallucination, and strict refusal protocols across all workspace tasks. |
 | [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md) | `**/*.agent.md, **/hooks/**/*.json, **/hooks/**/*.md, **/*.instructions.md, **/*.prompt.md, **/skills/**/SKILL.md, **/copilot-instructions.md` | Style contract for AI customization files: structure, wording, conflict handling, and scoring rubric for consistent, enforceable guidance. |
+| [ansible-architecture.instructions.md](.github/instructions/ansible-architecture.instructions.md) | `**` | Global architecture baseline for Ansible automation repositories with project layout, playbook sequencing, and idempotency conventions. |
+| [ansible-config.instructions.md](.github/instructions/ansible-config.instructions.md) | `**/ansible.cfg` | ansible.cfg governance contract for runtime defaults, connection behavior, and safe automation settings. |
+| [ansible-playbook-style.instructions.md](.github/instructions/ansible-playbook-style.instructions.md) | `**/*.yml` | Playbook and task style contract for Ansible YAML files, including task naming, condition placement, and include/import policy. |
+| [ansible-role.instructions.md](.github/instructions/ansible-role.instructions.md) | `roles/**` | Role governance contract for Ansible roles, including directory ownership, task composition, and variable boundaries. |
+| [ansible-template.instructions.md](.github/instructions/ansible-template.instructions.md) | `**/*.j2` | Jinja2 template contract for Ansible role templates: variable safety, block formatting, and rendered-output hygiene. |
 | [spring-boot-actuator.instructions.md](.github/instructions/spring-boot-actuator.instructions.md) | `**/src/main/resources/application*.yml, **/src/test/java/**/*.java` | Spring Boot actuator and observability contract: endpoint exposure, health probes, metrics, tracing, sampling, and sensitive-data boundaries. |
 | [spring-boot-api-versioning.instructions.md](.github/instructions/spring-boot-api-versioning.instructions.md) | `**/*Controller.java` | API versioning rules: coexistence strategy, deprecation headers, and DTO evolution across versions. |
 | [spring-boot-application.instructions.md](.github/instructions/spring-boot-application.instructions.md) | `**/*Application.java` | Spring Boot main application entry-point contract for bootstrap class placement, annotation discipline, and startup configuration safety. |

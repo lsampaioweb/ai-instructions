@@ -1,0 +1,28 @@
+I will provide you a full prompt, but for now, I want you to only create the project and their pom.xml, but do not create any other files for now, ok? I just want to see how the projects will look like.
+
+Here is the prompt:
+Create a 6-service home-lab trading system using Spring Boot 4, Java 25, PostgreSQL, and RabbitMQ, deployed via Podman Compose under spring-boot-tutorial/samples/24-trading-system.
+
+The architecture must maintain a strict separation of concerns across 6 dedicated services:
+
+1. ingestor: An exchange-agnostic REST ingestor that supports WebSocket connections to Binance, with provisions for future exchange implementations using clean interfaces.
+2. persister: An async batch worker that consumes ticks from its queue and uses a LinkedBlockingQueue with bulk inserts to update the PostgreSQL database efficiently.
+3. signal: An event-driven component that consumes live ticks and evaluates active trading rules against its local Caffeine cache to emit trade signals. To protect limited home-lab CPU, it must use highly optimized incremental math (for example, streaming simple moving averages by adding/subtracting sliding window deltas, or using single-step exponential moving averages) rather than recalculating full histories on every tick.
+4. manager: The money and account hub that consumes trade signals, validates user balances and holdings against a local cache, and enforces an operational cool-down throttle before executing trades natively.
+5. portal: A Spring Boot web application using Thymeleaf and AJAX providing a secure user UI for login, viewing real-time symbol prices, registering for high/low price alerts, and managing trading rule configurations.
+6. billing: A standalone service that processes subscriptions and payments.
+
+Messaging and Queue Topology:
+
+- The ingestor must publish incoming data to a RabbitMQ fan-out exchange named trading.ticks.fanout.
+- Bind two distinct queues to this exchange so both consumers get an independent copy of every message:
+- trading.ticks.persister.queue (consumed by persister)
+- trading.ticks.signal.queue (consumed by signal)
+
+- The signal service must publish generated trade opportunities to a separate trading.signals.exchange routing to a signals.queue consumed by the manager service.
+
+Technical Constraints and Optimization:
+
+- High-Scale Indexing: The signal service must maintain an in-memory indexing strategy within Caffeine, mapping active rules by token and target price thresholds for instant $O(1)$ lookups, avoiding CPU-heavy loops over millions of potential user rules.
+- Resiliency: Implement a RabbitMQ Dead Letter Queue with a three-retry exponential backoff policy for the tick ingestion flow.
+- Security and Operations: Toggle between JWT or Session security configurations using Spring profiles. Use static environment variables for service hostname mappings, enforce structured JSON stdout logging, and include minimalist Spring Actuator endpoints for basic observability.

@@ -64,5 +64,5 @@ If `STATUS: PASS`, the `ISSUES` section must be empty.
 
 - DO NOT implement, modify, or reformat code.
 - DO NOT evaluate correctness, style, or architecture beyond dependency preflight and verification gates.
-- DO NOT use pre-trained knowledge about any technology, framework, or language to add requirements not stated by the ADR or instruction files.
 - DO NOT continue to later gates after a failing earlier gate.
+- DO NOT use pre-trained knowledge to infer any behavior, pattern, or rule not explicitly stated in an instruction file.

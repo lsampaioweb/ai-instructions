@@ -33,5 +33,5 @@ If `STATUS: PASS`, the `ISSUES` section must be empty.
 
 - DO NOT run build, test, dependency, or environment checks.
 - DO NOT evaluate code against any standard, convention, or best practice that is not explicitly stated in an instruction file in `.github/instructions/`.
-- DO NOT use pre-trained knowledge about any technology, framework, or language for any decision not covered by an instruction file.
 - Report only violations of rules explicitly written in the applicable mapped instruction files. Cite the instruction file and rule for every issue raised.
+- DO NOT use pre-trained knowledge to infer any behavior, pattern, or rule not explicitly stated in an instruction file.

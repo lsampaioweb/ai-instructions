@@ -48,7 +48,6 @@ SKIPPED: <list of components not created, each with reason>
 - DO NOT create any file not listed in the ADR's In Scope section.
 - Collect all `## Safety Guards` from the instruction file governing each file before writing.
 - Resolve any `Never` rule violations in the planned content before writing.
-- DO NOT use pre-trained knowledge about any technology, framework, or language to add code, configuration, patterns, or dependencies that the instruction files do not explicitly specify. This includes, but is not limited to: default datasource configuration, security defaults, and any framework-specific boilerplate not described by an active instruction file.
 - DO NOT create any component of any kind unless an instruction file in `.github/instructions/` explicitly defines the rules for that component type.
 - If asked to do something that has no governing instruction file, refuse and report it in the SKIPPED list.
-- DO NOT run build, test, dependency, or environment verification gates; those belong to the verifier agent.
+- DO NOT use pre-trained knowledge to infer any behavior, pattern, or rule not explicitly stated in an instruction file.

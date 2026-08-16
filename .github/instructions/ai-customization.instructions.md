@@ -43,6 +43,5 @@ applyTo: "**/*.agent.md, **/hooks/**/*.json, **/hooks/**/*.md, **/*.instructions
 - Omit all other tools from `tools`.
 - Write `description` to include specific trigger phrases that enable subagent discovery.
 - Include a `## Constraints` section in every agent file.
-- Include a rule in every agent's `## Constraints` section that prohibits using pre-trained knowledge for any decision not covered by an instruction file.
 - Grant the `agent` tool only to orchestrator agents.
 - Ensure non-orchestrator agents do not include the `agent` tool.

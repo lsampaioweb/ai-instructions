@@ -29,11 +29,24 @@ argument-hint: "Required: raw output from another AI model: feedback, plan, code
 - **Uncertainty Gate:** See `review-code-against-instructions.prompt.md` Safety Guards.
 
 ## 4. Review Plan Layout
-Use this exact order for every point:
-**Point XX**: short quote or summary of the original point.
-- **Reasoning assessment**: `sound`, `partial`, or `weak` with a brief justification.
-- **Gaps**: specific missing assumptions, evidence, or edge cases.
-- **Decision**: `adopt`, `adapt`, or `reject`.
-- **Recommended action**: better or additional action.
-- **Actionable now**: `yes` or `no`, and what can be executed immediately.
-- **Risk note**: potential regressions or new problems.
+Use this exact markdown schema:
+
+### Scope
+- Target: <external AI output>
+- Mode: <read-only | apply-after-confirmation>
+
+### Result
+- Summary: <count of points and decision distribution>
+
+### Point Decisions
+- P01 | Decision: adopt|adapt|reject | Reasoning: sound|partial|weak | Actionable now: yes|no
+- P02 | Decision: adopt|adapt|reject | Reasoning: sound|partial|weak | Actionable now: yes|no
+
+### Evidence
+- For each point, include: `PXX gaps`, `PXX recommended action`, `PXX risk note`.
+
+### Next Action
+- <single minimal next step or `none`>
+
+### Verdict
+- READY | NEEDS FIXES | BLOCKED
