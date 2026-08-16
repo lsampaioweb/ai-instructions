@@ -8,6 +8,7 @@ applyTo: "**/roles/**"
 ## Dependencies
 
 - For task-execution conventions (idempotency, variable passing, and `changed_when`/`failed_when` keys), defer to `ansible-playbook-style.instructions.md`.
+- For playbook and task naming conventions, see `ansible-playbook-style.instructions.md`.
 
 ## Naming Conventions
 
@@ -35,8 +36,8 @@ applyTo: "**/roles/**"
     namespace: my_namespace   # lowercase; DNS-style namespace for Galaxy
     author: Author Name
     description: "Role description"
-    license: MIT              # or applicable license
-    min_ansible_version: "2.10"
+    license: MIT              # required field
+    min_ansible_version: "2.10"  # required field; optional fields (tags, github_branch, etc.) below per ansible-galaxy requirements
   ```
 - Run `ansible-lint` to validate `meta/main.yml` for Galaxy compliance before marking role complete.
 - Do not assume default role name from directory; always explicitly declare `role_name` and `namespace`.
@@ -55,6 +56,10 @@ applyTo: "**/roles/**"
 
 ### Cross-role reuse
 - Keep cross-role reuse explicit through `import_role` or `include_role`.
+- Use `ansible.builtin.import_role` for static role composition known at parse time.
+- Use `ansible.builtin.include_role` when static import cannot satisfy the use case (including but not limited to: dynamic role names, loops, or host-fact-driven branching).
+- Use `ansible.builtin.include_role` with `loop` when the same role must run multiple times with varying parameters.
+- Pass parameters to roles exclusively through `vars` on the `import_role` or `include_role` call.
 - Use `tasks_from` on `import_role`/`include_role` to target a specific task file.
 
 ## Safety Guards

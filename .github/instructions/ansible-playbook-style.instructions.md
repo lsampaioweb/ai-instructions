@@ -1,9 +1,13 @@
 ---
-description: "Playbook and task style contract for Ansible YAML files, including task naming, condition placement, and include/import policy."
+description: "Playbook and task style contract for Ansible YAML files, including task naming, condition placement, and task-level import/include policy."
 applyTo: "**/*.yml"
 ---
 
 # Ansible Playbook Style Contract
+
+## Dependencies
+
+- For role composition and directory structure, see `ansible-role.instructions.md` which applies these task conventions inside roles.
 
 ## Naming Conventions
 
@@ -34,10 +38,8 @@ applyTo: "**/*.yml"
 
 ### Import vs include policy
 - Use `ansible.builtin.import_tasks` for static task-file composition known at parse time.
-- Use `ansible.builtin.include_tasks` only when runtime evaluation is required, such as dynamic filenames, loops, or host-fact-driven branching.
-- Use `ansible.builtin.import_role` for static role composition known at parse time.
-- Use `ansible.builtin.include_role` only when runtime evaluation is required, such as dynamic role names, loops, or host-fact-driven branching.
-- Use `ansible.builtin.include_role` with `loop` when the same role must run multiple times with varying parameters.
+- Use `ansible.builtin.include_tasks` when static import cannot satisfy the use case (including but not limited to: dynamic filenames, loops, or host-fact-driven branching).
+- For role composition decisions (`import_role` vs `include_role`), see `ansible-role.instructions.md`.
 
 ### Module and play declarations
 - Keep module invocations fully qualified (for example, `ansible.builtin.*`).
@@ -85,7 +87,6 @@ applyTo: "**/*.yml"
 - After refactoring any `when`, `failed_when`, or `changed_when`, run syntax checks for all maintained inventories before merging.
 
 ### Variable and register conventions
-- Pass parameters to roles exclusively through `vars` on the `import_role` or `include_role` call.
 - Name `register` variables with a descriptive snake_case noun that reflects the registered data or operation intent.
 - Use `output` as the register variable name **only** for true pass-through task wrappers where the task directly invokes a role and returns its result unchanged (example: importing a role that handles apt packages and returning the apt result as-is).
 - For most tasks, prefer descriptive names: `package_list`, `service_status`, `installed_extensions`, `reboot_required`, etc.
