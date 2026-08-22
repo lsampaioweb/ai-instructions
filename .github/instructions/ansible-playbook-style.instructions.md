@@ -42,15 +42,14 @@ applyTo: "**/*.yml"
 - For role composition decisions (`import_role` vs `include_role`), see `ansible-role.instructions.md`.
 
 ### Dynamic include safety
-- When using dynamic `include_tasks` with runtime variable interpolation (for example `include_tasks: "{{ variable }}.yml"`), document the expected file paths and valid variable values in a comment above the task.
-- Validate runtime variables before dispatch when feasible: use `assert` to confirm the variable is defined and matches an expected pattern, or gate the include with a `when` condition that validates the source.
+- When using dynamic `include_tasks` with runtime variable interpolation, document the expected file paths and valid variable values in a comment above the task.
+- Validate runtime variables before dispatch: use `assert` to confirm the variable matches an expected pattern, or gate the include with a `when` condition that validates the source.
 - On dynamic includes with optional file paths, use `block`/`rescue` to handle missing-file failures gracefully, or pre-check file existence with `stat` before attempting the include.
-- Example: if `include_tasks: "{{ config_vars.certificate.signing_provider | lower }}.yml"` may fail if the provider is invalid, add a preceding `assert` task: `assert: { that: config_vars.certificate.signing_provider in ['openssl', 'vault'], fail_msg: 'Invalid signing_provider' }`.
 
 ### Module and play declarations
 - Keep module invocations fully qualified (for example, `ansible.builtin.*`).
 - Replace deprecated modules before their announced ansible-core removal version.
-- Track deprecated-module replacements as planned work; do not defer migration past one minor release before removal.
+- Track deprecated-module replacements in project planning; verify compatibility against the supported Ansible version matrix in CI before each merge.
 - Keep top-level play declarations explicit with `hosts` and a privilege model decision.
 - Set play-level `become` only when tasks require escalation from the connection user.
 - Do not require play-level `become` when the connection user is already privileged (for example, `ansible_user: root`).
@@ -77,10 +76,6 @@ applyTo: "**/*.yml"
 - Keep the task `name` and any surrounding comment explicit enough to show that a `changed_when: false` command or shell task is a read-only probe.
 - Use `failed_when` as a list of conditions when failure semantics require multiple guards.
 - Use `failed_when: false` **only** when a follow-up task **immediately and unconditionally** validates or reports the result. Do not use it for optional/skippable error cases.
-  - **Good**: `failed_when: false` followed by a task that checks `rc` and decides whether to fail or continue
-  - **Good**: Reading from a system that may not exist (file, service, etc.), then checking if read succeeded
-  - **Bad**: `failed_when: false` without a clear validation task immediately after
-  - **Bad**: Suppressing errors as a substitute for proper error handling logic
 - Use `retries` with `until` and `delay` for tasks that poll for an eventual state.
 - Always set an explicit `retries` count on any task that uses `until`.
 - Use `ignore_errors: true` only when a follow-up task immediately evaluates or reports the failure.

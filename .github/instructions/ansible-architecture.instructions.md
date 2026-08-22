@@ -33,10 +33,9 @@ applyTo: "**"
 - Keep every play result deterministic: tasks must reach `ok` or `skipped` on a second run with no `changed` state on the target.
 
 ### Validation & Tooling
-- Require all code to pass `ansible-lint` with **0 failures, 0 warnings** in production profile before code is merged.
-- Maintain `.ansible-lint` configuration file in the project root with explicit `skip_list` and `warn_list` if project-specific exceptions are needed.
 - Validate YAML syntax on all playbooks and roles before committing.
 - Document all ansible-core and ansible-lint versions used in CI/CD or development setup to ensure consistent validation across environments.
+- For lint governance, ansible-lint configuration, and skip/warn list policy, see `ansible-config.instructions.md`.
 
 ## Safety Guards
 

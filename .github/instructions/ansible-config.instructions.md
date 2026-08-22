@@ -21,8 +21,8 @@ applyTo: "**/ansible.cfg"
 - Keep `inventory` set to the repository-managed inventory path (for example `inventory/hosts` or `inventory/home`).
 - Always set `forks` explicitly.
 - Always set `retry_files_enabled = false`.
-- Set `gathering = smart` for SSH-based plays.
-- Set `gathering = explicit` only when no facts are needed for the play.
+- Set `gathering = smart` as the global default for SSH-based projects.
+- Set `gather_facts: false` at the play level when a play requires no facts instead of modifying the global `gathering` setting.
 
 ### Callbacks and profiling
 - Set `callbacks_enabled = timer, profile_roles` as the baseline for all projects.
