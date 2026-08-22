@@ -7,7 +7,7 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 
 ## 1. Scope & Analysis
 1. Target only user-provided scope. If missing, stop and request inputs.
-2. Load and apply the style contract from `.github/instructions/ai-customization.instructions.md`.
+2. Load and apply the style contract from `.github/instructions/ai-customization.instructions.md`. If the contract file is absent, flag H1 as a blocking prerequisite and stop.
 3. Establish active cross-file references across target directories.
 
 ## 2. Resolution Rules
@@ -19,7 +19,13 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
   4. Directives (ambiguous or non-enforceable phrasing).
   5. Frontmatter (routing patterns, discoverability).
   6. Token efficiency (density; reward high-signal literals; penalize descriptive bloat).
-- **Scoring Protocol:** Score each file 0–10. Assign 0–2 per dimension with factual justification. Map dimensions as follows: Clarity = frontmatter + token efficiency (2 checklist items → 1 column), Enforceability = directives, Consistency = cross-file alignment, Brevity = verbosity, Conflict-Free = duplicates + conflicts (2 checklist items → 1 column).
+- **Scoring Protocol:** Score each file 0–10, assigning 0–2 per dimension with factual justification.
+- **Scoring Dimension Mapping:**
+  - Clarity = frontmatter + token efficiency (2 checklist items → 1 column).
+  - Enforceability = directives (1 column).
+  - Consistency = cross-file alignment (1 column).
+  - Brevity = verbosity (1 column).
+  - Conflict-Free = duplicates + conflicts (2 checklist items → 1 column).
 - **Status Classification:** PASS (9–10) | WARN (7–8) | FAIL (0–6).
 
 ## 3. Safety Guards

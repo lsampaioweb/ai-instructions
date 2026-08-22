@@ -1,6 +1,6 @@
 ---
 description: "Use to synchronize Markdown documentation with current code and configuration behavior."
-argument-hint: "Required: scope, folder path, or feature-area filter; omit to sync from uncommitted changes then recent commits."
+argument-hint: "Optional: scope, folder path, or feature-area filter; omit to sync from uncommitted changes then recent commits."
 ---
 
 # Markdown Documentation Sync Engine
@@ -39,3 +39,6 @@ Use this exact markdown schema:
 
 ### Next Action
 - <single minimal next step or `none`>
+
+### Verdict
+- READY | NEEDS FIXES | BLOCKED

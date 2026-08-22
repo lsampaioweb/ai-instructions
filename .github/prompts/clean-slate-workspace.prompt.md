@@ -14,8 +14,7 @@ argument-hint: "Required: scope notes or exclusions; omit to clean all artifacts
 - Do not delete anything until inspection is complete and targets are listed.
 - Ask for explicit confirmation before deletion.
 - Delete only artifacts created in this chat.
-- Treat ambiguous ownership as user-authored.
-- Do not delete or modify user-authored files.
+- Treat ambiguous ownership as user-authored and never delete or modify user-authored files or ambiguous-ownership artifacts.
 - Do not touch persistent user-level memories or reusable customizations unless they were created for this workspace in this chat.
 - Remove empty directories left by deletions.
 - Confirm no session-created files or empty directories remain after deletion.

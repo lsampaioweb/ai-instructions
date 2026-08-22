@@ -1,6 +1,6 @@
 ---
 description: "Use to cluster uncommitted changes into logical, feature-scoped Conventional Commits and execute after approval."
-argument-hint: "Required: path or feature-scope filter; omit to cluster all uncommitted changes."
+argument-hint: "Optional: path or feature-scope filter; omit to cluster all uncommitted changes."
 ---
 
 # Logical Git Commit Engine

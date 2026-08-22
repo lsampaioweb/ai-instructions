@@ -26,7 +26,7 @@ argument-hint: "Required: raw output from another AI model: feedback, plan, code
 ## 3. Safety Guards
 - Do not fabricate repository facts, runtime behavior, or validation evidence.
 - **Execution Boundary:** Apply edits or mutations only after the full review output is complete and the user explicitly confirms which actions to apply.
-- **Uncertainty Gate:** See `review-code-against-instructions.prompt.md` Safety Guards.
+- **Uncertainty Gate:** If context is insufficient to validate a point, state uncertainty explicitly and stop.
 
 ## 4. Review Plan Layout
 Use this exact markdown schema:
