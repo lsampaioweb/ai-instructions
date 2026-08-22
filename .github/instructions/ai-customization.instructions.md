@@ -36,6 +36,8 @@ applyTo: "**/*.agent.md, **/hooks/**/*.json, **/hooks/**/*.md, **/*.instructions
 - Keep `## Approved Exception Handling` only when temporary exceptions are a first-class protocol for that domain; put design alternatives in Rules.
 - Order rules within each section to match the top-to-bottom structure of the governed file.
 - Place rules about elements that appear earlier in the target file before rules about elements that appear later.
+- Keep durable false-positive dismissals for code-vs-instruction reviews in `.github/instructions/review-suppressions.instructions.md`; prefer narrowing the cited instruction or domain Approved Exception Handling before adding a suppression row.
+- Require every Active Suppressions row to include stable `SUP-NNN` ID, Path, Rule citation, Reason, Owner, Expiry (`YYYY-MM-DD`), and Status (`active`|`expired`).
 
 ### Agent File Rules
 
