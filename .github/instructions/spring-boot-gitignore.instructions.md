@@ -1,0 +1,27 @@
+---
+description: "Spring Boot .gitignore contract for safe, complete exclusion of build output, IDE artifacts, OS files, secrets, and logs."
+applyTo: "**/.gitignore"
+---
+
+# Spring Boot .gitignore Engine
+
+## Rules
+- Every Spring Boot project must have a `.gitignore` at the repository root.
+- Group exclusion rules by category with a `#` comment header above each group.
+- Exclude `target/` for Maven build output.
+- Exclude Maven Release plugin artifacts: `release.properties`, `pom.xml.releaseBackup`.
+- Exclude IntelliJ IDEA artifacts: `.idea/`, `*.iml`, `*.iws`, `*.ipr`.
+- Exclude Eclipse and STS artifacts: `.project`, `.classpath`, `.factorypath`, `.settings/`, `.apt_generated`, `.sts4-cache`.
+- Exclude `.vscode/` for VS Code workspace artifacts.
+- Allow `.vscode/extensions.json` and `.vscode/settings.json` as tracked exceptions using `!` negation patterns.
+- Exclude OS artifacts: `.DS_Store`, `Thumbs.db`.
+- Exclude secrets and local overrides: `*.env`, `.env`, `application-local.yml`, `application-local.properties`.
+- Exclude TLS credential files: `*.p12`, `*.crt`, `*.key`, `*.pfx`.
+- Exclude log output directories and files: `logs/`, `*.log`, `*.gz`.
+- Exclude JVM crash log files: `hs_err_pid*`.
+
+## Safety Guards
+- Never commit `application-local.*` files; they are runtime-only overrides containing environment-specific secrets.
+- Never commit TLS credential files to source control.
+- Never use glob patterns (`target/*`) where directory patterns (`target/`) are more precise and cover nested paths.
+- Never exclude the `.mvn/` directory when it contains the Maven wrapper; the wrapper is intentionally tracked.

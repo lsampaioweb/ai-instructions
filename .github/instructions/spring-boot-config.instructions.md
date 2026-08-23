@@ -1,0 +1,45 @@
+---
+description: "Spring Boot configuration contract for externalized, profile-aware, and safe configuration management."
+applyTo: "**/src/main/resources/application*.yml, **/*ConfigurationProperties.java"
+---
+
+# Spring Boot Config Engine
+
+## Naming Conventions
+- Use dot-separated lowercase property keys with a consistent root namespace prefix (e.g., `app.pagination.default-size`, `app.security.jwt.expiry`).
+
+## Rules
+- Set `spring.application.name` for service identity used by logging and tracing context.
+- Keep `application.yml` as the base configuration file for each runnable module.
+- Keep values shared by all environments in `application.yml` only.
+- Add `application-development.yml` and `application-production.yml` for distinct runtime environments.
+- Keep profile files limited to keys whose effective values differ from `application.yml`.
+- Use `production` as the default active profile in `application.yml`, unless the user explicitly requests another default.
+- Set `spring.threads.virtual.enabled: true` in `application.yml` for Java 25 modules.
+- Set `logging.config: "classpath:log/logback-spring.xml"` in `application.yml`.
+- Set `spring.devtools.restart.enabled: true` in `application.yml` when `spring-boot-devtools` is declared.
+- Configure `spring.datasource.hikari.*` with explicit pool sizing in `application.yml` for JDBC modules.
+- Set `server.port: 8080` in `application-development.yml`.
+- Set `server.port: 9443` in `application-production.yml`.
+- Set `server.error.include-stacktrace: "always"` in `application-development.yml`.
+- Set `server.error.include-stacktrace: "never"` as the safe base default in `application.yml`.
+- Do not repeat `server.error.include-stacktrace` in `application-production.yml`.
+- Set `springdoc.swagger-ui.enabled: true` in `application-development.yml`.
+- Set `springdoc.swagger-ui.enabled: false` as the safe base default in `application.yml`.
+- Do not repeat `springdoc.swagger-ui.enabled` in `application-production.yml`.
+- Keep one configuration-properties registration strategy per runnable module: either component-scanned properties classes or explicit `@EnableConfigurationProperties`, but not both.
+- When using `@EnableConfigurationProperties`, register each `@ConfigurationProperties` class in the owning `@Configuration` class, not the main class.
+- Prefer class-level configuration properties over scattered value injection.
+- Annotate `@ConfigurationProperties` classes with `@Validated` and use Bean Validation constraints (e.g., `@NotNull`, `@NotBlank`, `@Min`) on required fields.
+- Use environment variable placeholders without defaults for sensitive attributes (for example, credentials, usernames, passwords, tokens, private keys, and connection secrets).
+- Use environment variable placeholders without defaults in `application.yml` for runtime infrastructure selectors such as datasource URLs, broker URLs, and telemetry exporter endpoints.
+- Use fail-fast configuration behavior for sensitive attributes so application startup fails when required sensitive environment values are missing.
+- Allow default values only for non-sensitive attributes.
+- Keep local-development-only fallback values in `application-development.yml`, not in `application.yml`.
+- Use clear, stable property keys with domain prefixes for custom application properties.
+- Keep each custom property namespace owned by a specific feature, integration, or infrastructure component.
+- Keep shared configuration in the module-root `config/` package only for cross-feature infrastructure properties; keep feature-specific configuration properties in feature-package `config/` subdirectories.
+- Add a JavaDoc comment to every new `@ConfigurationProperties` field stating its purpose and the environment in which its value differs from the base default.
+
+## Safety Guards
+- Never commit real secrets, credentials, or private tokens in source-controlled configuration files.

@@ -1,0 +1,24 @@
+---
+description: "Spring Boot main application entry-point contract for bootstrap class placement, annotation discipline, and startup configuration safety."
+applyTo: "**/*Application.java"
+---
+
+# Spring Boot Application Entry-Point Engine
+
+## Naming Conventions
+- Name the main class after the module using the `*Application` suffix with a meaningful module prefix (e.g., `HolidaysApplication`, `AccountingApplication`).
+- Do not use the bare name `Application`.
+
+## Rules
+- Place the main class in the root of the base package (e.g., `br.com.lsampaioweb.holidays`), not inside a feature sub-package.
+- Declare the main class as `public`.
+- Annotate the main class with `@SpringBootApplication` only.
+- Keep the main class body limited to the `main` method that calls `SpringApplication.run`.
+- Place `@Enable*` annotations (e.g., `@EnableScheduling`, `@EnableAsync`, `@EnableConfigurationProperties`) on dedicated `@Configuration` classes that own the corresponding concern.
+- Rely on `@SpringBootApplication`'s default component scan.
+- Do not specify `scanBasePackages` unless a cross-module scan is explicitly required and approved.
+
+## Safety Guards
+- Never declare more than one `@SpringBootApplication` class per runnable module.
+- Never override the default component-scan root without explicit user approval.
+- Never implement `CommandLineRunner` or `ApplicationRunner` in the main class.
