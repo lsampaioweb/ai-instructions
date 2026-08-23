@@ -1,9 +1,7 @@
 
 # Ansible settings should be ignored.
-.ansible
+.ansible/
 
 # VS Code settings should be ignored.
-.vscode
+.vscode/
 
-# The AI Custom files should be ignored.
-.github
