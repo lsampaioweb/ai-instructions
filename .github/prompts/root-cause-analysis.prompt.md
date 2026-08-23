@@ -16,8 +16,7 @@ argument-hint: "Required: error logs, stack traces, or terminal output."
 - Do not bypass visibility modifiers.
 - Do not suppress exceptions.
 - Do not inject unapproved dependencies.
-- Code fixes must adhere to packaging conventions defined by the active project architecture.
-- Code fixes must adhere to data-access patterns defined by the active project architecture.
+- Code fixes must adhere to packaging conventions and data-access patterns defined by the active project architecture.
 - Code fixes must respect dependency boundaries and detected runtime version constraints.
 - Correct broken interface contracts when they cause the failure.
 - Align data schemas when schema mismatch causes the failure.

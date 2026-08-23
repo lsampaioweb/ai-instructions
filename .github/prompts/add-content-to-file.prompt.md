@@ -25,8 +25,7 @@ argument-hint: "Required: #file:path/to/file and the new content to add"
 - Correct only clear grammar errors (e.g., subject-verb agreement, missing articles).
 
 ## 3. Safety Guards
-- Do not change non-targeted sections.
-- Never rephrase sentences; grammar corrections limited to inflection or missing articles are exempt.
+- Never rephrase sentences; grammar corrections are limited to those described in the Resolution Rules.
 
 ## 4. Review Plan Layout
 Use this exact markdown schema:

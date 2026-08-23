@@ -11,8 +11,7 @@ argument-hint: "Optional: scope, folder path, or feature-area filter; omit to sy
 3. Correlate code and configuration deltas with impacted Markdown targets.
 
 ## 2. Resolution Rules
-- **Execution Target:** Update Markdown only when code or configuration changes alter documented behavior or setup.
-- **Markdown Boundary:** Update `*.md` only when the mapped change affects onboarding, execution, or architecture.
+- **Execution Target:** Update `*.md` only when code or configuration changes alter documented onboarding, execution, or architecture behavior.
 - **Style Match:** Match existing formatting, heading style, and list conventions.
 - **Correction Protocol — Content:** Repair stale instructions, outdated keys, and deprecated paths.
 - **Correction Protocol — References:** Resolve broken links and replace obsolete examples.
