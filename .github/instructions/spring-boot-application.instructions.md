@@ -3,8 +3,6 @@ description: "Spring Boot main application entry-point contract for bootstrap cl
 applyTo: "**/*Application.java"
 ---
 
-# Spring Boot Application Entry-Point Engine
-
 ## Naming Conventions
 - Name the main class after the module using the `*Application` suffix with a meaningful module prefix (e.g., `HolidaysApplication`, `AccountingApplication`).
 - Do not use the bare name `Application`.

@@ -52,6 +52,7 @@ cd /absolute/path/to/consumer-project
 - `cursor` mode always links [AGENTS.md](.cursor/AGENTS.md) and [.cursor/rules](.cursor/rules). [.cursor/skills](.cursor/skills) are framework-filtered using the same prefix-matching rules.
 - Available frameworks: `ansible`, `spring-boot`, `python`, `typescript`, `go`.
 - Existing destination files are replaced before relinking; source files in this repository are never modified.
+- The linker does not delete leftover files. Before re-linking Cursor overlays after a slim rebuild, remove the consumer `.cursor/rules` and `.cursor/skills` directories so stale `.mdc` / `SKILL.md` files do not remain.
 
 ## Agent Catalog
 
@@ -69,9 +70,28 @@ cd /absolute/path/to/consumer-project
 
 ## Cursor overlays
 
-- [AGENTS.md](.cursor/AGENTS.md): always-on Cursor project behavior baseline.
-- [.cursor/rules](.cursor/rules): path-scoped Cursor rules derived from the Spring Boot and AI customization contracts.
-- [.cursor/skills](.cursor/skills): explicit Cursor workflows for documentation sync, reviews, commit planning, cleanup, and Spring-role orchestration.
+Slim Cursor experiment: always-on stack card plus a few glob rules with good/bad Java. Casual Agent chat should follow these without invoking a Copilot agent. GitHub Copilot agents and instruction files remain available separately.
+
+- [AGENTS.md](.cursor/AGENTS.md): always-on behavior baseline and Spring stack card (JDBC, feature packages, constructor injection, XML SQL).
+- [.cursor/rules](.cursor/rules): path-scoped rules with inline examples.
+
+| File | Globs | Purpose |
+|---|---|---|
+| [spring-boot-architecture.mdc](.cursor/rules/spring-boot-architecture.mdc) | `**/pom.xml`, `**/src/**` | Feature-first packages, `shared` types, ORM ban |
+| [spring-boot-pom.mdc](.cursor/rules/spring-boot-pom.mdc) | `**/pom.xml` | Spring Boot `4.1.1`, Java `25`, no JPA/Lombok/MapStruct unless asked |
+| [spring-boot-persistence.mdc](.cursor/rules/spring-boot-persistence.mdc) | repositories, models, SQL XML | `JdbcClient`, XML SQL properties, no JPA |
+| [spring-boot-web.mdc](.cursor/rules/spring-boot-web.mdc) | `*Controller.java`, `*Request.java`, `*Response.java` | REST mapping, record DTOs, Optional→404 |
+| [spring-boot-java-style.mdc](.cursor/rules/spring-boot-java-style.mdc) | `**/src/**/*.java` | Imports, visibility, blank line before `return`, helper naming |
+
+- [.cursor/skills](.cursor/skills): five focused workflows. No architect/coder/reviewer pipeline.
+
+| Skill | Invoke | Purpose |
+|---|---|---|
+| [grill-me](.cursor/skills/grill-me/SKILL.md) | `/grill-me` | Interview-first requirements discovery for non-trivial build requests |
+| [handoff](.cursor/skills/handoff/SKILL.md) | `/handoff` | Create a structured handoff for continuing work in another session |
+| [humanizer](.cursor/skills/humanizer/SKILL.md) | `/humanizer` | Revise writing to sound more natural and less formulaic |
+| [spring-boot-feature](.cursor/skills/spring-boot-feature/SKILL.md) | auto on Spring feature work, or `/spring-boot-feature` | Implement requested files by copying the good examples in the glob rules |
+| [prepare-commit-messages](.cursor/skills/prepare-commit-messages/SKILL.md) | `/prepare-commit-messages` | Cluster uncommitted changes into Conventional Commits after approval |
 
 ## Prompt files
 
@@ -87,6 +107,8 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 | [review-code-against-instructions.prompt.md](.github/prompts/review-code-against-instructions.prompt.md) | `/review-code-against-instructions` | Audit the target scope both ways: code against instructions and instructions against code, with minimal remediation actions |
 | [review-other-ai-feedback.prompt.md](.github/prompts/review-other-ai-feedback.prompt.md) | `/review-other-ai-feedback` | Critically review external AI feedback, identify gaps, and suggest concrete improvements |
 | [root-cause-analysis.prompt.md](.github/prompts/root-cause-analysis.prompt.md) | `/root-cause-analysis` | Analyze logs and exceptions to identify root cause and propose permanent architectural fixes |
+| [grill-me.prompt.md](.github/prompts/grill-me.prompt.md) | `/grill-me` | Interview the user before building anything non-trivial |
+| [handoff.prompt.md](.github/prompts/handoff.prompt.md) | `/handoff` | Create a structured handoff document for continuing work in another session |
 
 ## Instruction files
 
@@ -104,6 +126,7 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 | [spring-boot-actuator.instructions.md](.github/instructions/spring-boot-actuator.instructions.md) | `**/src/main/resources/application*.yml, **/src/test/java/**/*.java` | Spring Boot actuator and observability contract: endpoint exposure, health probes, metrics, tracing, sampling, and sensitive-data boundaries. |
 | [spring-boot-api-versioning.instructions.md](.github/instructions/spring-boot-api-versioning.instructions.md) | `**/*Controller.java` | API versioning rules: coexistence strategy, deprecation headers, and DTO evolution across versions. |
 | [spring-boot-application.instructions.md](.github/instructions/spring-boot-application.instructions.md) | `**/*Application.java` | Spring Boot main application entry-point contract for bootstrap class placement, annotation discipline, and startup configuration safety. |
+| [spring-boot-architecture-defaults.instructions.md](.github/instructions/spring-boot-architecture-defaults.instructions.md) | `**/pom.xml, **/src/**/*.java, **/src/main/resources/application*.yml, **/src/main/resources/**/*.sql, **/Dockerfile, **/docker-compose*.yml, **/README.md` | Spring Boot architecture defaults, decision precedence, and machine-checkable constraints for the Architect, Coder, and QA agents. |
 | [spring-boot-architecture.instructions.md](.github/instructions/spring-boot-architecture.instructions.md) | `**/pom.xml, **/src/**` | Global architecture baseline for Spring Boot generation and review. Apply before component-specific instruction files. |
 | [spring-boot-async-events.instructions.md](.github/instructions/spring-boot-async-events.instructions.md) | `**/src/main/java/**/*Event*.java, **/src/main/java/**/*Publisher*.java, **/src/main/java/**/*Consumer*.java, **/src/main/java/**/*Listener*.java, **/src/main/java/**/*AsyncConfiguration*.java` | Spring Boot async-events contract for deterministic event publication, consumer processing, and resilient delivery semantics. |
 | [spring-boot-config.instructions.md](.github/instructions/spring-boot-config.instructions.md) | `**/src/main/resources/application*.yml, **/*ConfigurationProperties.java` | Spring Boot configuration contract for externalized, profile-aware, and safe configuration management. |
@@ -130,7 +153,6 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 | [spring-boot-test.instructions.md](.github/instructions/spring-boot-test.instructions.md) | `**/src/test/java/**/*.java` | Spring Boot testing contract for layer-focused tests, API-contract assertions, and cross-cutting governance checks. |
 | [spring-boot-thymeleaf.instructions.md](.github/instructions/spring-boot-thymeleaf.instructions.md) | `**/*PageController.java, **/*Routes.java, **/templates/**/*.html` | Thymeleaf rules: controller conventions, template layout, model attributes, form binding, and static resource references. |
 | [spring-boot-websocket.instructions.md](.github/instructions/spring-boot-websocket.instructions.md) | `**/*Socket*.java, **/*Stomp*.java` | WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience. |
-| [spring-review-topics.instructions.md](.github/instructions/spring-review-topics.instructions.md) | `**/spring-review-*.agent.md, **/spring-orchestrator.agent.md, **/spring-verifier.agent.md` | Review-topic registry for focused reviewer agents. Use when: routing instruction files by topic for QA, security, database, i18n, or performance review agents. |
 
 To inspect current routing patterns directly:
 

@@ -6,11 +6,11 @@ argument-hint: "Required: #file:path/to/file and the new content to add"
 # Add Content To File Engine
 
 ## 1. Scope & Analysis
-- Read the target file.
-- Identify structure: headings, sections, list patterns, and style conventions.
-- Find exact heading matches for the requested content.
-- Find exact content matches.
-- If no exact match exists, find near matches by heading-keyword overlap.
+1. Read the target file.
+2. Identify structure: headings, sections, list patterns, and style conventions.
+3. Find exact heading matches for the requested content.
+4. Find exact content matches.
+5. If no exact match exists, find near matches by heading-keyword overlap.
 
 ## 2. Resolution Rules
 - Use one insertion target only.
@@ -25,7 +25,9 @@ argument-hint: "Required: #file:path/to/file and the new content to add"
 - Correct only clear grammar errors (e.g., subject-verb agreement, missing articles).
 
 ## 3. Safety Guards
-- Never rephrase sentences; grammar corrections are limited to those described in the Resolution Rules.
+- **Execution Boundary:** Apply the file edit only after the plan is presented and the user explicitly confirms.
+- **No Rephrasing:** Never rephrase sentences.
+- **Grammar Scope:** Limit grammar corrections to those described in the Resolution Rules.
 
 ## 4. Review Plan Layout
 Use this exact markdown schema:

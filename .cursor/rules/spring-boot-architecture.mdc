@@ -1,75 +1,47 @@
 ---
-description: "Global architecture baseline for Spring Boot generation and review. Apply before component-specific rules."
+description: Spring Boot packaging and ORM ban. Use when creating or moving Java sources or editing pom.xml.
 globs: "**/pom.xml,**/src/**"
 alwaysApply: false
 ---
-# Architecture Governance Baseline
 
-## Dependencies
-
-- Treat this section as the component rule registry for Spring Boot application work.
-- Read each linked project rule when planning or reviewing application components:
-  - `.cursor/rules/spring-boot-actuator.mdc` — Spring Boot actuator and observability contract: endpoint exposure, health probes, metrics, tracing, sampling, and sensitive-data boundaries (`**/src/main/resources/application*.yml,**/*Service.java,**/*ServiceImpl.java,**/src/test/java/**/*.java`)
-  - `.cursor/rules/spring-boot-api-versioning.mdc` — API versioning rules: coexistence strategy, deprecation headers, and DTO evolution across versions (`**/*Controller.java`)
-  - `.cursor/rules/spring-boot-application.mdc` — Spring Boot main application entry-point contract for bootstrap class placement, annotation discipline, and startup configuration safety (`**/*Application.java`)
-  - `.cursor/rules/spring-boot-async-events.mdc` — Spring Boot async-events contract for deterministic event publication, consumer processing, and resilient delivery semantics (`**/src/main/java/**/*Event*.java,**/src/main/java/**/*Publisher*.java,**/src/main/java/**/*Consumer*.java,**/src/main/java/**/*Listener*.java,**/src/main/java/**/*AsyncConfiguration*.java`)
-  - `.cursor/rules/spring-boot-config.mdc` — Spring Boot configuration contract for externalized, profile-aware, and safe configuration management (`**/src/main/resources/application*.yml,**/*ConfigurationProperties.java,**/*Properties.java`)
-  - `.cursor/rules/spring-boot-container.mdc` — Compose and Dockerfile container rules: image structure, naming, profile activation, volume mounts, healthcheck, and log directory ownership (`**/Dockerfile,**/docker-compose.yml,**/docker-compose.yaml,**/compose.yml`)
-  - `.cursor/rules/spring-boot-controller.mdc` — Spring Boot controller contract for request mapping, HTTP semantics, validation boundaries, and response consistency (`**/*Controller.java`)
-  - `.cursor/rules/spring-boot-database-schema.mdc` — Database schema and referential-integrity contract: types, naming, constraints, FK actions, and SQL artifact layout (`**/src/main/resources/sql/**/*.xml,**/src/main/resources/sql/**/*.sql`)
-  - `.cursor/rules/spring-boot-dto-mapper.mdc` — Spring Boot DTO-mapper contract for deterministic model mapping and boundary-safe transformations (`**/*Request.java,**/*Response.java,**/*DtoMapper.java`)
-  - `.cursor/rules/spring-boot-enum.mdc` — Spring Boot enum contract for deterministic closed-set domain values in API, domain, and persistence boundaries (`**/src/main/java/**/*Enum.java`)
-  - `.cursor/rules/spring-boot-error-code.mdc` — Spring Boot error-code contract for deterministic machine-readable API error semantics and stable message-key mapping (`**/src/main/java/**/*ErrorCode.java`)
-  - `.cursor/rules/spring-boot-exception.mdc` — Spring Boot exception-handling contract for centralized response mapping, stable error payloads, and controlled failure semantics (`**/*Exception*.java,**/*ExceptionHandler*.java,**/*Advice*.java`)
-  - `.cursor/rules/spring-boot-gitignore.mdc` — Spring Boot .gitignore contract for safe, complete exclusion of build output, IDE artifacts, OS files, secrets, and logs (`**/.gitignore`)
-  - `.cursor/rules/spring-boot-http-client.mdc` — Spring Boot HTTP client contract for deterministic outbound calls, bounded resilience behavior, and secure integration boundaries (`**/src/main/java/**/*HttpClient*.java,**/src/main/java/**/*HttpAdapter*.java,**/src/main/java/**/*HttpConfiguration*.java,**/src/main/java/**/*HttpProperties*.java`)
-  - `.cursor/rules/spring-boot-i18n.mdc` — Spring Boot i18n contract for message-key governance, locale behavior, and translation-safe output (`**/messages*.properties,**/application*.yml,**/*Messages.java,**/*LogMessages.java,**/i18n/**/*.java`)
-  - `.cursor/rules/spring-boot-java-style.mdc` — Java coding style contract for import ordering, visibility discipline, string constants, blank-line rules, and helper extraction across all Java source files (`**/src/**/*.java`)
-  - `.cursor/rules/spring-boot-logging.mdc` — Spring Boot logging contract for application log events, Logback appenders, rotation, and profile-level log routing (`**/*Controller.java,**/*Service.java,**/*ServiceImpl.java,**/*Repository.java,**/*RepositoryImpl.java,**/*Filter.java,**/*Interceptor.java,**/*Advice.java,**/src/main/resources/**/logback-spring.xml`)
-  - `.cursor/rules/spring-boot-model.mdc` — Spring Boot domain model contract for JDBC-first internal model types, boundary isolation, and persistence-free field declarations (`**/*Model.java`)
-  - `.cursor/rules/spring-boot-openapi.mdc` — Spring Boot OpenAPI contract for documented API metadata, discoverable endpoints, and stable specification output (`**/OpenApiConfig.java,**/openapi/**/*.java,**/src/main/resources/application*.yml,**/*Controller.java`)
-  - `.cursor/rules/spring-boot-pagination.mdc` — Spring Boot pagination contract for pageable queries, deterministic ordering, and consistent paged response metadata (`**/*Controller.java,**/*Pagination*.java,**/src/main/resources/application*.yml`)
-  - `.cursor/rules/spring-boot-pom.mdc` — Spring Boot Maven contract for dependency, plugin, and build-governance decisions (`**/pom.xml`)
-  - `.cursor/rules/spring-boot-readme.mdc` — README structure rules for required sections, actionable content, fenced code blocks, and no-filler-prose policy (`README.md,**/README.md`)
-  - `.cursor/rules/spring-boot-repository.mdc` — Spring Boot repository contract for JDBC-first data access, interface-implementation separation, and SQL safety (`**/*Repository.java,**/*RepositoryImpl.java,**/*SqlConfigurationProperties.java,**/*SqlColumns.java`)
-  - `.cursor/rules/spring-boot-security.mdc` — Spring Boot security contract for authentication, authorization, service-level checks, and endpoint protection boundaries (`**/*SecurityConfig.java,**/security/**/*.java`)
-  - `.cursor/rules/spring-boot-service.mdc` — Spring Boot service contract for business orchestration, transaction boundaries, and dependency-safe application logic (`**/*Service.java,**/*ServiceImpl.java`)
-  - `.cursor/rules/spring-boot-test.mdc` — Spring Boot testing contract for layer-focused tests, API-contract assertions, and cross-cutting governance checks (`**/src/test/java/**/*.java,**/*Test.java`)
-  - `.cursor/rules/spring-boot-thymeleaf.mdc` — Thymeleaf rules: controller conventions, template layout, model attributes, form binding, and static resource references (`**/*PageController.java,**/*Routes.java,**/templates/**/*.html`)
-  - `.cursor/rules/spring-boot-websocket.mdc` — WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience (`**/*Socket*.java,**/*Stomp*.java`)
+# Architecture
 
 ## Rules
 
-### Clarification gates
-- When the user asks for defaults, apply governed defaults from activated rules without re-asking; before blocking questions, suppress any question already answered by an activated rule or default.
-
-### Packaging
 - Use feature-first packages as the default.
-- Do not use layer packages such as `controller`, `service`, `repository`, or `exception`.
-- Place every new production class under its owning feature root package; block generation when a class is proposed outside a feature root without explicit approval.
+- Do not use layer packages named `controller`, `service`, `repository`, or `exception`.
+- Place every new production class under its owning feature root package.
 - Use `br.com.<organization>.<module-name>` as the root Java package; derive the module segment from `artifactId`.
 - Name feature sub-packages with the bounded-context term.
 - Do not repeat the module segment as the immediate child package (invalid: `com.org.module.module`).
-- When the feature name matches the module segment, choose a distinct bounded-context name and document it.
-- Keep feature-scoped `*Impl`, feature-scoped `@Component`/`@Configuration`/`@ConfigurationProperties`, and internal mappers package-private.
-- Keep feature-internal controllers and domain models package-private unless a component-specific rule requires public visibility.
-- Expose only public interfaces, DTOs (`*Request`, `*Response`, other DTO types), and explicit cross-feature contracts from a feature package.
-
-### Shared types
-- Place types with no single feature owner (e.g., `Pagination`, `ApiResponse`, `SortOrder`) in `shared`, organized by concept, not by technical layer (no `shared/service`, `shared/repository`).
+- Keep feature-scoped `*Impl`, `@Component`/`@Configuration`/`@ConfigurationProperties`, controllers, and domain models package-private.
+- Expose only public interfaces, DTOs (`*Request`, `*Response`), and explicit cross-feature contracts from a feature package.
+- Place types with no single feature owner in `shared`, organized by concept (no `shared/service`).
 - Treat a type as `shared` only when two or more distinct features depend on it.
-- Keep feature-specific exception classes, error codes, and feature-scoped exception handlers in the owning feature package.
-- Place module-global `@RestControllerAdvice` / `@ControllerAdvice` and shared error-envelope DTOs in `shared` (not under `shared.exception`); place other exception-related types in `shared` only when two or more features share the same semantic contract and that dependency is recorded in the plan.
+- Keep feature-specific exceptions and error codes in the owning feature package.
 
-### Precedence and deferrals
-- Component-specific rules override this baseline only for their scoped target files.
+## Package layout
 
-### Completion
-- Every modified Spring artifact must satisfy activated rules for its scope and intent.
-- Each modified area needs at least one objective verification (build, test, lint, or deterministic static check) with a pass result.
-- Temporary exceptions need complete metadata and an unexpired review window; completion evidence must state what passed, failed, or remains blocked with owner and next checkpoint.
+```text
+# GOOD — feature package (artifactId: holidays)
+br.com.lsampaioweb.holidays.holiday/
+  HolidayController.java
+  HolidayService.java
+  HolidayRepository.java
+  HolidayRepositoryImpl.java
+  HolidayModel.java
+  HolidayRequest.java
+  HolidayResponse.java
+br.com.lsampaioweb.holidays.shared/
+  ApiResponse.java
+
+# BAD — layer packages and demo roots
+com.example.demo.controller.HolidayController.java
+com.example.demo.service.HolidayService.java
+com.example.demo.repository.HolidayRepository.java
+br.com.org.holidays.holidays.HolidayController.java
+```
 
 ## Safety Guards
-- Never use JPA, Jakarta Persistence, Hibernate, or any ORM framework in any application layer.
-- Never generate datasource, database driver, or connection pool configuration without an active persistence-specific rule.
-- Never place feature-specific exceptions, error codes, or feature-scoped exception handlers in `shared`.
+
+- Never use JPA, Jakarta Persistence, Hibernate, `@Entity`, or any ORM in any application layer.

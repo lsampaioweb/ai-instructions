@@ -3,7 +3,8 @@ description: "Spring Boot domain model contract for JDBC-first internal model ty
 applyTo: "**/*Model.java"
 ---
 
-# Spring Boot Domain Model Engine
+## Dependencies
+- Follow the Java style contract in `spring-boot-java-style.instructions.md` for record construction, formatting, imports, visibility, and JavaDoc.
 
 ## Naming Conventions
 - Name domain model types with the `*Model` suffix (e.g., `HolidayModel`, `AccountModel`).
@@ -17,6 +18,8 @@ applyTo: "**/*Model.java"
 - Keep domain model types free of HTTP transport annotations and validation annotations.
 - Use only primitive or standard Java types for all domain model fields.
 - Use immutable collection types (e.g., `List.copyOf(...)`) for any collection-typed field in a domain model record.
+- Include only client-safe information in error-envelope models (`ErrorResponse`, `ValidationError`); let the exception-handling layer control optional diagnostic fields, including stack traces.
+- Do not expose credentials, tokens, internal implementation details, or unfiltered exception messages through error models.
 
 ## Safety Guards
 - Never use a domain model type directly as a controller method parameter or return type.

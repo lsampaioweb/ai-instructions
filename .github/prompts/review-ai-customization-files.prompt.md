@@ -29,7 +29,6 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 - **Status Classification:** PASS (9–10) | WARN (7–8) | FAIL (0–6).
 
 ## 3. Safety Guards
-- Never sample.
 - **Execution Boundary:** Apply changes only after explicit user confirmation.
 - **Fix Application Rule:** If authorized, modify only approved items.
 
@@ -55,7 +54,13 @@ Use this exact markdown schema:
 - Minimal fix: <one minimal action>
 
 ### Evidence
-- Scores: <path | total | Clarity 0-2 reason | Enforceability 0-2 reason | Consistency 0-2 reason | Brevity 0-2 reason | Conflict-Free 0-2 reason | status>
+- Scores:
+
+  | File | Total | Clarity | Enforceability | Consistency | Brevity | Conflict-Free | Status |
+  |---|---:|---:|---:|---:|---:|---:|---|
+  | `<path>` | `<0-10>` | `<0-2>` | `<0-2>` | `<0-2>` | `<0-2>` | `<0-2>` | `PASS|WARN|FAIL` |
+
+- Rationale: For each file, add one concise line with the factual reason for each dimension score.
 - Quick wins: <none | item1; item2>
 
 ### Next Action

@@ -1,0 +1,16 @@
+error.user.not.found=Usuário com ID {0} não foi encontrado.
+error.pagination.sort.format=A ordenação deve conter uma propriedade e uma direção.
+error.pagination.sort.property=Propriedade de ordenação não suportada: {0}
+error.pagination.sort.direction=Direção de ordenação não suportada: {0}
+error.user.insert=Falha ao inserir usuário.
+error.user.update=Falha ao atualizar usuário.
+error.user.delete=Falha ao excluir usuário.
+error.user.find.all=Falha ao consultar usuários.
+error.user.find.by.id=Falha ao consultar o usuário.
+log.feature.audit.recorded=Auditoria da funcionalidade {0} registrada com tamanho {1}, localidade {2} e horário de publicação {3}.
+log.example.creating=Criando exemplo.
+log.example.updating=Atualizando exemplo.
+error.validation.name.required=O nome é obrigatório.
+error.validation.email.invalid=O e-mail deve ser válido.
+error.internal.server=Ocorreu um erro inesperado. Tente novamente mais tarde.
+error.resource.not.found=O recurso solicitado não foi encontrado.

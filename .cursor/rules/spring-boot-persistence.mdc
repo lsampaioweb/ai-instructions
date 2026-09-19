@@ -1,0 +1,67 @@
+---
+description: JDBC-first persistence. Use when editing repositories, models, SQL XML, or SqlColumns/SqlConfigurationProperties types.
+globs: "**/*Repository.java,**/*RepositoryImpl.java,**/*SqlConfigurationProperties.java,**/*SqlColumns.java,**/*Model.java,**/src/main/resources/sql/**/*.xml,**/src/main/resources/sql/**/*.sql"
+alwaysApply: false
+---
+
+# Persistence
+
+## Naming Conventions
+
+- Name types `*Repository`, `*RepositoryImpl`, `*SqlConfigurationProperties`, `*SqlColumns`, `*Model`.
+- Name SQL keys `sql.<resource>.<operation>` (e.g. `sql.holidays.find-by-id`).
+
+## Rules
+
+- Use `JdbcClient` for relational persistence.
+- Use `XyzRepository` + `XyzRepositoryImpl` when the module has multiple adapters or non-trivial domain logic; otherwise one `@Repository` class.
+- Declare column names in a feature-scoped `*SqlColumns` class; use those constants as named parameter keys.
+- Return `Optional<T>` from single-resource lookups.
+- Parameterize all SQL. Externalize statements into one `@PropertySource` XML file per feature.
+- Declare `@PropertySource` on the `@Configuration` class that owns the `JdbcClient` bean.
+- Access SQL through a `@Validated` `*SqlConfigurationProperties` record; annotate each SQL field with `@NotBlank`.
+- Keep models free of persistence annotations.
+
+## Good vs bad
+
+```java
+// GOOD
+@Repository
+class HolidayRepositoryImpl implements HolidayRepository {
+  private final JdbcClient jdbcClient;
+  private final HolidaySqlConfigurationProperties sql;
+
+  HolidayRepositoryImpl(JdbcClient jdbcClient, HolidaySqlConfigurationProperties sql) {
+    this.jdbcClient = Objects.requireNonNull(jdbcClient, "jdbcClient");
+    this.sql = Objects.requireNonNull(sql, "sql");
+  }
+
+  @Override
+  public Optional<HolidayModel> findById(long id) {
+    return jdbcClient.sql(sql.findById())
+        .param(HolidaySqlColumns.ID, id)
+        .query(this::mapRow)
+        .optional();
+  }
+}
+
+// BAD — ORM and inline SQL
+public interface HolidayRepository extends JpaRepository<HolidayEntity, Long> {}
+
+@Entity
+public class HolidayEntity { @Id Long id; }
+
+jdbcClient.sql("SELECT * FROM holidays WHERE id = %s".formatted(id));
+```
+
+```xml
+<!-- GOOD — src/main/resources/sql/holiday-sql.xml -->
+<properties>
+  <entry key="sql.holidays.find-by-id">SELECT id, name FROM holidays WHERE id = :id</entry>
+</properties>
+```
+
+## Safety Guards
+
+- Never build SQL with `String#formatted`, concatenation, or request-derived replacement.
+- Never use JPA, Hibernate, `@Entity`, or `JpaRepository`.

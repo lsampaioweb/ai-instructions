@@ -1,0 +1,70 @@
+---
+description: REST controllers and DTO records. Use when editing *Controller, *Request, or *Response Java files.
+globs: "**/*Controller.java,**/*Request.java,**/*Response.java"
+alwaysApply: false
+---
+
+# Web
+
+## Naming Conventions
+
+- Name controllers `*Controller` with a resource name (`HolidayController`, not `ApiController`).
+- Name API payloads `*Request` and `*Response` records.
+
+## Rules
+
+- Annotate REST controllers with `@RestController` and a class-level `@RequestMapping`.
+- Use method-level HTTP verb annotations for each operation.
+- Return `ResponseEntity` with a typed `*Response` record for REST endpoints.
+- Include a `Location` header on HTTP 201; build it with `UriComponentsBuilder` as a method parameter.
+- Return 200 for GET and PUT; 200 with an empty collection when a list is empty; 201 with body for POST; 204 for DELETE; 404 when a single-resource GET or DELETE finds nothing.
+- Apply `@Valid` to every `@RequestBody`. Apply `@Positive` to numeric `@PathVariable` identifiers.
+- Map `Optional<T>` service returns with `.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build())`.
+- Delegate business rules to a feature service; keep HTTP mapping in the controller.
+- Declare `*Request` and `*Response` as records in the feature package.
+
+## Good vs bad
+
+```java
+// GOOD
+@RestController
+@RequestMapping("/api/v1/holidays")
+class HolidayController {
+  private final HolidayService holidayService;
+
+  HolidayController(HolidayService holidayService) {
+    this.holidayService = Objects.requireNonNull(holidayService, "holidayService");
+  }
+
+  @GetMapping("/{id}")
+  ResponseEntity<HolidayResponse> getById(@PathVariable @Positive long id) {
+    return holidayService.findById(id)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
+  }
+}
+
+public record HolidayRequest(@NotBlank String name) {}
+public record HolidayResponse(long id, String name) {}
+
+// BAD
+@RestController
+@RequestMapping("/api/holidays")
+public class HolidayController {
+  @Autowired private HolidayRepository holidayRepository;
+
+  @GetMapping("/{id}")
+  public HolidayEntity get(@PathVariable Long id) {
+    return holidayRepository.findById(id).get();
+  }
+}
+
+@Data
+public class HolidayRequest { private String name; }
+```
+
+## Safety Guards
+
+- Never call `Optional.get()` on a service-returned `Optional`.
+- Never mix `@RestController` and page rendering in the same class.
+- Never use `@RequestBody` on GET or DELETE.

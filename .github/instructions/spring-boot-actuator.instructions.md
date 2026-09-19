@@ -1,27 +1,41 @@
 ---
-description: "Spring Boot actuator and observability contract: endpoint exposure, health probes, metrics, tracing, sampling, and sensitive-data boundaries."
-applyTo: "**/src/main/resources/application*.yml, **/src/test/java/**/*.java"
+description: "Spring Boot Actuator dependency, endpoint exposure, health details, security, container probes, tracing, and verification."
+applyTo: "**/application*.yml, **/*Actuator*.java, **/*Actuator*Test.java"
 ---
 
-# Spring Boot Actuator Engine
+## Dependencies
+- Add `org.springframework.boot:spring-boot-starter-actuator` when Actuator endpoints are required.
 
 ## Rules
-- Keep actuator endpoint exposure allowlist-based.
+
+### Canonical ownership
+- Treat this file as the canonical owner for Actuator endpoint exposure, health-check visibility, and public health-route policy.
+- When another instruction file mentions Actuator exposure or health-check behavior, defer to this file instead of restating the rule.
+
+### Endpoint exposure
+- Configure web endpoint exposure explicitly with `management.endpoints.web.exposure.include`.
 - Expose only `health` and `info` by default.
 - Allow `metrics`, `prometheus`, or any additional actuator endpoint only with explicit module-level opt-in.
 - Record the reason for any non-default actuator exposure in configuration comments or documentation.
+- Do not use `include: "*"` unless every exposed endpoint has been reviewed and explicitly approved.
 - Configure the `info` endpoint to expose at most application name and version.
+- Set `management.endpoints.web.base-path` to `/actuator` explicitly in `application.yml`; override it in a profile file only when that profile uses a different base path.
+- Configure the management server on a dedicated port (`8081` by default) to isolate actuator endpoints from application traffic.
+
+### Health details and probes
 - Keep base health details set to `when-authorized` unless a stricter policy is required.
+- Set `management.endpoint.health.show-details` to `always` only in a development profile.
+- Set `management.endpoint.health.show-details` to `when-authorized` or `never` outside development.
 - Allow profile-specific health detail overrides when justified by environment needs.
-- Prefer `always` only for local or development profiles.
-- Prefer `never` for production profiles unless an authenticated operational requirement is documented.
-- Keep `/actuator/health` publicly accessible for liveness and readiness probes.
 - Set `management.endpoint.health.probes.enabled: true` in `application.yml` for container-aware deployments to activate `/actuator/health/liveness` and `/actuator/health/readiness`.
 - Configure explicit liveness (`/actuator/health/liveness`) and readiness (`/actuator/health/readiness`) probe groups for container deployments.
+
+### Security
+- Permit unauthenticated access to `/actuator/health` and `/actuator/health/**` when health checks are used by load balancers or container orchestration.
 - Keep non-health actuator endpoints authenticated when Spring Security is active.
-- Configure the management server on a dedicated port (`8081` by default) to isolate actuator endpoints from application traffic.
-- Set `management.endpoints.web.base-path` to `/actuator` explicitly in `application.yml`.
-- Override `management.endpoints.web.base-path` in a profile file only when that profile uses a different base path.
+- Obtain Actuator credentials from external configuration.
+
+### Metrics and tracing
 - Include metrics exposure only when runtime monitoring requires it.
 - Keep metrics visibility consistent across active profiles.
 - Use Micrometer Tracing as the tracing abstraction layer.
@@ -37,11 +51,18 @@ applyTo: "**/src/main/resources/application*.yml, **/src/test/java/**/*.java"
 - Use Micrometer `Baggage` API to propagate contextual key-value pairs (e.g., `user.id`, `tenant.id`) alongside trace context across service boundaries.
 - Externalize exporter endpoint URLs as configuration properties.
 
+### Verification
+- Test anonymous access to the public health endpoint when Actuator security is configured.
+- Test that protected exposed endpoints reject anonymous requests and accept authenticated requests.
+- Test the configured health-detail visibility for each profile that changes it.
+
 ## Approved Exception Handling
 - If non-health actuator endpoints are exposed without Spring Security, document that exception explicitly.
 
 ## Safety Guards
-- Never expose all actuator endpoints with wildcard include settings.
 - Never weaken production actuator controls silently.
 - Never include PII, credentials, or sensitive request data as span tags or baggage items.
 - Never commit a local-development fallback exporter endpoint in `application.yml`.
+
+## Reference
+- Use [samples/spring-boot-application.tpl](samples/spring-boot-application.tpl) for the canonical `management` configuration.

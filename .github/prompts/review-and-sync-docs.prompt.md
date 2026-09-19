@@ -18,7 +18,7 @@ argument-hint: "Optional: scope, folder path, or feature-area filter; omit to sy
 
 ## 3. Safety Guards
 - **Execution Boundary:** Apply Markdown edits only after the read-only plan is presented and the user explicitly confirms.
-- Do not invent features, parameters, properties, or runtime behavior absent from the codebase.
+- **Fabrication Guard:** Never invent features, parameters, properties, or runtime behavior absent from the codebase.
 - **Uncertainty Gate:** If a documentation update cannot be verified with available code context, stop and ask focused questions before editing.
 
 ## 4. Review Plan Layout

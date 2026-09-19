@@ -19,7 +19,7 @@ disable-model-invocation: true
 - Cluster files into atomic, reversible commits.
 - **Sort Order:** Foundational changes (config, schemas, deps) must be committed before feature layers.
 - **Grouping Boundary:** Group files strictly by **feature domain** (e.g., `auth`, `payment`).
-- **Documentation Gate:** If Markdown documentation exists for changed code but contains no corresponding updates, flag the affected docs and recommend running `/review-and-sync-docs` before proceeding.
+- **Documentation Gate:** If Markdown documentation exists for changed code but contains no corresponding updates, flag the affected docs and recommend syncing docs before proceeding.
 
 ## 2. Resolution Rules
 

@@ -23,8 +23,9 @@ argument-hint: "Required: error logs, stack traces, or terminal output."
 - Fix lifecycle and boundary violations when they cause the failure.
 
 ## 3. Safety Guards
-- **Safety Gate:** If the root cause cannot be verified with high confidence, do not generate speculative code fixes.
-- **Fallacious/Ambiguous Logs:** If the log is truncated or missing critical details, stop and prompt for the specific missing block.
+- **Execution Boundary:** Apply code fixes only after the plan is presented and the user explicitly confirms.
+- **Safety Gate:** Never generate speculative code fixes when the root cause cannot be verified with high confidence.
+- **Truncated/Ambiguous Logs:** If the log is truncated or missing critical details, stop and prompt for the specific missing block.
 - **Fallback Output:** If unresolved, output:
   - List of attempted verification steps.
   - Precise technical uncertainties remaining.

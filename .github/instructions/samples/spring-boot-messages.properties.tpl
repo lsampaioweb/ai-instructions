@@ -1,0 +1,16 @@
+error.user.not.found=User with ID {0} was not found.
+error.pagination.sort.format=Sort must contain a property and direction.
+error.pagination.sort.property=Unsupported sort property: {0}
+error.pagination.sort.direction=Unsupported sort direction: {0}
+error.user.insert=Failed to insert user.
+error.user.update=Failed to update user.
+error.user.delete=Failed to delete user.
+error.user.find.all=Failed to retrieve users.
+error.user.find.by.id=Failed to retrieve the user.
+log.feature.audit.recorded=Feature {0} audit recorded with content length {1}, locale {2}, and publication time {3}.
+log.example.creating=Creating example.
+log.example.updating=Updating example.
+error.validation.name.required=Name is required.
+error.validation.email.invalid=Email must be valid.
+error.internal.server=An unexpected error occurred. Please try again later.
+error.resource.not.found=The requested resource was not found.

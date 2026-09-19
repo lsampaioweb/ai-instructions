@@ -6,13 +6,12 @@ argument-hint: "Optional: scope notes or exclusions; omit to clean all artifacts
 # Clean Slate Workspace Engine
 
 ## 1. Scope & Analysis
-- Inspect current conversation artifacts in the active workspace.
-- List all files, plans, repo memory, session memory, and temporary artifacts created in this chat.
-- Determine ownership for each artifact.
+1. Inspect current conversation artifacts in the active workspace.
+2. List all files, plans, repo memory, session memory, and temporary artifacts created in this chat.
+3. Determine ownership for each artifact.
 
 ## 2. Resolution Rules
 - Do not delete anything until inspection is complete and targets are listed.
-- Ask for explicit confirmation before deletion.
 - Delete only artifacts created in this chat.
 - Treat ambiguous ownership as user-authored.
 - Never delete or modify user-authored files or ambiguous-ownership artifacts.
@@ -41,3 +40,6 @@ Use this exact markdown schema:
 
 ### Next Action
 - <single minimal next step or `none`>
+
+### Verdict
+- READY | NEEDS FIXES | BLOCKED

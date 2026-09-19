@@ -1,9 +1,7 @@
 ---
-description: "Spring Boot Maven contract for dependency, plugin, and build-governance decisions."
+description: "Spring Boot Maven pom.xml: parent, properties, dependencies, and build plugins."
 applyTo: "**/pom.xml"
 ---
-
-# Spring Boot POM Engine
 
 ## Naming Conventions
 - Use `br.com.lsampaioweb` as the standard `groupId` for all modules unless the user explicitly requests a different organization namespace.
@@ -11,7 +9,7 @@ applyTo: "**/pom.xml"
 - When `<artifactId>` already represents the primary feature/module name, treat that segment as canonical and do not duplicate it in planned Java package paths.
 
 ## Rules
-- Set the Spring Boot parent to version `4.1.0`.
+- Set the Spring Boot parent to version `4.1.1`.
 - Set the Java version to `25`.
 - Set `<version>` to `0.1.0` as the default stable project version when the user has not specified a version.
 - Keep Spring Boot parent and plugin versions coherent.
@@ -28,6 +26,8 @@ applyTo: "**/pom.xml"
 - Add a `<!-- <one-sentence explanation> -->` comment on the line immediately above every `<dependency>` block stating why the dependency is needed.
 - Declare test-only dependencies with `<scope>test</scope>`.
 - Keep compile/test artifact decisions deterministic: avoid speculative dependency additions that are not justified by concrete imports, annotations, or instruction-file mandates.
+- Use only dependencies from the approved reference palette in [samples/spring-boot-pom.tpl](samples/spring-boot-pom.tpl).
+- If a required dependency is not in the template, document the decision in an ADR and update [samples/spring-boot-pom.tpl](samples/spring-boot-pom.tpl) before using it.
 - When tests need `Pageable` web binding support, use `org.springframework.boot:spring-boot-data-commons` with `<scope>test</scope>` instead of adding alternate pagination helper libraries.
 - Declare `spring-boot-devtools` with `<scope>runtime</scope>` and `<optional>true</optional>` when development-time auto-restart is needed.
 - When MapStruct is used, declare `org.mapstruct:mapstruct` as a compile dependency and `org.mapstruct:mapstruct-processor` in `annotationProcessorPaths` within `maven-compiler-plugin`.
@@ -40,7 +40,10 @@ applyTo: "**/pom.xml"
 - Never change the Java version without explicit user approval.
 - Never add a milestone, beta, or snapshot version without explicit user approval.
 - Never upgrade unrelated dependencies in the same change.
-- Never add `jakarta.persistence`, `hibernate-core`, `spring-boot-starter-data-jpa`, or any ORM dependency.
+- Never add JPA, Jakarta Persistence, Hibernate, or any ORM dependency.
 - Never add embedded in-memory database dependencies (H2, Derby, etc.) for test scope unless the user explicitly requires an in-memory store.
 - Never add third-party pagination libraries to work around missing Spring Data web test support.
 - Never duplicate the module segment as an immediate child feature segment in planned source paths (invalid example: `.../holidays/holidays/...`).
+
+## Reference
+- Use [samples/spring-boot-pom.tpl](samples/spring-boot-pom.tpl) for the approved dependency palette.

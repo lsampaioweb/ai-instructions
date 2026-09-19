@@ -6,8 +6,8 @@ argument-hint: "Optional: path or feature-scope filter; omit to cluster all unco
 # Logical Git Commit Engine
 
 ## 1. Scope & Analysis
-- Inspect uncommitted changes (`git status`, `git diff`).
-- Cluster files into atomic commits.
+1. Inspect uncommitted changes (`git status`, `git diff`).
+2. Cluster files into atomic commits.
 
 ## 2. Resolution Rules
 - **Sort Order:** Commit foundational changes (config, schemas, deps) before feature layers.
@@ -23,14 +23,13 @@ argument-hint: "Optional: path or feature-scope filter; omit to cluster all unco
 - **Post-approval:** Run `git add` and `git commit` sequentially for each cluster.
 
 ## 3. Safety Guards
-
 - **Execution Boundary:** Apply changes only after the commit plan is confirmed.
 - **Ask for Confirmation:** Output: `Proceed with executing this automated commit sequence? [yes/no]`
-- Confirm the exit code is 0 after each git commit before staging the next cluster.
-- Never use technical-layer identifiers for grouping or as the commit scope.
-- Never list modified files or duplicate diff data in the commit body.
-- If files in a cluster span more than one feature domain, flag the cluster and stop.
-- Never use commit types not defined by the Conventional Commits specification.
+- **Exit Code Check:** Confirm the exit code is 0 after each git commit before staging the next cluster.
+- **Scope Discipline:** Never use technical-layer identifiers for grouping or as the commit scope.
+- **Body Discipline:** Never list modified files or duplicate diff data in the commit body.
+- **Domain Boundary:** If files in a cluster span more than one feature domain, flag the cluster and stop.
+- **Type Discipline:** Never use commit types not defined by the Conventional Commits specification.
 
 ## 4. Review Plan Layout
 Use this exact markdown schema:
@@ -53,3 +52,6 @@ Use this exact markdown schema:
 
 ### Next Action
 - <single minimal next step or `Proceed with executing this automated commit sequence? [yes/no]`>
+
+### Verdict
+- READY | NEEDS FIXES | BLOCKED

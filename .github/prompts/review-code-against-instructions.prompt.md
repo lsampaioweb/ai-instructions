@@ -3,7 +3,7 @@ description: "Use to audit code against active instruction files, flag violation
 argument-hint: "Optional: target path, module, file, or glob; omit to audit the full workspace."
 ---
 
-# Code Instruction Compliance Audit
+# Code Instruction Compliance Audit Engine
 
 ## 1. Scope & Analysis
 1. Load all instruction files from `.github/instructions/` applicable to the target scope.
@@ -17,6 +17,7 @@ argument-hint: "Optional: target path, module, file, or glob; omit to audit the 
 ### Violations
 - Flag every place where code does not follow an explicit active instruction rule.
 - Cite the exact instruction rule broken and include a file:line reference.
+- Before flagging a violation, check `.github/instructions/review-suppressions.instructions.md` Active Suppressions; skip any finding matching an `active` row.
 - Severity: Critical = security, data loss, or secret exposure. High = explicit rule break. Medium = non-security rule gap. Low = naming or style rule gap.
 - Merge findings that share the same root cause into one entry.
 - Do not infer stricter rules than the active instruction text explicitly supports.
@@ -34,7 +35,7 @@ argument-hint: "Optional: target path, module, file, or glob; omit to audit the 
 - **Execution Boundary:** Present all findings first. Apply fixes only after the user explicitly confirms which findings to act on.
 - **Uncertainty Gate:** If context is insufficient to validate a finding, state the uncertainty explicitly and stop.
 
-## 4. Output Schema
+## 4. Review Plan Layout
 Use this exact markdown schema:
 
 ### Scope
