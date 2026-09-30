@@ -77,7 +77,9 @@ credentials; do not invent that stack unless the product explicitly requires it.
 
 ## Testing
 
-- Cover anonymous, authenticated, wrong-role, and deny-unknown paths.
+- Cover anonymous, authenticated, and deny-unknown paths.
+- Cover a wrong-role path only when a route or method declares a role. Do not add a
+  role, an endpoint, or an annotation only so that test can exist.
 - Distinguish `401` (unauthenticated) from `403` (authenticated but forbidden).
 - Cover method-security denials for sensitive service operations when
   `@PreAuthorize` is used.

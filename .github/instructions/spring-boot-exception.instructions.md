@@ -38,7 +38,8 @@ Bean Validation failures use this envelope with status `400`, error code
 bare JSON array of field errors.
 
 Unknown URL (`NoResourceFoundException`) uses `RESOURCE_NOT_FOUND` and an i18n
-message, not `ex.getMessage()`.
+message, not `ex.getMessage()`. A request denied by the security filter chain keeps
+that status. This envelope applies when the request reaches MVC and no handler matches.
 
 Unexpected failures use status `500`, error code `INTERNAL_ERROR`, and i18n key
 `error.internal.server`. Log the real exception. Never return `ex.getMessage()`

@@ -57,6 +57,7 @@ spring:
   - loads every locale file under `i18n/`
   - asserts the key sets are exactly equal
   - asserts placeholder arity matches per key
+  - asserts every `log.` key has identical text in every locale file (logging contract)
 - Prefer a dedicated `I18nConsistencyTest` (or equivalent) that fails the build when
   a translation key is added to one file and omitted from another.
 - Optional stronger checks (keys used in code vs keys defined in bundles) are

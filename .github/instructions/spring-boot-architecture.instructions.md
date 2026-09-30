@@ -96,3 +96,8 @@ applyTo: "**/src/**/*.java"
 - Never name a feature mapper `*DtoMapper`; the canonical name is `<Feature>Mapper`.
 - Never use field injection with `@Autowired`.
 - Never introduce JPA/Hibernate persistence.
+- Never name a REST endpoint `<Feature>Controller`; use `<Feature>RestController`.
+- Never name a server-rendered MVC endpoint `<Feature>Controller` or
+  `<Feature>RestController`; use `<Feature>PageController`.
+- Never name a WebSocket/STOMP endpoint `<Feature>Controller`; use
+  `<Feature>SocketController`.

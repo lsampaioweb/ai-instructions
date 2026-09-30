@@ -1,6 +1,6 @@
 ---
 description: "Spring Boot logging contract for Logback configuration, i18n-backed log messages, and logger usage."
-applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/**/*.java"
+applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/main/resources/**/application*.yml, **/src/main/resources/**/application*.yaml, **/src/main/resources/**/application*.properties, **/src/**/*.java"
 ---
 
 # Spring Boot Logging Contract
@@ -19,6 +19,8 @@ applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/**/*.java"
     (English) for developer-facing log text.
   - `get(Locale locale, String key, Object... args)` - resolves the message in a caller
     -supplied locale, for cases where the log message should reflect request context.
+- Prefix every logging-helper key with `log.`. Keep that key's text identical in every
+  locale bundle, using the fixed logging locale. Do not translate those values.
 - Never hardcode log message text directly in a log call; always resolve it through the
   logging message helper and an externalized message key.
 - Never use a locale-follows-request design (e.g. resolving the current request locale
@@ -52,17 +54,23 @@ applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/**/*.java"
 
 ## Logback configuration
 
-- Configure logging through an external Logback configuration file referenced via
-  `logging.config`, not inline `application.yml` logging properties.
+- Place `logback-spring.xml` at `src/main/resources/log/` and reference
+  it with `logging.config` set to `classpath:log/logback-spring.xml`. Do not configure
+  logging inline in `application.yml`.
 - Bind the application name and log directory through `springProperty` so the
   configuration adapts to `spring.application.name` and `logging.file.path`.
 - Externalize rolling-file thresholds (max file size, max history, total size cap)
-  through `springProperty` bindings sourced from `logging.file.max-size`,
-  `logging.file.max-history`, and `logging.file.total-size-cap`, with sensible defaults,
-  rather than hardcoding those values in the rolling policy.
-- Declare matching values for `logging.file.max-size`, `logging.file.max-history`, and
-  `logging.file.total-size-cap` in `application.yml` whenever a project overrides the
-  defaults.
+  through `springProperty` bindings sourced from
+  `logging.logback.rollingpolicy.max-file-size`,
+  `logging.logback.rollingpolicy.max-history`, and
+  `logging.logback.rollingpolicy.total-size-cap`, with sensible defaults, rather than
+  hardcoding those values in the rolling policy. Do not use the deprecated
+  `logging.file.max-size`, `logging.file.max-history`, or `logging.file.total-size-cap`
+  keys (renamed since Spring Boot 2.4).
+- Declare matching values for `logging.logback.rollingpolicy.max-file-size`,
+  `logging.logback.rollingpolicy.max-history`, and
+  `logging.logback.rollingpolicy.total-size-cap` in `application.yml` whenever a
+  project overrides the defaults.
 - Define at least three profile-based root logging configurations. The verbose profile
   name may be `debug`: that is a **logging verbosity** profile, not an environment alias
   for `development`/`production` (configuration contract):
@@ -105,11 +113,16 @@ applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/**/*.java"
 
 ## Forbidden
 
+- Never place `logback-spring.xml` anywhere except
+  `src/main/resources/log/logback-spring.xml`.
+- Never translate logging-helper message values across locale bundles.
 - Never hardcode log message strings inline instead of resolving them through the
   logging message helper.
 - Never guard `INFO`/`WARN`/`ERROR` log calls with `isXEnabled()` checks.
 - Never hardcode rolling-file size/history/cap values directly in `logback-spring.xml`
   when they can be externalized through `application.yml`.
+- Never use the deprecated `logging.file.max-size`, `logging.file.max-history`, or
+  `logging.file.total-size-cap` keys; use `logging.logback.rollingpolicy.*` instead.
 - Never omit the `discardingThreshold` setting on an async file appender.
 - Never omit the `neverBlock` setting on an async file appender; use `false` for the
   log-preserving policy defined above.

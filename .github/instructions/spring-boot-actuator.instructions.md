@@ -58,6 +58,8 @@ states the Actuator exposure and access boundary.
 
 - Anonymous callers may reach `/actuator/health` and health probe routes only.
 - Every other `/actuator/**` path requires authentication.
+- An allow or authenticate rule for an exposed Actuator endpoint covers that endpoint
+  and the subpaths it serves.
 - When Spring Security is present in production, prefer a separate
   `management.server.port` so management traffic is not mixed with the public
   API port.

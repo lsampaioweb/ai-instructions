@@ -17,9 +17,11 @@ Lombok annotations does not need the dependency until it does.
   Lombok. Do not omit it: current Java no longer discovers annotation processors from
   the classpath automatically.
 - Do not set a Lombok version when Spring Boot's parent BOM already manages it.
-- When MapStruct is also present, add `lombok-mapstruct-binding` to
-  `annotationProcessorPaths` along with `lombok` and `mapstruct-processor`, so generated
-  mappers see Lombok accessors.
+- When MapStruct is also present, always add `lombok-mapstruct-binding` to
+  `annotationProcessorPaths` along with `lombok` and `mapstruct-processor`, in that
+  order (`lombok`, `lombok-mapstruct-binding`, `mapstruct-processor`), so generated
+  mappers see Lombok accessors. Pin `lombok-mapstruct-binding` with an explicit
+  version property; Spring Boot's parent BOM does not manage it.
 
 ## Spring-managed classes
 

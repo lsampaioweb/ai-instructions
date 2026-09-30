@@ -67,8 +67,47 @@ applyTo: "**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, *
 - Include a `## Constraints` section in every custom agent file.
 - Grant the `agent` tool only to orchestrator agents.
 - Use the singular `.agent.md` suffix for discoverable custom agents.
+- Write each agent `description` so the parent can route by intent; keep descriptions
+  specific and non-overlapping with sibling agents.
+- Use imperative MUST/DO NOT language for mandatory agent behavior. Do not use soft
+  phrasing for safety, scope, or handoff rules.
+- Orchestrator agents must classify user intent before delegating and must not expand
+  into stages the user did not request without explicit confirmation.
+- Orchestrator agents must pass a delegation charter on every subagent invoke: mode,
+  in-scope/out-of-scope items, the task for that agent only, required artifacts, and a
+  directive to return structured output without owning the user conversation.
+- Subagent files must state that when invoked by a parent they return structured output
+  only, stay in role, and do not start another agent's pipeline.
+- Spec/interview agents must read the user prompt and mandatory domain instruction
+  contracts before asking questions, and must not re-ask decisions those sources already
+  fix.
+- Reviewer agents must require evidence for every finding (path, excerpt, verbatim
+  instruction clause) and must list the instruction files opened before a clean pass.
+- Reviewer agents must define severity (`blocker`|`major`|`minor`) and treat project
+  non-negotiables and explicit instruction-clause breaches as `blocker`.
+- Prefer a small Spring Boot workgroup: Orchestrator, Architect, Coder, and one Reviewer.
+  Do not split review into multiple default agents unless a named constraint requires it.
+  Cap automated fix loops at two Coder+Reviewer rounds so unresolved failures escalate to
+  the user instead of thrashing. Frame that cap as quality process control, never as a
+  reason to skip instruction obedience or ship approximate code.
+- For Spring Boot agents, state that primary success is code matching the project's
+  instruction contracts and the user's style. Token or loop reduction is only a
+  consequence of a correct first pass—not a competing goal.
+- Only the human user may override a mandatory instruction clause. When they explicitly
+  request a conflict, agents must propose an ADR Instruction override for approval, then
+  code and review against it—never invent an override and never hard-stop without that path.
+- Coder and orchestrator agents must treat matching instruction contracts as binding
+  law, not optional references, and must not report clean while unresolved blockers remain.
+- Agents that consume Spring Boot instruction contracts must resolve them from workspace
+  `.github/instructions/` first, else `~/.agents/instructions/`.
+- State each agent rule once. Approach = order of operations; Constraints = only rules
+  the order does not already force. Prefer checklists over essays.
+- Cite instruction section names the agent must open; do not paste those instruction
+  bodies into the agent file.
+- Keep evidence and clean-pass requirements in `## Output Format` when that already
+  enforces them; do not also mirror them as Constraints.
 
 ## References
 
 - Use the workspace `copilot-instructions.md` for universal interaction, safety, and workflow rules.
-- Use the review prompt's ledger and convergence rules when auditing customization files across multiple runs.
+- Use the `review-ai-customization-files` skill's ledger and convergence rules when auditing customization files across multiple runs.

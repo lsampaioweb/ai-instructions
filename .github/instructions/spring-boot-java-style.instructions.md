@@ -50,7 +50,6 @@ applyTo: "**/src/**/*.java"
   3. Lombok generation annotations other than the logging annotation (e.g.,
      `@RequiredArgsConstructor`).
   4. Behavioral/validation annotations (e.g., `@Validated`).
-- Keep one blank line between the final annotation and the type declaration.
 - Annotate every method that implements or overrides an interface/superclass method with
   `@Override`.
 - Keep annotations directly attached to the declaration they annotate; never separate an

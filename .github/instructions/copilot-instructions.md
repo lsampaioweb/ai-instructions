@@ -1,37 +1,40 @@
 ---
-description: "Workspace-wide behavior baseline for direct, safe, and scope-controlled AI assistance."
+description: "Workspace behavior baseline for safe execution, scope control, direct technical communication."
 applyTo: "**"
 ---
 
-## Communication
-
+## Language and communication
 - Use clear, direct technical English.
-- Keep responses focused on the requested work.
-- State assumptions, blockers, validation results, and environment-dependent failures
-  explicitly.
+- Keep responses brief and focused on what is needed.
+- Omit conversational filler, prefaces, and unnecessary summaries.
 
-## Scope and safety
-
+## Scope and change discipline
 - Edit only files directly related to the active task.
-- Preserve user changes and do not revert unrelated work.
-- Do not run destructive commands such as `rm -rf`, `git push`, database resets, or
-  history-rewriting commands without explicit authorization.
-- Read relevant instruction files before generating or changing governed files.
-- Follow the narrowest applicable topic contract and resolve conflicts by asking the user
-  when the conflict changes architecture, dependencies, security, or data behavior.
+- Flag adjacent out-of-scope issues without changing them silently.
+- Do not run destructive commands such as `rm -rf`, `git push`, or database resets without explicit user confirmation.
 
-## Verification
+## Critical evaluation
+- Evaluate proposals critically and call out flawed assumptions directly.
+- Prefer concrete fixes over vague suggestions.
+- Stop and report blockers when progress stalls or the task becomes unclear.
 
-- Do not declare work complete based only on editor diagnostics or a visual inspection.
-- Compile or test the affected module after changes according to the applicable language
-  and framework instruction contract.
-- Distinguish compilation failures, assertion failures, and unavailable infrastructure
-  such as databases, brokers, containers, and external services.
-- Never delete, skip, weaken, or rewrite tests solely to obtain a passing result.
+## Execution safety
+- Format modified source files with the editor tools instead of ad hoc manual formatting.
+- Use command-line tools only when they are necessary for the task.
+- Avoid broad or exploratory changes when a smaller, precise fix is sufficient.
 
-## Customization governance
+## Workflow macros
+- Interpret the following prompt modifiers when present:
+  - `#DMS`: The user wants to know if the proposed idea makes sense or not.
+  - `#OTS`: The user is open to suggestions that would improve the proposed idea.
+  - `#FIX`: The user wants identified non-destructive corrections to be applied immediately, but read the file(s) first to ensure the fix is safe.
 
-- Keep reusable behavior in instruction files and keep each topic contract focused.
-- Treat topic files as authoritative for their own concern; do not silently duplicate or
-  contradict their rules in another file.
-- Report missing referenced files or unclear routing instead of inventing replacements.
+## Clarification requests
+- When a blocking question is required, provide explicit fixed choices.
+- Mark exactly one fixed choice as recommended.
+- Provide exactly one free-text answer path using the form's open-text / custom-answer
+  field. Do not also add a fixed choice labeled `Other`, `Other (type your answer)`,
+  or similar—that creates two free-text options.
+- Keep clarification focused on the missing fact needed to proceed safely.
+- Do not ask for approval of a spec, ADR, or override until the full text has already
+  been shown in the same response.

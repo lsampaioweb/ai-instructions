@@ -38,8 +38,9 @@ Applications must meet this contract for every feature they ship.
   equivalent MockMvc slice) covering:
   - one happy-path request
   - one validation or domain-error path
-- Mock the service **interface** with `@MockitoBean` (or the current Boot mock
-  annotation). Do not call a real database from a controller slice test.
+- Declare the service **interface** mock at class level with `@MockitoBean` (or
+  the current Boot mock annotation); constructor-inject mocks used by test methods.
+  Do not call a real database from a controller slice test.
 - Assert HTTP status, important headers (for example `Location` on create), and
   key JSON fields.
 - Prefer `@WebMvcTest` over a full `@SpringBootTest` for controller HTTP
@@ -55,11 +56,16 @@ Applications must meet this contract for every feature they ship.
 
 ## Security and full-context tests
 
-- When Spring Security is present, cover anonymous vs authenticated vs wrong-role
-  paths with `spring-security-test` (Security contract).
+- When Spring Security is present, cover the paths required by the Security contract
+  with `spring-security-test`.
 - Reserve full `@SpringBootTest` + MockMvc for filter-chain, actuator access,
   OpenAPI profile, or other cross-cutting wiring that a slice cannot express
   honestly.
+- When generated documentation supports locale switching, use full-context MockMvc
+  with filters to check locale-sensitive output for two supported locales.
+- When generated documentation exposes JSON or YAML routes, use full-context
+  MockMvc with filters to check each enabled format and denial of disabled routes
+  according to the Security contract; do not require formats the app does not enable.
 - Use `@ActiveProfiles("test")` and an optional `application-test.yml` only when
   the test needs dedicated overrides; do not replace `development` /
   `production` application profiles with `test` in main config (configuration

@@ -5,12 +5,23 @@ applyTo: "**/*RestController.java, **/*OpenApi*.java, **/openapi/**/*.java"
 
 # Spring Boot REST Controller Contract
 
-These rules apply to real applications that expose JSON HTTP APIs. Server-rendered
-page controllers and WebSocket endpoints follow the architecture naming rules;
-this file covers REST only.
+These rules apply to every REST controller, including when the success body is not
+JSON. A non-JSON success body is allowed only through an approved Instruction override
+of the response clause. Server-rendered page controllers (`*PageController`) and
+WebSocket endpoints (`*SocketController`) follow the architecture and Thymeleaf /
+WebSocket contracts; this file covers REST only.
 
 Architecture, exception handling, i18n, Lombok, and profile/Swagger YAML stay in
 their own instruction files. Do not restate those contracts here.
+
+## Naming
+
+- Name every REST endpoint class `<Feature>RestController` (architecture contract).
+  The `RestController` suffix is what loads this file via `applyTo`; do not omit it.
+- Annotate with `@RestController`. Do not use `@Controller` for JSON/API endpoints.
+- Never name a REST endpoint class `<Feature>Controller`, `<Feature>PageController`,
+  or `<Feature>SocketController`.
+- Never name a server-rendered MVC class `<Feature>RestController`.
 
 ## URL design
 
@@ -77,3 +88,5 @@ their own instruction files. Do not restate those contracts here.
   appropriate.
 - Never add HATEOAS as the default list representation.
 - Never handle domain errors or call `RestClient` from a REST controller.
+- Never name a REST endpoint class anything other than `<Feature>RestController`.
+- Never use `@Controller` on a REST JSON/API endpoint class.

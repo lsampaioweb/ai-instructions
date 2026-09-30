@@ -12,7 +12,8 @@ Infrastructure-only folders may add extra ignores for volumes and local data.
 
 Every real application repository ships a root `.gitignore` that ignores at least:
 
-1. **Build output:** `target/`
+1. **Build output:** `target/` and `bin/` (Eclipse's default output folder;
+   distinct from Maven `target/`)
 2. **IDE / editor metadata:**
    - Eclipse/STS: `.apt_generated`, `.classpath`, `.factorypath`, `.project`,
      `.settings`, `.sts4-cache`
@@ -43,7 +44,7 @@ Every real application repository ships a root `.gitignore` that ignores at leas
 ## Forbidden
 
 - Never omit a root `.gitignore` from a real application repository.
-- Never commit `target/`, `.idea/`, `.vscode/`, or `.env` with secrets.
+- Never commit `target/`, `bin/`, `.idea/`, `.vscode/`, or `.env` with secrets.
 - Never commit private keys or keystores (`*.key`, `*.p12`, `*.pfx`, `*.jks`)
   for real apps.
 - Never use `.gitignore` to hide failing tests or generated sources that should

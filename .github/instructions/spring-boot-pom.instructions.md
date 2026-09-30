@@ -11,6 +11,24 @@ applyTo: "**/pom.xml"
 - `groupId` is always `br.com.lsampaioweb`.
 - `version` keeps the `-SNAPSHOT` suffix during active development (e.g. `0.0.1-SNAPSHOT`).
   Only drop `-SNAPSHOT` when an actual release is being cut via `mvn release:prepare`.
+- Set `java.version` (or compiler release) to **25** unless an approved ADR Instruction
+  override names a different Java major.
+- Use the latest stable **Spring Boot 4.x** parent unless an approved ADR Instruction
+  override names a different Boot line.
+- When the module needs Spring Cloud, import `spring-cloud-dependencies` using the
+  release train that matches the Boot generation in the table below. Prefer the latest
+  service release of that train (for Boot 4.1.x that means `2025.1.2` or newer). Do not
+  invent train numbers; verify against
+  https://spring.io/projects/spring-cloud when unsure.
+
+  | Spring Boot | Spring Cloud release train |
+  | --- | --- |
+  | 4.1.x | `2025.1.x` (Oakwood), starting at `2025.1.2` |
+  | 4.0.x | `2025.1.x` (Oakwood) |
+
+  The Cloud BOM may still list an older `<spring-boot.version>`; that is expected when
+  the Boot parent already manages the Boot line. Compatibility is defined by the table
+  above, not by copying the BOM's internal Boot property.
 - Never leave `<url />` or `<licenses><license /></licenses>` as empty stub tags. If no
   real project URL or license has been decided, omit the tags entirely - ask the user
   rather than fabricating a license.
