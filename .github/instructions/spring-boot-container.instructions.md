@@ -1,75 +1,112 @@
 ---
-description: "Container images and Docker Compose services for Spring Boot applications and supporting infrastructure."
-applyTo: "**/Dockerfile, **/Dockerfile-*, **/docker-compose*.yml, **/compose*.yml, **/.dockerignore"
+description: "Container and Compose contract for build strategy, runtime hardening, profiles, networks, resources, and container operations."
+applyTo: "**/Dockerfile, **/Dockerfile-*, **/docker-compose.yml, **/docker-compose*.yml, **/compose.yml, **/compose*.yml, **/.dockerignore, **/.env.example"
 ---
 
-## Dependencies
-- Follow `spring-boot-application.instructions.md` and `spring-boot-actuator.instructions.md` when container health checks or environment variables must match application settings.
+# Spring Boot Container Contract
 
-## Naming Conventions
-- Name a multi-stage image definition `Dockerfile-multi-stage`.
-- Name Compose definitions `docker-compose.yml` unless the project requires a distinct Compose file.
+These rules govern container images and Compose-based orchestration for Spring Boot
+projects. They are generic container rules. Service-specific contracts own the
+configuration and behavior of databases, brokers, caches, secret stores, and proxies.
 
-## Rules
+## Ownership
 
-### Dockerfiles
-- Use an official Eclipse Temurin JRE image as the base runtime image, pinned to an explicit version tag.
-- Copy only the application artifact into a runtime-only image.
-- Set artifact ownership during the copy when the base image provides a non-root application user.
-- Define a dedicated `appuser` with a non-zero UID for the application user; run the Spring Boot application as this non-root user.
-- Use the JSON-array form of `ENTRYPOINT` to run the Spring Boot JAR.
-- Expose port `8080` in the Dockerfile by default unless the application explicitly configures a different server port.
-- Keep JVM tuning externally configurable through the `JAVA_TOOL_OPTIONS` environment variable.
-- Activate the Spring profile via the `SPRING_PROFILES_ACTIVE` environment variable at runtime.
+- Defer application YAML, profiles, and secrets to `spring-boot-config.instructions.md`.
+- Defer HTTPS and certificate handling to `spring-boot-tls.instructions.md`.
+- Defer certificate and secret-file ignore patterns to `spring-boot-gitignore.instructions.md`.
+- Defer health endpoint exposure and authorization to `spring-boot-actuator.instructions.md`
+  and `spring-boot-security.instructions.md`.
+- Defer human-facing container commands and prerequisites to
+  `spring-boot-readme.instructions.md`.
+- Keep service-specific infrastructure settings in the contract for that service.
 
-### Multi-stage Dockerfiles
-- Use separate build and runtime stages when the image builds the application artifact.
-- Use a builder image with the project's required JDK and build tool.
-- Copy the packaged JAR from the builder stage into the runtime image.
-- Use a Maven dependency-cache mount for BuildKit-enabled Maven builds.
-- Apply the same runtime image and entrypoint rules as a single-stage Dockerfile.
+## Image builds
 
-### Docker Compose services
-- Pin each service image to an explicit version or controlled release tag.
-- Set `restart: "unless-stopped"` as the default container restart policy.
-- Add a health check that uses a command available in the image; keep healthchecks explicit and service-appropriate (actuator endpoints for Spring apps, native probes for infrastructure services).
-- Set healthcheck with `interval=30s`, `timeout=5s`, `retries=3`, and `start_period=60s` as defaults unless operational requirements differ.
-- Attach services to an explicitly declared network.
-- Use environment-variable substitution for deployment-specific configuration.
-- Persist stateful service data through a named volume or bind mount.
-- Mount secrets and certificates read-only.
-- Publish only ports that require host access.
-- Set `read_only: true` on all compose services; declare `tmpfs` mounts for writable runtime directories such as `/tmp` with `noexec,nosuid` options.
-- Set `cap_drop: ["ALL"]` and `security_opt: ["no-new-privileges:true"]` on every compose service by default; add only capabilities required by that service, documented inline.
-- Set explicit CPU and memory resource limits (`cpus`, `mem_limit`, `mem_reservation`) on every compose service.
-- Declare a network as external only when it is provisioned independently for cross-Compose connectivity.
-- Add Traefik labels only to services routed by Traefik.
-- Restrict development-only settings, insecure dashboards, and default credentials to explicitly local development services.
-- Document the standalone app flow and the shared infrastructure flow as separate run scenarios.
+- Use a multi-stage build for deployable application images.
+- Keep compilation and dependency resolution in the builder stage; keep the runtime
+  stage limited to the application artifact and runtime requirements.
+- Copy a locally built JAR into a runtime image only as an explicitly development-only
+  workflow.
+- Use a base image whose Java runtime matches the project's configured Java version.
+- Prefer maintained minimal runtime images. Custom base images are optional, but their
+  Java version, user, filesystem layout, and update process must be documented.
+- Pin image references to explicit versions. Use immutable digests for production
+  deployments when the deployment platform supports them.
+- Keep build context small with a focused `.dockerignore`.
+- Do not copy source-controlled secrets, local environment files, build caches, or
+  unrelated workspace files into an image.
 
-### Container health and application configuration
-- Make the health-check scheme, port, and path match the active application listener.
-- Use the configured Actuator health or probe endpoint for Spring Boot application health checks.
-- Pass the active Spring profile and JVM options through environment variables when the deployment needs to vary them.
-- Mount the application's log directory when file logging must persist outside the container.
-- Keep runtime configuration profile-aware and externalized.
+## Runtime identity and hardening
 
-### Docker ignore files
-- Exclude files that are not required by the selected image build strategy.
-- Exclude local secrets, certificates, logs, IDE metadata, VCS metadata, test reports, and unneeded generated output.
-- Retain `target/*.jar` when a single-stage Dockerfile copies a prebuilt JAR.
-- Exclude `target/` for multi-stage builds unless a required artifact is intentionally retained.
+- Run application containers as a non-root user.
+- Declare or verify the runtime user explicitly; do not rely on undocumented base-image
+  behavior.
+- Drop Linux capabilities with `cap_drop: ALL` unless a documented runtime requirement
+  needs a specific capability.
+- Set `no-new-privileges:true` for application and infrastructure services by default.
+- Use a read-only root filesystem with a narrowly scoped `tmpfs` for writable temporary
+  paths when the process supports it.
+- Mount certificates, configuration, and persistent data read-only unless the process
+  must write them.
+- Do not grant privileged mode or host namespaces without an explicit operational need.
 
-## Safety Guards
-- Never expose internal-only ports without explicit need and documentation.
-- Never disable the non-root user or capability drops without explicit justification.
-- Never hardcode heap or memory flags in the `CMD` or `ENTRYPOINT` instruction.
-- Never use `JAVA_OPTS` instead of `JAVA_TOOL_OPTIONS` for JVM tuning.
-- Never bake profile selection into the Dockerfile layer.
+## Compose profiles and resources
 
-## Reference
-- Use [samples/spring-boot-dockerfile.tpl](samples/spring-boot-dockerfile.tpl) for a runtime Dockerfile.
-- Use [samples/spring-boot-dockerfile-multi-stage.tpl](samples/spring-boot-dockerfile-multi-stage.tpl) for a multi-stage Dockerfile.
-- Use [samples/spring-boot-docker-compose.tpl](samples/spring-boot-docker-compose.tpl) for Docker Compose services.
-- Use [samples/spring-boot-dockerignore.tpl](samples/spring-boot-dockerignore.tpl) for Docker ignore rules.
-- Use [samples/spring-boot-application.tpl](samples/spring-boot-application.tpl) for the related application configuration.
+- Default Compose configurations to the `production` application profile.
+- Select `development` explicitly for local development; do not hardcode it as the
+  shared or production-like default.
+- Keep CPU and memory limits in production-like Compose deployments.
+- Local-only Compose files may omit resource limits when their purpose is interactive
+  development, but the omission must be intentional.
+- Load credentials, ports, profile overrides, and environment-specific values from
+  environment variables or an ignored `.env` file. Keep `.env.example` free of secrets.
+- Use required variable substitution for values that must exist before startup.
+
+## Health, networks, and persistence
+
+- Add a healthcheck for every long-running service when a reliable health command or
+  health endpoint exists.
+- Use the application's Actuator liveness or readiness endpoint for orchestration
+  healthchecks when Actuator is enabled; keep the scheme and port aligned with the TLS
+  termination boundary.
+- Create project-local Compose networks by default. Use an external network only when
+  deployment infrastructure owns that network and the dependency is documented.
+- Give persistent data explicit named volumes or host paths with documented ownership.
+- Do not treat container replacement as a data backup strategy.
+- Expose host ports only when local access or an explicit deployment boundary requires it.
+
+## Logging and TLS boundaries
+
+- Write container logs to stdout/stderr so the container runtime can collect them.
+- Keep rolling file logging only when the deployment explicitly requires local files;
+  use a documented writable mount for those files.
+- Do not assume that a file-only application logger is visible through container logs.
+- Default application containers to HTTP when a trusted reverse proxy terminates TLS.
+  Use embedded HTTPS only when the TLS contract and deployment boundary require it.
+- Document whether TLS terminates in the application, a proxy, or another ingress layer.
+
+## Local-only services
+
+- Mark unauthenticated services, insecure dashboards, public infrastructure ports,
+  disabled transport encryption, and development certificates as local-development
+  choices.
+- Do not carry local-only insecure defaults into production-like Compose files.
+- Keep service credentials in environment variables or an approved secret source.
+- Use explicit healthchecks and persistence settings for local infrastructure services,
+  but defer their service-specific authentication and topology rules to their own
+  contracts.
+
+## Forbidden
+
+- Never build a production image from a runtime that uses a different Java major
+  version than the application requires.
+- Never run a deployable application container as root without a documented exception.
+- Never use privileged containers or host-network mode as a convenience workaround.
+- Never commit `.env` files, private keys, keystores, or real credentials.
+- Never use `development` as the default profile in a production-like Compose file.
+- Never publish databases, brokers, caches, secret stores, or administration dashboards
+  publicly without an explicit local-only or deployment requirement.
+- Never claim a service is ready based only on a running container; use a meaningful
+  healthcheck.
+- Never assume stdout and rolling-file logging are equivalent without documenting the
+  chosen collection path.

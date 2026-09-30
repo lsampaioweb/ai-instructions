@@ -1,12 +1,12 @@
 # ai-instructions
 
-Centralized GitHub Copilot and Cursor customization assets for Spring Boot projects. This repository packages reusable instruction files, prompts, agents, rules, and skills that can be hardlinked into consumer repositories.
+Centralized GitHub Copilot and Cursor customization assets for Spring Boot projects. This repository packages reusable instruction files, prompts, and skills that can be hardlinked into consumer repositories.
 
 ## Repository structure
 
 ```
-.github/        — GitHub Copilot assets: instructions, prompts, agents, hooks, and reserved skills directory
-.cursor/        — Cursor assets: AGENTS.md, path-scoped rules, and executable skills
+.github/        — GitHub Copilot assets: instructions, prompts, hooks, and skills
+.cursor/        — Cursor assets: AGENTS.md and executable skills
 scripts/        — helper utilities for linking these assets into consumer repositories
 ```
 
@@ -48,50 +48,30 @@ cd /absolute/path/to/consumer-project
 
 ## Configuration reference
 
-- `github` mode always links [copilot-instructions.md](.github/copilot-instructions.md), [.github/hooks](.github/hooks), and [.github/prompts](.github/prompts). When no framework is specified, all [.github/agents](.github/agents) and [.github/instructions](.github/instructions) files are also linked. When one or more frameworks are specified, only agents and instructions whose filenames match that framework's prefix pattern are linked.
-- `cursor` mode always links [AGENTS.md](.cursor/AGENTS.md) and [.cursor/rules](.cursor/rules). [.cursor/skills](.cursor/skills) are framework-filtered using the same prefix-matching rules.
-- Available frameworks: `ansible`, `spring-boot`, `python`, `typescript`, `go`.
+- `github` mode always links [copilot-instructions.md](.github/copilot-instructions.md), [.github/hooks](.github/hooks), and [.github/prompts](.github/prompts). When no framework is specified, all [.github/instructions](.github/instructions) files are also linked. When one or more frameworks are specified, only instructions whose filenames match that framework's prefix pattern are linked. Copilot custom agents are not shipped in this repository currently.
+- `cursor` mode always links [AGENTS.md](.cursor/AGENTS.md). [.cursor/skills](.cursor/skills) are framework-filtered using the same prefix-matching rules. Path-scoped `.cursor/rules` are not shipped.
+- Frameworks with instruction files today: `ansible`, `spring-boot`. The linker also accepts reserved prefixes `python`, `typescript`, and `go` (no files yet).
 - Existing destination files are replaced before relinking; source files in this repository are never modified.
-- The linker does not delete leftover files. Before re-linking Cursor overlays after a slim rebuild, remove the consumer `.cursor/rules` and `.cursor/skills` directories so stale `.mdc` / `SKILL.md` files do not remain.
+- The linker does not delete leftover files. If a consumer still has old `.cursor/rules` from a previous overlay, remove that directory before re-linking.
 
 ## Agent Catalog
 
-- [spring-orchestrator.agent.md](.github/agents/spring-orchestrator.agent.md): main entry point for the governed development pipeline. Orchestrates architect, coder, reviewers, documenter, and meta-optimizer in a loop. Use when: implementing a new feature, creating or modifying files, running the full development cycle.
-- [spring-architect.agent.md](.github/agents/spring-architect.agent.md): plans what to build by reading instruction files and writes ADR files. Use when: starting a new feature, re-evaluating a plan after reviewer failures.
-- [spring-coder.agent.md](.github/agents/spring-coder.agent.md): implements files defined in an ADR plan by following instruction files. Use when: creating or fixing files as directed by the architect's plan.
-- [spring-verifier.agent.md](.github/agents/spring-verifier.agent.md): verification gate agent. Runs dependency preflight, build, test, environment classification, and IDE diagnostics. Use when: validating a plan before implementation or validating created or modified files after implementation.
-- [spring-documenter.agent.md](.github/agents/spring-documenter.agent.md): documentation agent. Creates or updates README.md based only on files produced by the current pipeline run. Use when: all reviewers have passed and the pipeline is complete.
-- [spring-meta-optimizer.agent.md](.github/agents/spring-meta-optimizer.agent.md): pipeline optimizer. Analyzes all agent outputs from a pipeline run to identify root causes and suggest improvements to agents or instruction files. Use when: after any pipeline completion or iteration cap exceeded.
-- [spring-review-qa.agent.md](.github/agents/spring-review-qa.agent.md): QA reviewer. Reviews code-quality instruction files for created or modified files. Use when: reviewing code quality, style, controller/service/test rules, or general code compliance after implementation.
-- [spring-review-security.agent.md](.github/agents/spring-review-security.agent.md): security reviewer. Reviews security instruction files for created or modified files. Use when: reviewing security guard compliance, sensitive-data handling, configuration hardening, or security-specific rule coverage after implementation.
-- [spring-review-performance.agent.md](.github/agents/spring-review-performance.agent.md): performance reviewer. Reviews performance-related instruction files for created or modified files. Use when: reviewing pagination, async processing, or performance-specific rule coverage after implementation.
-- [spring-review-i18n.agent.md](.github/agents/spring-review-i18n.agent.md): i18n reviewer. Reviews internationalization instruction files for created or modified files. Use when: reviewing message keys, locale behavior, translated output, or i18n-specific rule coverage after implementation.
-- [spring-review-database.agent.md](.github/agents/spring-review-database.agent.md): database reviewer. Reviews database instruction files for created or modified files. Use when: reviewing repository code, schema files, models, or JDBC-first data access after implementation.
+No Copilot custom agents are shipped in this repository right now. Spring Boot
+behavior is enforced through instruction files under `.github/instructions/` and
+the always-on [AGENTS.md](.cursor/AGENTS.md) baseline for Cursor.
 
 ## Cursor overlays
 
-Slim Cursor experiment: always-on stack card plus a few glob rules with good/bad Java. Casual Agent chat should follow these without invoking a Copilot agent. GitHub Copilot agents and instruction files remain available separately.
-
-- [AGENTS.md](.cursor/AGENTS.md): always-on behavior baseline and Spring stack card (JDBC, feature packages, constructor injection, XML SQL).
-- [.cursor/rules](.cursor/rules): path-scoped rules with inline examples.
-
-| File | Globs | Purpose |
-|---|---|---|
-| [spring-boot-architecture.mdc](.cursor/rules/spring-boot-architecture.mdc) | `**/pom.xml`, `**/src/**` | Feature-first packages, `shared` types, ORM ban |
-| [spring-boot-pom.mdc](.cursor/rules/spring-boot-pom.mdc) | `**/pom.xml` | Spring Boot `4.1.1`, Java `25`, no JPA/Lombok/MapStruct unless asked |
-| [spring-boot-persistence.mdc](.cursor/rules/spring-boot-persistence.mdc) | repositories, models, SQL XML | `JdbcClient`, XML SQL properties, no JPA |
-| [spring-boot-web.mdc](.cursor/rules/spring-boot-web.mdc) | `*Controller.java`, `*Request.java`, `*Response.java` | REST mapping, record DTOs, Optional→404 |
-| [spring-boot-java-style.mdc](.cursor/rules/spring-boot-java-style.mdc) | `**/src/**/*.java` | Imports, visibility, blank line before `return`, helper naming |
-
-- [.cursor/skills](.cursor/skills): five focused workflows. No architect/coder/reviewer pipeline.
+- [AGENTS.md](.cursor/AGENTS.md): always-on behavior baseline, plus a short
+  Spring Boot stack card that applies only to Spring Boot work.
+- [.cursor/skills](.cursor/skills): focused workflows. No architect/coder/reviewer
+  pipeline and no path-scoped `.mdc` rules in this slim setup.
 
 | Skill | Invoke | Purpose |
 |---|---|---|
 | [grill-me](.cursor/skills/grill-me/SKILL.md) | `/grill-me` | Interview-first requirements discovery for non-trivial build requests |
 | [handoff](.cursor/skills/handoff/SKILL.md) | `/handoff` | Create a structured handoff for continuing work in another session |
 | [humanizer](.cursor/skills/humanizer/SKILL.md) | `/humanizer` | Revise writing to sound more natural and less formulaic |
-| [spring-boot-feature](.cursor/skills/spring-boot-feature/SKILL.md) | auto on Spring feature work, or `/spring-boot-feature` | Implement requested files by copying the good examples in the glob rules |
-| [prepare-commit-messages](.cursor/skills/prepare-commit-messages/SKILL.md) | `/prepare-commit-messages` | Cluster uncommitted changes into Conventional Commits after approval |
 
 ## Prompt files
 
@@ -110,6 +90,14 @@ Invoke with `/prompt-name` in the Copilot Chat input.
 | [grill-me.prompt.md](.github/prompts/grill-me.prompt.md) | `/grill-me` | Interview the user before building anything non-trivial |
 | [handoff.prompt.md](.github/prompts/handoff.prompt.md) | `/handoff` | Create a structured handoff document for continuing work in another session |
 
+## Skills
+
+Skills are reusable, on-demand workflows. Invoke them explicitly with `/skill-name` or let Copilot discover them from the request when the skill description matches.
+
+| Skill | Invoke | Purpose |
+|---|---|---|
+| [humanizer](.github/skills/humanizer/SKILL.md) | `/humanizer` | Rewrite prose to sound natural, specific, and appropriate to its intended voice |
+
 ## Instruction files
 
 Instruction contracts live under [.github/instructions](.github/instructions). They are auto-routed by each file's `applyTo` pattern.
@@ -123,36 +111,28 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 | [ansible-playbook-style.instructions.md](.github/instructions/ansible-playbook-style.instructions.md) | `**/*.yml` | Playbook and task style contract for Ansible YAML files, including task naming, condition placement, and include/import policy. |
 | [ansible-role.instructions.md](.github/instructions/ansible-role.instructions.md) | `roles/**` | Role governance contract for Ansible roles, including directory ownership, task composition, and variable boundaries. |
 | [ansible-template.instructions.md](.github/instructions/ansible-template.instructions.md) | `**/*.j2` | Jinja2 template contract for Ansible role templates: variable safety, block formatting, and rendered-output hygiene. |
-| [spring-boot-actuator.instructions.md](.github/instructions/spring-boot-actuator.instructions.md) | `**/src/main/resources/application*.yml, **/src/test/java/**/*.java` | Spring Boot actuator and observability contract: endpoint exposure, health probes, metrics, tracing, sampling, and sensitive-data boundaries. |
-| [spring-boot-api-versioning.instructions.md](.github/instructions/spring-boot-api-versioning.instructions.md) | `**/*Controller.java` | API versioning rules: coexistence strategy, deprecation headers, and DTO evolution across versions. |
-| [spring-boot-application.instructions.md](.github/instructions/spring-boot-application.instructions.md) | `**/*Application.java` | Spring Boot main application entry-point contract for bootstrap class placement, annotation discipline, and startup configuration safety. |
-| [spring-boot-architecture-defaults.instructions.md](.github/instructions/spring-boot-architecture-defaults.instructions.md) | `**/pom.xml, **/src/**/*.java, **/src/main/resources/application*.yml, **/src/main/resources/**/*.sql, **/Dockerfile, **/docker-compose*.yml, **/README.md` | Spring Boot architecture defaults, decision precedence, and machine-checkable constraints for the Architect, Coder, and QA agents. |
-| [spring-boot-architecture.instructions.md](.github/instructions/spring-boot-architecture.instructions.md) | `**/pom.xml, **/src/**` | Global architecture baseline for Spring Boot generation and review. Apply before component-specific instruction files. |
-| [spring-boot-async-events.instructions.md](.github/instructions/spring-boot-async-events.instructions.md) | `**/src/main/java/**/*Event*.java, **/src/main/java/**/*Publisher*.java, **/src/main/java/**/*Consumer*.java, **/src/main/java/**/*Listener*.java, **/src/main/java/**/*AsyncConfiguration*.java` | Spring Boot async-events contract for deterministic event publication, consumer processing, and resilient delivery semantics. |
-| [spring-boot-config.instructions.md](.github/instructions/spring-boot-config.instructions.md) | `**/src/main/resources/application*.yml, **/*ConfigurationProperties.java` | Spring Boot configuration contract for externalized, profile-aware, and safe configuration management. |
-| [spring-boot-container.instructions.md](.github/instructions/spring-boot-container.instructions.md) | `**/Dockerfile, **/docker-compose.yml, **/docker-compose.yaml, **/compose.yml` | Compose and Dockerfile container rules: image structure, naming, profile activation, volume mounts, healthcheck, and log directory ownership. |
-| [spring-boot-controller.instructions.md](.github/instructions/spring-boot-controller.instructions.md) | `**/*Controller.java` | Spring Boot controller contract for request mapping, HTTP semantics, validation boundaries, and response consistency. |
-| [spring-boot-database-schema.instructions.md](.github/instructions/spring-boot-database-schema.instructions.md) | `**/src/main/resources/sql/**/*.xml, **/src/main/resources/sql/**/*.sql` | Database schema and referential-integrity contract: types, naming, constraints, FK actions, and SQL artifact layout. |
-| [spring-boot-dto-mapper.instructions.md](.github/instructions/spring-boot-dto-mapper.instructions.md) | `**/*Request.java, **/*Response.java, **/*DtoMapper.java` | Spring Boot DTO-mapper contract for deterministic model mapping and boundary-safe transformations. |
-| [spring-boot-enum.instructions.md](.github/instructions/spring-boot-enum.instructions.md) | `**/src/main/java/**/*Enum.java` | Spring Boot enum contract for deterministic closed-set domain values in API, domain, and persistence boundaries. |
-| [spring-boot-error-code.instructions.md](.github/instructions/spring-boot-error-code.instructions.md) | `**/src/main/java/**/*ErrorCode.java` | Spring Boot error-code contract for deterministic machine-readable API error semantics and stable message-key mapping. |
-| [spring-boot-exception.instructions.md](.github/instructions/spring-boot-exception.instructions.md) | `**/*Exception*.java, **/*ExceptionHandler*.java, **/*Advice*.java` | Spring Boot exception-handling contract for centralized response mapping, stable error payloads, and controlled failure semantics. |
-| [spring-boot-gitignore.instructions.md](.github/instructions/spring-boot-gitignore.instructions.md) | `**/.gitignore` | Spring Boot .gitignore contract for safe, complete exclusion of build output, IDE artifacts, OS files, secrets, and logs. |
-| [spring-boot-http-client.instructions.md](.github/instructions/spring-boot-http-client.instructions.md) | `**/src/main/java/**/*HttpClient*.java, **/src/main/java/**/*HttpAdapter*.java, **/src/main/java/**/*HttpConfiguration*.java, **/src/main/java/**/*HttpProperties*.java` | Spring Boot HTTP client contract for deterministic outbound calls, bounded resilience behavior, and secure integration boundaries. |
-| [spring-boot-i18n.instructions.md](.github/instructions/spring-boot-i18n.instructions.md) | `**/messages*.properties, **/application*.yml, **/*Messages.java, **/*LogMessages.java, **/i18n/**/*.java` | Spring Boot i18n contract for message-key governance, locale behavior, and translation-safe output. |
-| [spring-boot-java-style.instructions.md](.github/instructions/spring-boot-java-style.instructions.md) | `**/src/**/*.java` | Java coding style contract for import ordering, visibility discipline, string constants, blank-line rules, and helper extraction across all Java source files. |
-| [spring-boot-logging.instructions.md](.github/instructions/spring-boot-logging.instructions.md) | `**/*Controller.java, **/*Service.java, **/*ServiceImpl.java, **/*Repository.java, **/*RepositoryImpl.java, **/*Filter.java, **/*Interceptor.java, **/*Advice.java, **/src/main/resources/**/logback-spring.xml` | Spring Boot logging contract for application log events, Logback appenders, rotation, and profile-level log routing. |
-| [spring-boot-model.instructions.md](.github/instructions/spring-boot-model.instructions.md) | `**/*Model.java` | Spring Boot domain model contract for JDBC-first internal model types, boundary isolation, and persistence-free field declarations. |
-| [spring-boot-openapi.instructions.md](.github/instructions/spring-boot-openapi.instructions.md) | `**/OpenApiConfig.java, **/openapi/**/*.java, **/src/main/resources/application*.yml, **/*Controller.java` | Spring Boot OpenAPI contract for documented API metadata, discoverable endpoints, and stable specification output. |
-| [spring-boot-pagination.instructions.md](.github/instructions/spring-boot-pagination.instructions.md) | `**/*Controller.java, **/*Pagination*.java, **/src/main/resources/application*.yml` | Spring Boot pagination contract for pageable queries, deterministic ordering, and consistent paged response metadata. |
-| [spring-boot-pom.instructions.md](.github/instructions/spring-boot-pom.instructions.md) | `**/pom.xml` | Spring Boot Maven contract for dependency, plugin, and build-governance decisions. |
-| [spring-boot-readme.instructions.md](.github/instructions/spring-boot-readme.instructions.md) | `README.md, **/README.md` | README structure rules for required sections, actionable content, fenced code blocks, and no-filler-prose policy. |
-| [spring-boot-repository.instructions.md](.github/instructions/spring-boot-repository.instructions.md) | `**/*Repository.java, **/*RepositoryImpl.java, **/*SqlConfigurationProperties.java, **/*SqlColumns.java` | Spring Boot repository contract for JDBC-first data access, interface-implementation separation, and SQL safety. |
-| [spring-boot-security.instructions.md](.github/instructions/spring-boot-security.instructions.md) | `**/*SecurityConfig.java, **/security/**/*.java` | Spring Boot security contract for authentication, authorization, service-level checks, and endpoint protection boundaries. |
-| [spring-boot-service.instructions.md](.github/instructions/spring-boot-service.instructions.md) | `**/*Service.java, **/*ServiceImpl.java` | Spring Boot service contract for business orchestration, transaction boundaries, and dependency-safe application logic. |
-| [spring-boot-test.instructions.md](.github/instructions/spring-boot-test.instructions.md) | `**/src/test/java/**/*.java` | Spring Boot testing contract for layer-focused tests, API-contract assertions, and cross-cutting governance checks. |
-| [spring-boot-thymeleaf.instructions.md](.github/instructions/spring-boot-thymeleaf.instructions.md) | `**/*PageController.java, **/*Routes.java, **/templates/**/*.html` | Thymeleaf rules: controller conventions, template layout, model attributes, form binding, and static resource references. |
-| [spring-boot-websocket.instructions.md](.github/instructions/spring-boot-websocket.instructions.md) | `**/*Socket*.java, **/*Stomp*.java` | WebSocket/STOMP rules: endpoint topology, message flow contract, lifecycle handling, and client resilience. |
+| [spring-boot-actuator.instructions.md](.github/instructions/spring-boot-actuator.instructions.md) | `**/src/main/resources/application*.yml`, `**/pom.xml`, `**/*Actuator*.java`, `**/*Security*Config*.java` | Actuator exposure (`health,info,metrics`), health details by profile, probes, and management access boundary. |
+| [spring-boot-architecture.instructions.md](.github/instructions/spring-boot-architecture.instructions.md) | `**/src/**/*.java` | Feature packaging, service/repository boundaries, `<Feature>Mapper` naming, and JDBC-not-JPA baseline. |
+| [spring-boot-config.instructions.md](.github/instructions/spring-boot-config.instructions.md) | `**/src/main/resources/application*.yml`, `**/pom.xml` | YAML config, `development`/`production` profiles, secrets, and DevTools. |
+| [spring-boot-container.instructions.md](.github/instructions/spring-boot-container.instructions.md) | `**/Dockerfile`, `**/docker-compose*.yml`, `**/compose*.yml`, `**/.dockerignore`, `**/.env.example` | Generic container image builds, runtime hardening, Compose profiles, networks, resources, healthchecks, and logging boundaries. |
+| [spring-boot-controller.instructions.md](.github/instructions/spring-boot-controller.instructions.md) | `**/*Controller.java`, `**/*OpenApi*.java`, `**/openapi/**/*.java` | REST URL design, HTTP status/`Location`, `Pageable`, and OpenAPI annotations. |
+| [spring-boot-exception.instructions.md](.github/instructions/spring-boot-exception.instructions.md) | `**/src/**/*.java` | `AppException`, one `@RestControllerAdvice`, JSON error envelope, and Bean Validation. |
+| [spring-boot-gitignore.instructions.md](.github/instructions/spring-boot-gitignore.instructions.md) | `**/.gitignore` | Build, IDE, logs, `.env`, TLS material, and OS junk ignores for real apps. |
+| [spring-boot-http-client.instructions.md](.github/instructions/spring-boot-http-client.instructions.md) | `**/src/**/*.java`, `**/src/main/resources/application*.yml` | Named `RestClient` beans, timeouts, and repository-side outbound calls. |
+| [spring-boot-i18n.instructions.md](.github/instructions/spring-boot-i18n.instructions.md) | `**/application*.yml`, `**/i18n/**`, `**/src/**/*.java` | Message bundles, locale resolution, and key-parity tests. |
+| [spring-boot-java-style.instructions.md](.github/instructions/spring-boot-java-style.instructions.md) | `**/src/**/*.java` | Imports, visibility, annotation order, constants, records, JavaDoc, and compile/test verification. |
+| [spring-boot-jdbc.instructions.md](.github/instructions/spring-boot-jdbc.instructions.md) | `**/*Repository*.java`, `**/db/**`, `**/sql/**`, `**/application*.yml`, `**/pom.xml` | `JdbcClient`, externalized SQL, transactions, `RETURNING`, and DBA-owned DDL. |
+| [spring-boot-k6.instructions.md](.github/instructions/spring-boot-k6.instructions.md) | `**/src/test/k6/**/*.js` | Optional k6 HTTP load scripts, env-based targets, checks, and gitignored reports. |
+| [spring-boot-logging.instructions.md](.github/instructions/spring-boot-logging.instructions.md) | `**/logback-spring.xml`, `**/src/**/*.java` | Logback profiles, async appenders, and i18n-backed log messages. |
+| [spring-boot-lombok.instructions.md](.github/instructions/spring-boot-lombok.instructions.md) | `**/pom.xml`, `**/src/**/*.java` | Lombok Maven setup, allowed annotations, and records over `@Data`. |
+| [spring-boot-pom.instructions.md](.github/instructions/spring-boot-pom.instructions.md) | `**/pom.xml` | Coordinates, dependency comments/order, and JDBC-not-JPA dependency defaults. |
+| [spring-boot-project.instructions.md](.github/instructions/spring-boot-project.instructions.md) | `**` | Always-on Spring Boot entry point: non-negotiables, topic index, new-app scaffold, and self-check. Ignore for non-Spring work. |
+| [spring-boot-readme.instructions.md](.github/instructions/spring-boot-readme.instructions.md) | `README.md`, `**/README.md` | Required README sections, run/test commands, env docs, and no-filler project docs. |
+| [spring-boot-security.instructions.md](.github/instructions/spring-boot-security.instructions.md) | `**/pom.xml`, `**/application*.yml`, `**/*Security*.java`, `**/security/**/*.java` | HTTP Basic, deny-by-default filter chains, env-driven in-memory credentials, and method authorization. |
+| [spring-boot-test.instructions.md](.github/instructions/spring-boot-test.instructions.md) | `**/src/test/java/**/*.java`, `**/pom.xml` | Context-load baseline, `@WebMvcTest` + service mocks, service unit tests, and env-dependent reporting. |
+| [spring-boot-thymeleaf.instructions.md](.github/instructions/spring-boot-thymeleaf.instructions.md) | `**/pom.xml`, `**/*PageController.java`, `**/templates/**/*.html`, `**/static/**` | `<Feature>PageController`, templates/static layout, forms, `#{…}` UI copy, and fragments. |
+| [spring-boot-virtual-threads.instructions.md](.github/instructions/spring-boot-virtual-threads.instructions.md) | `**/application*.yml`, `**/*Config*.java`, `**/*Configuration*.java` | `spring.threads.virtual.enabled`, blocking servlet stack, and no custom Loom executors. |
+| [spring-boot-websocket.instructions.md](.github/instructions/spring-boot-websocket.instructions.md) | `**/pom.xml`, `**/application*.yml`, `**/*Socket*.java`, `**/*WebSocket*.java`, `**/websocket/**/*.java` | STOMP/SockJS endpoint, destinations, fail-closed origins, and `<Feature>SocketController`. |
 
 To inspect current routing patterns directly:
 
@@ -160,16 +140,17 @@ To inspect current routing patterns directly:
 rg -n "^applyTo:" .github/instructions/*.instructions.md
 ```
 
-## Governance Notes
+## How Spring Boot instructions load
 
-- Proactive loading is mandatory: read each activated component instruction file before generation or review; do not rely only on `applyTo` auto-loading.
-- Optional components follow intent-first activation: ask when intent is ambiguous, then apply silent defaults only when user intent remains silent.
+- [spring-boot-project.instructions.md](.github/instructions/spring-boot-project.instructions.md) is always-on (`applyTo: **`) but only for Spring Boot tasks. It is the empty-repo entry point.
+- Other `spring-boot-*.instructions.md` files route by `applyTo`. On an empty repository those globs may not match yet, so the project file tells the agent which topic files to read before creating files.
+- Cursor also gets a short stack card in [AGENTS.md](.cursor/AGENTS.md).
 
 ## Instruction format conventions
 
 - `spring-boot-*.instructions.md` files follow a standardized structure: YAML frontmatter, one H1 title, and deterministic H2 rule sections
 - Keep one rule per bullet and keep sections enforceable and purpose-specific
-- All `.instructions.md`, `.prompt.md`, `.agent.md`, and `SKILL.md` files must follow the style contract defined in [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md)
+- Customization files follow the style contract in [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md)
 
 ## Contributing
 

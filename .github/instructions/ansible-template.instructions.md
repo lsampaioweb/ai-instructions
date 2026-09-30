@@ -1,6 +1,6 @@
 ---
 description: "Jinja2 template contract for Ansible role templates: variable safety, block formatting, and rendered-output hygiene."
-applyTo: "**/*.j2"
+applyTo: "**/ansible/**/templates/**/*.j2"
 ---
 
 # Ansible Jinja2 Template Contract

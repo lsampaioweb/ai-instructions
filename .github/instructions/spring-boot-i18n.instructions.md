@@ -1,71 +1,73 @@
 ---
-description: "Spring internationalization message bundles, locale resolution, namespace governance, and localized log and user-facing messages."
-applyTo: "**/messages*.properties, **/LogMessages.java, **/*LocaleResolver.java, **/*LocaleResolverConfig.java, **/application*.yml, **/*Messages.java, **/i18n/**/*.java"
+description: "Spring Boot i18n contract for message bundles, locale resolution, MessageSource usage, and key-parity tests."
+applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/src/main/resources/i18n/**, **/src/**/*.java"
 ---
 
-## Dependencies
-- Follow the Java style contract in `spring-boot-java-style.instructions.md` for Java formatting, imports, visibility, constants, and JavaDoc.
-- Follow `spring-boot-config.instructions.md` for `spring.messages.basename` placement.
+# Spring Boot i18n Contract
 
-## Naming Conventions
-- Name the default bundle `messages.properties` and locale variants `messages_pt_BR.properties`, etc.
-- Use lowercase dot-delimited keys that identify the message purpose, such as `log.user.fetching.all`, `error.user.not.found`, and `page.index.title`.
-- Use the `log.*` namespace for developer-facing log messages.
-- Use the `error.*` namespace for domain errors and the `error.validation.*` namespace for Bean Validation constraint messages.
-- Use the `api.*` namespace for API response messages and the `openapi.*` namespace for API documentation strings.
-- Use domain-prefixed keys for UI and API messages when the context needs qualification.
-- Name message-source component classes with the `*Messages` or `*LogMessages` suffix; use domain-specific component names (never `Messages`, `AppMessages`, or `LogMessages` without a domain prefix).
+These rules apply to application modules that expose user-facing or log-facing
+message text. Projects must meet the full contract once i18n is in use.
 
-## Rules
+## Message bundles
 
-### Message bundles
-- Set `spring.messages.basename=i18n/messages` and `spring.messages.encoding=UTF-8` in `application.yml`.
-- Place standard bundles at `src/main/resources/i18n/messages.properties` and `src/main/resources/i18n/messages_pt_BR.properties`.
-- Use UTF-8-safe content in all message bundle files.
-- Keep the same keys in every locale bundle; add every new key to all locale files simultaneously.
-- Keep the same indexed placeholder arity and meaning for each key across locale bundles.
-- Use `{0}`, `{1}`, and subsequent indexed placeholders for dynamic message values.
-- Keep message values in the language represented by their bundle; keep `messages_pt_BR.properties` entries written in natural Portuguese with correct orthography and diacritics.
-- Group related keys together with `# Section Name` comments when they improve scanning of a larger bundle.
-- Add a localized value for every newly introduced key before using it in application code.
-- Remove keys that are no longer used by application code.
-- Add `log.*` keys only when the same change wires those keys through a `*LogMessages` component used by application code.
-- Add `error.validation.*` and `error.*` keys only when the same change includes the controller or service component that produces those validation errors or domain failures.
-- For `openapi.*` key requirements, defer to `spring-boot-openapi.instructions.md`.
+- Store bundles under `src/main/resources/i18n/`.
+- Ship at least:
+  - `messages.properties` as the English default bundle
+  - `messages_pt_BR.properties` for Brazilian Portuguese
+- Every key present in one locale file must exist in every other locale file.
+- Placeholder arity must match across locales for the same key (for example `{0}`
+  and `{1}` counts must be identical).
+- Never hardcode user-facing API, UI, validation, or error text in Java. Resolve it
+  through `MessageSource` (or a thin helper that wraps it) and a message key.
+- Developer-facing log text uses the dedicated logging message helper defined by the
+  logging contract, not ad-hoc request-locale resolution.
 
-### Message resolution
-- Resolve a user-facing HTTP message with `MessageSource` and `LocaleContextHolder.getLocale()`.
-- Resolve developer-facing log messages in English.
-- Use a `LogMessages` component for reusable developer-facing log messages.
-- Declare each `*LogMessages` component as a `public class` annotated with `@Component`, backed by `MessageSource` with `Locale.ENGLISH` for log events.
-- Place a module-root `*LogMessages` component (e.g., `AppLogMessages`) in `<root-package>.i18n` when the component is consumed by cross-cutting shared classes such as `@RestControllerAdvice`.
-- Use feature-scoped `*LogMessages` components (e.g., `HolidayLogMessages` in `holiday.i18n`) only when the component is consumed exclusively within that feature.
-- Implement `LogMessages#get(String key, Object... args)` with `Locale.ENGLISH` as its default locale, delegating to `get(Locale.ENGLISH, key, args)`.
-- Expose a `get(Locale locale, String key, Object... args)` overload for caller-specified locale resolution.
-- Delegate message lookup to `MessageSource#getMessage(...)`; do not embed translated text in Java code.
-- Define reused message keys as named string constants in the owning class.
+## Spring messages configuration
 
-### Locale resolution
-- Use `AcceptHeaderLocaleResolver` for HTTP locale selection when localized HTTP or rendered messages are exposed.
-- Configure English as the default locale and English plus `pt-BR` as supported locales (`en` and `pt-BR` as baseline defaults unless the project explicitly defines a different set).
-- Fall back to English when the request does not provide an `Accept-Language` value.
-- Add session- or query-parameter-based locale selection only when the feature explicitly requires persisted user preference or direct language selection.
+Declare all four settings in `application.yml` whenever the project uses message
+bundles:
 
-### Verification
-- Add or update tests that locale bundles contain the same keys.
-- Add or update tests that matching messages use the same placeholder arity in every locale bundle.
-- Add or update tests that application keys referenced in code exist in the message bundles.
-- Add or update tests that message-bundle keys unused by application code are removed.
-- Keep the reference set of keys used in code current when a feature adds or removes an `i18n` key.
+```yml
+spring:
+  messages:
+    basename: "i18n/messages"
+    encoding: "UTF-8"
+    default-locale: "en"
+    fallback-to-system-locale: false
+```
 
-## Safety Guards
-- Never set `spring.messages.use-code-as-default-message=true`.
-- Never remove keys that are still referenced.
-- Never concatenate string fragments to construct a user-facing message.
+- Quote string values consistently (configuration contract).
+- Do not let the JVM/OS locale become the fallback for missing translations.
 
-## Reference
-- Use [samples/spring-boot-log-messages.tpl](samples/spring-boot-log-messages.tpl) for the `LogMessages` component.
-- Use [samples/spring-boot-messages.properties.tpl](samples/spring-boot-messages.properties.tpl) for the default message bundle.
-- Use [samples/spring-boot-messages_pt_BR.properties.tpl](samples/spring-boot-messages_pt_BR.properties.tpl) for the Brazilian Portuguese message bundle.
-- Use [samples/spring-boot-application.tpl](samples/spring-boot-application.tpl) for the related `spring.messages` configuration.
-- Use [samples/spring-boot-i18n-consistency-test.tpl](samples/spring-boot-i18n-consistency-test.tpl) for locale bundle key-parity and placeholder-arity tests.
+## Locale resolution
+
+- Supported locales for real projects are English and `pt-BR`.
+- Default locale is English.
+- REST/API applications resolve locale from the `Accept-Language` header. A stock
+  `AcceptHeaderLocaleResolver` configured with that default and supported list is
+  enough.
+- MVC/page applications may also honor an explicit `lang` query parameter when the
+  UI needs a language switcher. Do not use the JVM default locale as a fallback.
+- Keep user-facing resolution separate from log-message resolution: logs stay on a
+  fixed English default unless a caller deliberately asks for another locale.
+
+## Consistency tests
+
+- Every module with message bundles must include an automated test that:
+  - loads every locale file under `i18n/`
+  - asserts the key sets are exactly equal
+  - asserts placeholder arity matches per key
+- Prefer a dedicated `I18nConsistencyTest` (or equivalent) that fails the build when
+  a translation key is added to one file and omitted from another.
+- Optional stronger checks (keys used in code vs keys defined in bundles) are
+  encouraged when the module can enumerate used keys reliably.
+
+## Forbidden
+
+- Never hardcode user-facing strings in controllers, services, exception handlers,
+  templates, or OpenAPI annotations when a message key can be used instead.
+- Never ship only one locale file when the project claims i18n support.
+- Never omit `encoding`, `default-locale`, or `fallback-to-system-locale` once
+  `spring.messages.basename` is declared.
+- Never set `fallback-to-system-locale` to `true` for real applications.
+- Never treat English and `pt-BR` key sets as best-effort; they must stay identical.

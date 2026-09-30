@@ -1,68 +1,118 @@
 ---
-description: "Spring Boot logback-spring.xml logging configuration with console and file appenders, log-level policy, and MDC correlation."
-applyTo: "**/logback-spring.xml, **/*Controller.java, **/*Service.java, **/*ServiceImpl.java, **/*Repository.java, **/*RepositoryImpl.java, **/*Filter.java, **/*Interceptor.java, **/*Advice.java"
+description: "Spring Boot logging contract for Logback configuration, i18n-backed log messages, and logger usage."
+applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/**/*.java"
 ---
 
-## Dependencies
-- Follow `spring-boot-i18n.instructions.md` for the `*LogMessages` component contract used to resolve log message strings.
-- Follow `spring-boot-java-style.instructions.md` for class-level formatting, imports, and visibility.
+# Spring Boot Logging Contract
 
-## Rules
+## Logger acquisition
 
-### Logging behavior
-- Use `@Slf4j` for logger declaration in every class that emits log events.
-- Use `*LogMessages` components to resolve all log message strings through i18n keys; pass the resolved string as the sole argument to `log.LEVEL()`.
-- Use `{}` placeholders only for raw log statements not routed through a `*LogMessages` component.
-- Add the request correlation identifier to MDC under the key `traceId` before processing begins; clear it from MDC after request processing completes.
-- Include correlation identifiers when available in log statements.
-- Use DEBUG level for development-time diagnostic events that have no operational value in production.
-- In controller classes, log only warning and error conditions.
-- In service classes, log business state transitions (create, update, delete) at INFO level with stable resource identifiers.
-- In repository classes, log degraded execution paths (for example, SQL feature fallback) at WARN level.
-- Log unexpected exceptions at ERROR level; log known domain failures that map to 4xx responses at WARN level.
-- Keep exception logs single-source.
-- Use structured log fields when the active logging sink supports structured ingestion.
+- Obtain a logger via Lombok's `@Slf4j` on the class (Lombok contract). Do not call
+  `LoggerFactory.getLogger(...)` when Lombok is available.
 
-### File location and naming
-- Place the file at `src/main/resources/log/logback-spring.xml`.
-- Reference it from application.yml as `logging.config: "classpath:log/logback-spring.xml"`.
+## Log message content
 
-### Required structure
-- Define the Spring properties `spring.application.name` (into context variable `APPLICATION_NAME`) and `logging.file.path` (into context variable `LOG_DIR` with `defaultValue="./logs"`).
-- Define three appenders: Console, RollingFile, and File (AsyncAppender wrapper).
+- Externalize log message text through a dedicated logging message helper component
+  backed by `MessageSource`, separate from any user-facing/API message resolution path.
+- The logging message helper exposes:
+  - `get(String key, Object... args)` - resolves the message in a fixed default locale
+    (English) for developer-facing log text.
+  - `get(Locale locale, String key, Object... args)` - resolves the message in a caller
+    -supplied locale, for cases where the log message should reflect request context.
+- Never hardcode log message text directly in a log call; always resolve it through the
+  logging message helper and an externalized message key.
+- Never use a locale-follows-request design (e.g. resolving the current request locale
+  automatically) for developer-facing log text; log text defaults to a fixed locale so
+  operators reading logs see consistent language regardless of caller locale.
 
-### Console appender
-- Use colored output for readability: black timestamp, highlighted level, blue thread, yellow logger.
-- Use this pattern: `%black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%logger{60}): %msg%n%throwable`.
-- Write to stdout only for development and debug visibility.
+## Structured log fields
 
-### RollingFile and async appenders
-- Use `RollingFileAppender` with `SizeAndTimeBasedRollingPolicy` and encoder pattern `%d{ISO8601} %-5level [%t] %logger{60}: %msg%n%throwable`.
-- Use the file naming pattern `${LOG_DIR}/${APPLICATION_NAME}.log`.
-- Use archived files in `${LOG_DIR}/archived/${APPLICATION_NAME}-%d{yyyy-MM-dd}.%i.gz` for gzip rotation.
-- Keep the rolling policy values configurable through application.yml `logging.file.*` properties.
-- Set rotation limits: `maxFileSize=10MB`, `maxHistory=7`, `totalSizeCap=1GB`; declare all rotation limits explicitly in the rolling policy.
-- Wrap the rolling file appender in an `AsyncAppender` named `File` to avoid blocking.
-- Declare elements in this order within the async appender: `queueSize`, `discardingThreshold`, `appender-ref`.
-- Set `queueSize=512` and `discardingThreshold=0` on the async appender.
+- When more than one log statement records outcomes of the same logical event (for
+  example, a success audit line and a rejection audit line for the same operation),
+  give every one of them the same field schema, in the same order. Do not include a
+  field (such as an error code) in one code path and drop it in another for the same
+  conceptual event.
+- Leave a field present but empty when it does not apply to a given outcome, instead
+  of omitting the placeholder; this keeps field position and count stable for
+  `grep`/`awk`-based log analysis.
+- When adding, removing, or renaming a field on a shared structured log message key,
+  update every call site that uses that key, not only the one being changed.
 
-### Configurable rolling policy properties
-- Set `logging.file.max-size` to the rotation threshold, for example `10MB`.
-- Set `logging.file.max-history` to the number of days to keep archived logs, for example `7`.
-- Set `logging.file.total-size-cap` to the total disk-space cap for all logs, for example `1GB`.
+## Guarded logging
 
-### Spring profiles
-- Route the `debug` profile to Console and File appenders with root level `DEBUG`.
-- Route the `development` profile to Console and File appenders with root level `INFO`.
-- Route the `default | production` profiles to the File appender only with root level `INFO`, with no console output.
-- Use structured encoders when the log aggregation sink requires structured ingestion.
+- Do not wrap ordinary log calls in `isXEnabled()` checks by default.
+- Only guard a log call when both are true: the log level is one commonly disabled in
+  production (`TRACE` or `DEBUG`), and computing the log arguments does non-trivial work
+  (e.g., a message-resolution lookup, string building, or serialization) that would
+  otherwise run even when the level is disabled.
+- Never guard `INFO`, `WARN`, or `ERROR` calls; these levels are normally always enabled.
+- Prefer SLF4J parameterized logging with the resolved message and arguments over
+  string concatenation so cheap arguments avoid unnecessary evaluation without
+  needing a guard.
 
-## Safety Guards
-- Never emit high-volume logs inside tight loops.
-- Never log credentials, tokens, or personal data.
-- Never route sensitive data to unprotected appenders.
-- Never disable error logging for application failures.
+## Logback configuration
 
-## Reference
-- Use [samples/spring-boot-logging.tpl](samples/spring-boot-logging.tpl) for `logback-spring.xml`.
-- Use [samples/spring-boot-application.tpl](samples/spring-boot-application.tpl) for the related `logging.file.*` properties.
+- Configure logging through an external Logback configuration file referenced via
+  `logging.config`, not inline `application.yml` logging properties.
+- Bind the application name and log directory through `springProperty` so the
+  configuration adapts to `spring.application.name` and `logging.file.path`.
+- Externalize rolling-file thresholds (max file size, max history, total size cap)
+  through `springProperty` bindings sourced from `logging.file.max-size`,
+  `logging.file.max-history`, and `logging.file.total-size-cap`, with sensible defaults,
+  rather than hardcoding those values in the rolling policy.
+- Declare matching values for `logging.file.max-size`, `logging.file.max-history`, and
+  `logging.file.total-size-cap` in `application.yml` whenever a project overrides the
+  defaults.
+- Define at least three profile-based root logging configurations. The verbose profile
+  name may be `debug`: that is a **logging verbosity** profile, not an environment alias
+  for `development`/`production` (configuration contract):
+  - A verbose profile (e.g. `debug`) at `DEBUG` level writing to both console and file.
+  - A development profile at `INFO` level writing to both console and file.
+  - A default profile at `INFO` level writing to both console and file.
+  - A production profile at `INFO` level writing to file only.
+- Define an appender inside a `<springProfile>` block when that appender is used only
+  by selected profiles. Scope a console appender to the profiles that reference it
+  (typically `default | debug | development`) so file-only profiles do not create an unused
+  appender and emit a Logback warning.
+- Ensure every `<appender-ref>` is resolvable in every active profile where it appears.
+  An appender declared inside a profile expression is not available to other profiles.
+- Keep the `production` root configuration separate from console-enabled profiles when
+  production is file-only. Include `default` in the console appender declaration when
+  the default profile is intentionally console-enabled.
+- Route the file appender through an async appender to move file I/O off the calling
+  thread during normal operation. This does not guarantee non-blocking behavior when
+  the queue is full.
+- Configure the async appender with an explicit queue size and a `discardingThreshold`
+  of `0` so lower-severity log events are not discarded by the queue-pressure threshold
+  while the appender is running; the default
+  discarding-threshold behavior can drop lower-severity events once the queue fills,
+  which is unacceptable for an audit/troubleshooting trail.
+- Set `neverBlock` explicitly to `false`. When the queue is full, the producer waits
+  for the appender to make space instead of silently losing the event. This deliberately
+  prioritizes log preservation over request throughput during sustained logging pressure.
+- Define and verify an orderly shutdown/flush policy for production deployments. The
+  queue-pressure policy does not guarantee that events still queued during an abrupt
+  process termination will be written.
+- Keep console and file encoder patterns consistent in structure (timestamp, level,
+  thread, logger name, message, throwable), and keep the XML element name for the pattern
+  encoder consistent (lowercase) across the whole project.
+
+## Message source configuration
+
+- Whenever a project resolves messages by key, declare the full `spring.messages`
+  block required by the i18n contract (`basename`, `encoding`, `default-locale`,
+  `fallback-to-system-locale`). Do not configure basename alone.
+
+## Forbidden
+
+- Never hardcode log message strings inline instead of resolving them through the
+  logging message helper.
+- Never guard `INFO`/`WARN`/`ERROR` log calls with `isXEnabled()` checks.
+- Never hardcode rolling-file size/history/cap values directly in `logback-spring.xml`
+  when they can be externalized through `application.yml`.
+- Never omit the `discardingThreshold` setting on an async file appender.
+- Never omit the `neverBlock` setting on an async file appender; use `false` for the
+  log-preserving policy defined above.
+- Never ship a project without all three logging profiles (verbose, development,
+  default/production) defined.
+- Never give two log statements for the same audited event different field schemas.

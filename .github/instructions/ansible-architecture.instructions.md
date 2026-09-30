@@ -1,6 +1,6 @@
 ---
 description: "Global architecture baseline for Ansible automation repositories with project layout, playbook sequencing, and idempotency conventions."
-applyTo: "**"
+applyTo: "**/ansible/**, **/ansible.cfg, **/.ansible-lint"
 ---
 
 # Ansible Architecture Baseline

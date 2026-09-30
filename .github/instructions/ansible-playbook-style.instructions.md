@@ -1,6 +1,6 @@
 ---
 description: "Playbook and task style contract for Ansible YAML files, including task naming, condition placement, and task-level import/include policy."
-applyTo: "**/*.yml"
+applyTo: "**/ansible/**/*.yml, **/ansible/**/*.yaml"
 ---
 
 # Ansible Playbook Style Contract
@@ -71,7 +71,7 @@ applyTo: "**/*.yml"
 - Write loop items with two or more fields in block style (`- key: value` on separate lines); never use multi-line flow style (`- {\n    key: value,\n  }`) because YAML formatters re-indent flow keys at a depth that conflicts with ansible-lint's indentation rules.
 
 ### Idempotency and error handling
-- Use `changed_when: <register_var>.rc == 0` on `command` and `shell` tasks that perform state-changing operations.
+- Set `changed_when` on state-changing `command` and `shell` tasks to an expression that detects an actual state transition from the command result or pre/post state. Do not use a successful return code alone unless the command contract guarantees that it means a change occurred.
 - Use `changed_when: false` on read-only probe tasks whose purpose is inspection, discovery, or status checks.
 - Keep the task `name` and any surrounding comment explicit enough to show that a `changed_when: false` command or shell task is a read-only probe.
 - Use `failed_when` as a list of conditions when failure semantics require multiple guards.

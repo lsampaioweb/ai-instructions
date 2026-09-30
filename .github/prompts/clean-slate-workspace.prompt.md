@@ -1,13 +1,13 @@
 ---
-description: "Use to remove only this chat's created artifacts from the active workspace for a clean restart."
-argument-hint: "Optional: scope notes or exclusions; omit to clean all artifacts created in this chat."
+description: "Remove only artifacts created by this chat from the active workspace for a clean restart."
+argument-hint: "Optional: scope notes or exclusions. Omit them to clean all artifacts created by this chat."
 ---
 
-# Clean Slate Workspace Engine
+# Clean Slate Workspace
 
-## 1. Scope & Analysis
+## 1. Inspect the Workspace
 1. Inspect current conversation artifacts in the active workspace.
-2. List all files, plans, repo memory, session memory, and temporary artifacts created in this chat.
+2. List all files, plans, repository memory, session memory, and temporary artifacts created in this chat.
 3. Determine ownership for each artifact.
 
 ## 2. Resolution Rules
@@ -21,7 +21,7 @@ argument-hint: "Optional: scope notes or exclusions; omit to clean all artifacts
 - If no session-created artifacts exist, state that explicitly and stop.
 
 ## 3. Safety Guards
-- **Execution Boundary:** Delete only after the deletion target list is presented and the user explicitly confirms.
+- **Execution boundary:** Delete only after presenting the target list and receiving the user's explicit confirmation.
 
 ## 4. Review Plan Layout
 Use this exact markdown schema:

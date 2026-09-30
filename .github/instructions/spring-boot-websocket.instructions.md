@@ -1,78 +1,87 @@
 ---
-description: "Spring WebSocket STOMP server and SockJS browser client configuration, messaging, connection tracking, and event handling."
-applyTo: "**/WebSocket*.java, **/*SocketEndpoint.java, **/*SessionEventsListener.java, **/*ConnectionTracker.java, **/*MessageEventPublisher.java, **/static/js/**/chat-*.js, **/*Socket*.java, **/*Stomp*.java"
+description: "Spring Boot WebSocket/STOMP contract for endpoints, destinations, CORS origins, session tracking, and socket controllers."
+applyTo: "**/pom.xml, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/*Socket*.java, **/*WebSocket*.java, **/websocket/**/*.java"
 ---
 
-## Dependencies
-- Add `org.springframework.boot:spring-boot-starter-websocket` when STOMP WebSocket messaging is required.
-- Follow the Java style contract in `spring-boot-java-style.instructions.md` for Java formatting, imports, visibility, injection, constants, and JavaDoc.
-- Follow `spring-boot-i18n.instructions.md` for localized page text and WebSocket log messages.
-- Follow `spring-boot-model.instructions.md` for WebSocket transport records.
-- Follow `spring-boot-async-events.instructions.md` for application event publishing and listener behavior.
+# Spring Boot WebSocket Contract
 
-## Naming Conventions
-- Name the broker configuration class `WebSocketConfiguration`.
-- Name the STOMP endpoint class `{Feature}SocketEndpoint`.
-- Name WebSocket configuration properties `WebSocketConfigurationProperties`.
-- Use `/ws` for the SockJS handshake endpoint, `/app` for application destinations, `/topic` for broadcasts, and `/queue` for point-to-point destinations.
-- Declare all STOMP destination prefix strings as `private static final String` constants in the configuration class.
+These rules apply when an application uses WebSocket/STOMP messaging.
+Architecture owns `<Feature>SocketController` naming. REST JSON APIs stay in the
+controller contract. Thymeleaf owns browser page UI. HTTP Security stays in the
+Security contract; do not invent a partial STOMP-auth story here unless the
+product explicitly requires it.
 
-## Rules
+Applications that expose WebSocket/STOMP must meet this contract.
 
-### Server configuration
-- Annotate the broker configuration with `@Configuration` and `@EnableWebSocketMessageBroker`, implementing `WebSocketMessageBrokerConfigurer`.
-- Enable the simple broker with `/topic` and `/queue` destination prefixes; set `/app` as the application destination prefix.
-- Register the `/ws` STOMP endpoint with SockJS support, calling `.withSockJS()` for browser transport fallback compatibility.
-- Read allowed origin patterns from `app.websocket.allowed-origins` configuration properties.
-- Permit wildcard origins only for explicitly documented development or local profiles; require constrained origin patterns for production profiles.
-- Use explicit external origin values outside local development; do not hardcode deployment origins in Java source.
-- Authenticate WebSocket connections at the HTTP handshake phase using the same authentication token as REST endpoints.
-- Configure heartbeat intervals explicitly (`outgoingHeartbeat=10000ms`, `incomingHeartbeat=10000ms`).
+## Dependency and protocol
 
-### Message endpoints and events
-- Use `@Controller` for STOMP message endpoints.
-- Handle client messages with `@MessageMapping` beneath the `/app` prefix.
-- Annotate every STOMP message handler parameter with `@Payload` to make the message source explicit.
-- Broadcast a returned message with `@SendTo` beneath the `/topic` prefix when all subscribed clients receive it; use declarative `@SendTo` for simple, single-destination broadcasts.
-- Use `SimpMessagingTemplate` when the broadcast destination is dynamic or computed at runtime.
-- Route all `SimpMessagingTemplate` and `ApplicationEventPublisher` calls through a dedicated event publisher class.
-- Keep message mapping destinations and broadcast target addresses statically defined as constants.
-- Represent WebSocket message payloads and published events as immutable records.
-- Publish application events through `ApplicationEventPublisher` when message side effects, such as auditing, must be decoupled from message delivery.
-- Handle published WebSocket events with `@EventListener` components.
-- Use UTC timestamps for WebSocket message payloads.
+- Add `spring-boot-starter-websocket` when the application needs real-time
+  bidirectional messaging.
+- Prefer **STOMP over WebSocket** for application messaging (chat, live updates,
+  push notifications).
+- Do not introduce raw JSR-356 `@ServerEndpoint` handlers unless the product
+  explicitly requires them.
+- Keep a one-line purpose comment above the dependency (pom contract).
 
-### Connection tracking
-- Track active WebSocket session IDs in a thread-safe collection.
-- Track WebSocket session lifecycle (connect/disconnect) events in a dedicated `@Component`, not in message handler classes.
-- Ignore missing or blank session IDs when processing connection events.
-- Update connection tracking from `SessionConnectedEvent` and `SessionDisconnectEvent` listeners.
-- Expose connection status through a dedicated REST API only when operational visibility is required.
+## Endpoint and destinations
 
-### Browser client
-- Create the browser connection with `SockJS` and wrap it with `Stomp.over(...)`.
-- Disable STOMP debug logging in the browser client unless active troubleshooting requires it.
-- Subscribe to the server broadcast destination after a successful STOMP connection.
-- Send client messages to the matching `/app` destination as JSON.
-- Prevent duplicate connections and reset stale client references before reconnecting.
-- Reset connection state after connection failure, socket closure, and successful disconnect.
-- Do not send a message with blank sender or content values.
-- Disconnect the client during page unload when a client connection exists.
+- Register a STOMP endpoint (commonly `/ws`).
+- Enable SockJS on that endpoint when browser clients need transport fallback
+  (`withSockJS()`).
+- Use `/app` as the application destination prefix for client → server sends.
+- Use a simple broker with `/topic` for broadcasts (and `/queue` when
+  point-to-point destinations are required).
+- Prefer the simple in-memory broker for single-instance apps. Do not add an
+  external STOMP broker unless the product needs multi-instance fan-out.
 
-### Verification
-- Test that the server and browser-client application contexts load.
-- Test message handling, broadcast destination, and session tracking when WebSocket behavior is implemented beyond configuration.
+## Controllers and flow
 
-## Safety Guards
-- Never couple broker configuration changes with unrelated features.
+- Name STOMP message handlers `<Feature>SocketController` and annotate them with
+  `@Controller` (architecture contract).
+- Keep socket controllers thin: accept the payload, call a service interface,
+  return or route the result. Do not put business rules in the socket
+  controller.
+- Use `@MessageMapping` for inbound application destinations and `@SendTo` (or
+  messaging templates) for broadcasts.
+- Optional HTTP status endpoints related to the same feature use normal REST
+  naming (`<Feature>RestController`), not `*SocketController`.
 
-## Reference
-- Use [samples/spring-boot-websocket-configuration.tpl](samples/spring-boot-websocket-configuration.tpl) for STOMP broker configuration.
-- Use [samples/spring-boot-websocket-configuration-properties.tpl](samples/spring-boot-websocket-configuration-properties.tpl) for allowed-origin property binding.
-- Use [samples/spring-boot-websocket-application.tpl](samples/spring-boot-websocket-application.tpl) for `app.websocket.allowed-origins` configuration.
-- Use [samples/spring-boot-websocket-socket-endpoint.tpl](samples/spring-boot-websocket-socket-endpoint.tpl) for STOMP message endpoints.
-- Use [samples/spring-boot-websocket-connection-tracker.tpl](samples/spring-boot-websocket-connection-tracker.tpl) for connection tracking.
-- Use [samples/spring-boot-websocket-session-events-listener.tpl](samples/spring-boot-websocket-session-events-listener.tpl) for WebSocket session-event listeners.
-- Use [samples/spring-boot-websocket-client.tpl](samples/spring-boot-websocket-client.tpl) for the browser STOMP client.
-- Use [samples/spring-boot-application.tpl](samples/spring-boot-application.tpl) for shared application configuration.
-- Use [samples/spring-boot-pom.tpl](samples/spring-boot-pom.tpl) for the WebSocket dependency.
+## Allowed origins (CORS)
+
+- Bind allowed origins through validated `@ConfigurationProperties` (for example
+  `app.websocket.allowed-origins`).
+- Never commit `*` as an allowed origin in shared/base or production
+  configuration.
+- In `application-development.yml`, list explicit local origins (scheme, host,
+  and port), such as the browser client origin.
+- In `application-production.yml`, load concrete origins from environment
+  variables or an external secret/config source (configuration contract).
+- If the resolved origin list is empty, fail closed: do not fall back to `*`.
+  Refuse to start or refuse to register the STOMP endpoint until origins are
+  configured.
+- Prefer `setAllowedOriginPatterns` with the configured list over deprecated
+  APIs when configuring the endpoint.
+
+## Session lifecycle
+
+- When the product needs connection counts or cleanup, listen for
+  `SessionConnectedEvent` and `SessionDisconnectEvent` and track session IDs in
+  a dedicated component.
+- Do not invent vanity session metrics beyond what the product uses.
+
+## Client applications
+
+- Keep the browser client’s server WebSocket URL in `@ConfigurationProperties`.
+- Keep user-visible client UI text in i18n bundles (i18n / Thymeleaf contracts).
+- Document connect → subscribe → send → receive → disconnect as the expected
+  client lifecycle.
+
+## Forbidden
+
+- Never use raw `@ServerEndpoint` by default when STOMP fits the product.
+- Never leave production WebSocket origins as `*`.
+- Never fall back to `*` when the configured origin list is empty.
+- Never put business logic in a `*SocketController`.
+- Never name a REST status endpoint `*SocketController`.
+- Never hardcode remote WebSocket URLs in Java or JavaScript when they belong in
+  configuration properties.

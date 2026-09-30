@@ -1,6 +1,6 @@
 ---
 description: "Role governance contract for Ansible roles, including directory ownership, task composition, and variable boundaries."
-applyTo: "**/roles/**"
+applyTo: "**/ansible/roles/**"
 ---
 
 # Ansible Role Governance
@@ -28,18 +28,10 @@ applyTo: "**/roles/**"
 - Declare role dependencies and Galaxy collection requirements in `meta/main.yml` with required fields: `role_name` and `namespace`.
 
 ### Role Metadata (`meta/main.yml`)
-- Required structure:
-  ```yaml
-  ---
-  galaxy_info:
-    role_name: my_role        # lowercase, no hyphens; uniquely identifies role
-    namespace: my_namespace   # lowercase; must match ^[a-z][a-z0-9_-]+$ (no dots)
-    author: Author Name
-    description: "Role description"
-    license: MIT              # required field
-    min_ansible_version: "2.10"  # required field; optional fields (tags, github_branch, etc.) below per ansible-galaxy requirements
-  ```
-- Namespace values must match `^[a-z][a-z0-9_-]+$`.
+- Define `galaxy_info` with `role_name`, `namespace`, `author`, `description`,
+  `license`, and `min_ansible_version` fields.
+- Keep `role_name` lowercase without hyphens so it uniquely identifies the role.
+- Keep `namespace` lowercase and matching `^[a-z][a-z0-9_-]+$`; do not use dots.
 - Do not use dot-separated namespace values (for example, `local.proxmox`).
 - Run `ansible-lint` to validate `meta/main.yml` for Galaxy compliance before marking role complete.
 - Do not assume default role name from directory; always explicitly declare `role_name` and `namespace`.

@@ -1,56 +1,74 @@
 ---
-description: "Authoring contract for instruction files: structure, wording, duplication control, section ordering, and conflict resolution."
-applyTo: "**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, **/copilot-instructions.md, **/skills/**/SKILL.md, **/hooks/**/*.json, **/hooks/**/*.md"
+description: "Authoring and review contract for AI customization files, including agents, instructions, prompts, skills, hooks, and workspace guidance."
+applyTo: "**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, **/copilot-instructions.md, **/skills/**/SKILL.md, **/hooks/**/*.json"
 ---
 
-## Rules
+# AI Customization Contract
 
-### File metadata and discoverability
-- Keep frontmatter discoverable: `description` must clearly state when the file is used.
-- Keep prompt metadata explicit: include `argument-hint` when the file requires input.
-- Use the most specific `applyTo` pattern that matches the target files without over-matching.
-- Remove vague routing language that does not improve file selection.
+## Dependencies
 
-### Writing style and structure
-- Use directive language: write mandatory rules with imperative verbs.
-- Keep optional behavior explicit: mark optional rules with an explicit optional tag.
-- Keep one rule per bullet; each bullet must express one enforceable behavior.
-- Split compound bullets into separate rules.
-- Keep each section purpose-specific: the title and the rule scope must match.
-- Move off-topic content into a dedicated section instead of mixing it into the governing rules.
-- Minimize filler wording that does not change execution.
-- Prefer shorter phrasing when it preserves the same meaning.
-- Preserve technical literals exactly as written: commands, code, paths, URLs, identifiers, config keys, and versions must not be altered unless they are incorrect.
+- Read the workspace's `copilot-instructions.md` before creating or changing an AI customization file.
+- Read the applicable domain instruction files before editing a file that they govern.
+- Treat a missing required instruction, reference, or template as a blocker. Do not silently bypass it or invent a substitute.
 
-### Duplication and conflict handling
-- Search for an existing rule before adding a new preference; merge or reference it instead of duplicating it.
-- Add a rule only when it changes a default decision and does not duplicate an existing rule.
-- Keep one canonical statement for each cross-cutting policy; secondary files must defer to it instead of copying rules.
-- Name the canonical owner for a shared policy in the file that owns that domain; other files must defer to that owner instead of restating the policy.
-- Search existing templates before creating a template; reference the existing template when it already contains the required canonical content.
-- Create a new template only when no existing template contains the required canonical content.
-- Use `## Reference` only to link instruction files or templates required by the current file; do not use it to describe sample provenance.
-- Resolve contradictions explicitly by rewriting or by defining precedence.
-- State each constraint once in the strongest clear polarity; do not restate a Rules bullet as its negation in Safety Guards or in the same bullet.
-- Do not append `; never …` (or equivalent) inside a Rules bullet when that prohibition is already covered by the Must form or by Safety Guards.
+## Scope and ownership
 
-### Rule ordering and section layout
-- Use this canonical section order for engine instruction files when applicable: `## Dependencies`, `## Naming Conventions`, `## Rules`, `## Approved Exception Handling`, `## Safety Guards`, `## Reference`.
-- Omit `## Scope & Analysis` and `## Review Plan Layout` from engine instruction files.
-- Use `## Dependencies` only for real Maven/starter requirements or essential cross-topic deferrals; do not list files already covered by `applyTo` or an architecture registry entry.
-- Omit `## Safety Guards` when it is empty; if present, each bullet must forbid a behavior not already implied by Rules (asymmetric / high-cost prohibitions only: irreversible operations, security footguns, common agent failure modes, scope-creep bans).
-- Keep `## Approved Exception Handling` only when temporary exceptions are a first-class protocol for a domain; put design alternatives in Rules.
-- Order rules within each section to match the top-to-bottom structure of the governed file.
-- Place rules for elements that appear earlier in the target file before rules for elements that appear later.
-- Keep section titles and content aligned; do not mix governance rules with implementation examples unless the file is explicitly a template.
-- Keep durable false-positive dismissals for code-vs-instruction reviews in `.github/instructions/review-suppressions.instructions.md`; prefer narrowing the cited instruction or domain Approved Exception Handling before adding a suppression row.
-- Require every Active Suppressions row to include stable `SUP-NNN` ID, Path, Rule citation, Reason, Owner, Expiry (`YYYY-MM-DD`), and Status (`active`|`expired`).
+- Keep workspace-wide behavior in `copilot-instructions.md`.
+- Keep reusable authoring and review rules for AI customization files in this contract.
+- Keep topic-specific implementation rules in the narrowest applicable instruction file.
+- Keep one canonical owner for each shared policy. Reference that owner instead of duplicating the policy in other files.
+- Limit each file to the behavior implied by its name, description, and routing pattern.
 
-### Agent files
+## Metadata and routing
+
+- Give every customization file the metadata required by its file type.
+- Write `description` so the file's purpose and trigger conditions are discoverable.
+- Add `argument-hint` when a prompt requires user-provided input.
+- Use the narrowest `applyTo` pattern that covers the intended files without accidental matches.
+- Check routing patterns for overlap with existing files before adding or changing them.
+- Preserve technical literals exactly, including paths, commands, URLs, identifiers, configuration keys, and versions, unless they are demonstrably incorrect.
+
+## Authoring rules
+
+- Use direct, imperative language for mandatory behavior.
+- Mark optional behavior explicitly as optional.
+- Keep one enforceable behavior per rule or bullet.
+- Split compound rules when they contain independent decisions or conditions.
+- Keep each section focused on one purpose, with a heading that matches its contents.
+- Put rules in the order the governed workflow encounters them.
+- Remove filler only when doing so preserves the rule's meaning and enforceability.
+- Preserve existing behavior when improving wording unless the user explicitly approves a behavior change.
+- Do not turn a style preference or optional rewrite into a defect, requirement, or safety rule.
+
+## Duplication and conflict control
+
+- Search for an existing rule before adding a new one.
+- Add a rule only when it changes a default decision or closes a real gap.
+- Do not restate the same policy as both a positive rule and its negative form.
+- Resolve contradictions explicitly by rewriting the rule or defining precedence.
+- When files disagree, identify the canonical owner and update references rather than silently choosing a winner.
+- Search existing templates before creating a new template.
+- Use references for required canonical content instead of copying large examples into multiple files.
+- Keep review findings tied to concrete behavior, routing, enforceability, correctness, safety, duplication, contradiction, or material clarity.
+- Do not report wording preferences, optional rewrites, or alternative styles as problems.
+
+## Review and change safety
+
+- Review the complete target file before proposing a change.
+- Show proposed wording or behavior changes and wait for approval when the user requests review before editing.
+- After an approved change, verify that the file's original meaning and governing behavior remain intact.
+- Do not modify unrelated customization files or silently repair adjacent issues.
+- Do not create, update, or delete a review ledger without explicit authorization.
+- If a required dependency is missing, report the blocker and ask whether to create, restore, remove, or replace it. Do not add a workaround without approval.
+
+## Agent-specific rules
+
 - List only the tools the agent role actually requires.
-- Omit all other tools from the `tools` list.
-- Write `description` to include trigger phrases that support subagent discovery.
-- Include a `## Constraints` section in every agent file.
+- Include a `## Constraints` section in every custom agent file.
 - Grant the `agent` tool only to orchestrator agents.
-- Keep non-orchestrator agents from including the `agent` tool.
 - Use the singular `.agent.md` suffix for discoverable custom agents.
+
+## References
+
+- Use the workspace `copilot-instructions.md` for universal interaction, safety, and workflow rules.
+- Use the review prompt's ledger and convergence rules when auditing customization files across multiple runs.

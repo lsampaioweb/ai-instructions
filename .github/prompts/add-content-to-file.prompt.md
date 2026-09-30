@@ -1,35 +1,35 @@
 ---
-description: "Use to add, update, or deduplicate content in markdown or plain text files."
-argument-hint: "Required: #file:path/to/file and the new content to add"
+description: "Add, update, or deduplicate content in Markdown or plain-text files."
+argument-hint: "Required: #file:path/to/file and the content to add"
 ---
 
-# Add Content To File Engine
+# Add Content to a File
 
-## 1. Scope & Analysis
+## 1. Inspect the File
 1. Read the target file.
-2. Identify structure: headings, sections, list patterns, and style conventions.
-3. Find exact heading matches for the requested content.
-4. Find exact content matches.
-5. If no exact match exists, find near matches by heading-keyword overlap.
+2. Identify its headings, sections, list patterns, and style conventions.
+3. Find an exact heading match for the requested content.
+4. Find an exact content match.
+5. If no exact match exists, find the closest heading based on keyword overlap.
 
-## 2. Resolution Rules
-- Use one insertion target only.
-- Prefer exact heading match.
-- If no exact heading match exists, use the nearest section by heading-keyword overlap.
+## 2. Resolve the Request
+- Choose exactly one insertion target.
+- Prefer an exact heading match.
+- If no exact heading match exists, use the nearest section based on heading keywords.
 - If no suitable section exists, propose a new section.
-- Place new content at the logically correct position within the target section.
-- Append at the end of the section only when the new content belongs last.
-- Preserve existing formatting exactly: spacing, indentation, capitalization.
-- Do not introduce unrelated formatting changes.
-- If duplicate content exists, update the existing content instead of adding a second copy.
-- Correct only clear grammar errors (e.g., subject-verb agreement, missing articles).
+- Place the new content where it best fits within the target section.
+- Append it to the end of the section only when it belongs there.
+- Preserve the existing spacing, indentation, and capitalization.
+- Do not make unrelated formatting changes.
+- If duplicate content exists, update it instead of adding a second copy.
+- Correct only clear grammar errors, such as subject-verb agreement or missing articles.
 
-## 3. Safety Guards
-- **Execution Boundary:** Apply the file edit only after the plan is presented and the user explicitly confirms.
-- **No Rephrasing:** Never rephrase sentences.
-- **Grammar Scope:** Limit grammar corrections to those described in the Resolution Rules.
+## 3. Safety Rules
+- **Execution boundary:** Apply the edit only after presenting the plan and receiving the user's explicit confirmation.
+- **No rephrasing:** Never rephrase existing sentences.
+- **Grammar scope:** Limit grammar corrections to those described in the rules above.
 
-## 4. Review Plan Layout
+## 4. Review Plan Format
 Use this exact markdown schema:
 
 ### Scope

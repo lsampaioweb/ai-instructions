@@ -1,84 +1,95 @@
 ---
-description: "Spring Boot test scope selection, isolation, deterministic fixtures, Spring Boot 4.x import paths, and contract-focused assertions."
-applyTo: "**/src/test/java/**/*.java, **/src/test/resources/**"
+description: "Spring Boot testing contract for context-load tests, WebMvc slices, service unit tests, and verification boundaries."
+applyTo: "**/src/test/java/**/*.java, **/pom.xml"
 ---
 
+# Spring Boot Testing Contract
+
+These rules apply to automated tests in real application modules. i18n key-parity
+tests stay in the i18n contract. Compile/test verification after edits stays in
+the Java style contract. Security assertion expectations stay in the Security
+contract. HTTP load scripts stay in the k6 contract; do not run k6 from Maven
+Surefire. Do not restate those contracts here.
+
+Applications must meet this contract for every feature they ship.
+
 ## Dependencies
-- Follow the Java style contract in `spring-boot-java-style.instructions.md` for test-source structure and formatting.
-- Follow `spring-boot-security.instructions.md` for security-chain test scope and authorization assertions; this file owns only generic test-slice mechanics.
 
-## Naming Conventions
-- Name test classes after the component or behavior they verify, ending in `Test`, `Tests`, or `IntegrationTest`.
-- Name test methods in camelCase starting with `should`, stating the expected result, followed by `when<Condition>` when a condition is relevant (e.g., `shouldTransferSuccessfullyWhenSufficientBalance`). Do not use underscores in test method names.
+- Add `spring-boot-starter-test` with `test` scope to every application module.
+- Add `spring-boot-starter-webmvc-test` with `test` scope when the module has a
+  REST controller. Real REST apps always ship `@WebMvcTest`.
+- Import `@WebMvcTest` from `org.springframework.boot.webmvc.test.autoconfigure`.
+  On Spring Boot 4, `spring-boot-starter-test` does not provide this class.
+- Add `spring-security-test` with `test` scope when the module tests Spring
+  Security behavior.
+- Keep a one-line purpose comment above each dependency (pom contract).
+- Place test-scoped dependencies last in `pom.xml` (pom contract).
 
-## Rules
+## Mandatory baseline
 
-### Test scope and isolation
-- Select the narrowest test scope that exercises the required contract.
-- Use layer-appropriate test slices: `@WebMvcTest(ControllerClass.class)` for HTTP contract tests, `@JdbcTest` for repository tests, `@ExtendWith(MockitoExtension.class)` for unit tests, `@SpringBootTest` only when the test requires the full application context or end-to-end framework wiring.
-- Prefer narrow test slices (`@WebMvcTest`, `@JdbcTest`) over `@SpringBootTest` for single-layer tests.
-- Isolate external systems with collaborator mocks, mock HTTP servers, or bounded test configuration.
-- Provide test resource configuration only when a feature needs deterministic framework startup settings.
+- Every application module has an `*ApplicationTests` class annotated with
+  `@SpringBootTest` that proves the Spring context loads.
+- Every module with message bundles also has an `I18nConsistencyTest` (or
+  equivalent) as required by the i18n contract.
 
-### Spring Boot 4.x import paths
-- Import `@WebMvcTest` from `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest` (module `spring-boot-webmvc-test`).
-- Import `@JdbcTest` from `org.springframework.boot.jdbc.test.autoconfigure.JdbcTest` (module `spring-boot-jdbc-test`).
-- Import `@MockitoBean` from `org.springframework.test.context.bean.override.mockito.MockitoBean`.
-- Do not import `@MockBean` or annotations from `org.springframework.boot.test.mock.mockito` / `org.springframework.boot.test.autoconfigure.web.servlet`.
-- Use `MockMvcTester` (from `org.springframework.test.web.servlet.assertj.MockMvcTester`) for AssertJ-native controller assertions in `@WebMvcTest` slices.
-- Use `RestTestClient` (from `org.springframework.test.web.servlet.client.RestTestClient`, module `spring-boot-resttestclient`) for testing REST endpoints against a running server in `@SpringBootTest(webEnvironment = RANDOM_PORT)` tests.
+## REST controller tests
 
-### WebMvcTest specifics
-- For `@WebMvcTest` classes that serialize JSON fixtures, explicitly enable JSON auto-configuration in the test slice before autowiring `ObjectMapper`; serialize request and response fixtures using the slice-configured `ObjectMapper` (or `JacksonTester`).
-- Handcraft JSON strings only for intentionally malformed-payload tests.
-- For `@WebMvcTest` classes that invoke controller methods with `Pageable` parameters, enable Spring Data web argument-resolver auto-configuration with `@ImportAutoConfiguration(SpringDataWebAutoConfiguration.class)` and confirm `PageableHandlerMethodArgumentResolver` is active.
-- Execute at least one request that includes `page`, `size`, and `sort` query parameters in those `@WebMvcTest` classes.
-- When a controller under test depends on a `*LogMessages` component in `@WebMvcTest`, declare a matching `@MockitoBean` for that concrete `*LogMessages` type.
+- For each REST feature controller, ship at least one `@WebMvcTest` (or
+  equivalent MockMvc slice) covering:
+  - one happy-path request
+  - one validation or domain-error path
+- Mock the service **interface** with `@MockitoBean` (or the current Boot mock
+  annotation). Do not call a real database from a controller slice test.
+- Assert HTTP status, important headers (for example `Location` on create), and
+  key JSON fields.
+- Prefer `@WebMvcTest` over a full `@SpringBootTest` for controller HTTP
+  contract checks.
 
-### JdbcTest and security tests
-- When `@JdbcTest` requires a custom repository implementation, explicitly `@Import({RepositoryImpl.class, JdbcConfig.class})` and ensure `JdbcClient` is a `@Bean`.
-- Declare `@Configuration` classes imported via `@Import` as `public` when required by the test slice, in a scannable package; this overrides architecture package-private for that class only.
-- For security-chain tests with `@SpringBootTest`, manually configure MockMvc with `webAppContextSetup(context).apply(springSecurity()).build()`, using static imports from `org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers` and `org.springframework.test.web.servlet.setup.MockMvcBuilders`.
+## Service tests
 
-### Environment classification
-- Classify test failures caused by DBMS runtime unavailability as environment blockers.
-- Skip only database-coupled tests when the DBMS runtime is unavailable; continue non-database tests and report the concrete DBMS failure signal.
-- Keep database-coupled tests enabled when the required DBMS runtime is healthy and reachable.
-- For tests covering applications with Redis listeners, message consumers, schedulers, or other startup-managed external clients, disable external startup in the context test and test the client behavior separately with a focused unit or integration test.
+- Protect non-trivial business rules with pure unit tests using
+  `@ExtendWith(MockitoExtension.class)` and `@Mock` collaborators.
+- Construct the service implementation under test directly; do not start a
+  Spring context for ordinary service unit tests.
+- Name these classes `*ServiceImplTest` or `*ServiceTest`.
 
-### Assertions and fixtures
-- Assert observable behavior: returned values, HTTP status and body, configured values, or explicit exception contracts.
-- Keep fixtures focused on the behavior under test; make test data deterministic using builder or dedicated factory methods.
-- Use `java.time.Month` enum constants for static date fixtures in `LocalDate.of` calls.
-- Restore mutated global state, such as `LocaleContextHolder`, after each test.
-- Verify mock-server expectations when using `MockRestServiceServer`.
-- Apply `@Transactional` to database-touching integration tests for rollback isolation.
-- Use AssertJ (`assertThat(...)`) for all test assertions.
-- Remove unused `@MockitoBean` stubs.
+## Security and full-context tests
 
-### Test quality
-- Test real behavior instead of implementation details.
-- Do not add production-only methods solely to make code testable.
-- Do not rely on incomplete mocks; stub every collaborator interaction required by the exercised path.
-- Keep service tests focused on business rules and edge cases; keep response-structure assertions explicit for API tests.
-- Write at minimum one happy-path test and one failure-path test for each public service method and each REST controller endpoint.
-- Add governance tests when architecture invariants require enforcement.
-- Keep empty string literals inline only when the test explicitly validates blank-input behavior.
-- Keep single-use malformed payload fragments inline only in intentionally invalid-payload tests.
-- Keep single-use domain fixture labels inline only when they appear in exactly one test method and extracting them would reduce readability.
-- Run the module's Maven test command and collect IDE diagnostics for every modified source file before reporting completion; treat remaining diagnostics as unresolved until classified and fixed or explicitly documented as environment-only.
+- When Spring Security is present, cover anonymous vs authenticated vs wrong-role
+  paths with `spring-security-test` (Security contract).
+- Reserve full `@SpringBootTest` + MockMvc for filter-chain, actuator access,
+  OpenAPI profile, or other cross-cutting wiring that a slice cannot express
+  honestly.
+- Use `@ActiveProfiles("test")` and an optional `application-test.yml` only when
+  the test needs dedicated overrides; do not replace `development` /
+  `production` application profiles with `test` in main config (configuration
+  contract).
 
-### Test profile policy
-- Run tests under `development` or `production`; no dedicated test profile exists.
-- Use inline `@Bean` methods or environment variable overrides in test classes instead of a dedicated test profile file.
-- Add `@AutoConfigureTestDatabase(replace=NONE)` only when explicitly targeting a real external datasource.
+## Naming and style
 
-## Safety Guards
-- Never add an explicit test datasource configuration for test slices.
-- Never diagnose `Pageable` constructor/instantiation failures in `@WebMvcTest` as controller logic defects before confirming Spring Data web resolver auto-configuration is active.
+- Use clear names: `*ApplicationTests`, `*ControllerTest`, `*ServiceImplTest` /
+  `*ServiceTest`, `I18nConsistencyTest`.
+- Prefer AssertJ assertions from `spring-boot-starter-test`.
+- Keep tests focused: one behavior per test method when practical.
 
-## Reference
-- Use [samples/spring-boot-context-load-test.tpl](samples/spring-boot-context-load-test.tpl) for application-context smoke tests.
-- Use [samples/spring-boot-unit-test.tpl](samples/spring-boot-unit-test.tpl) for isolated unit tests.
-- Use [samples/spring-boot-webmvc-test.tpl](samples/spring-boot-webmvc-test.tpl) for MVC controller slice tests.
-- Use [samples/spring-boot-integration-test.tpl](samples/spring-boot-integration-test.tpl) for full-context integration tests.
+## Environment-dependent tests
+
+- Tests that require a live database, broker, container runtime, or external
+  network service must not be deleted, skipped, or weakened merely to make a
+  local run green (Java style contract).
+- When such infrastructure is unavailable, report the result as
+  environment-dependent rather than pretending the test passed.
+
+## Forbidden
+
+- Never omit context-load coverage from a real application module.
+- Never import `@WebMvcTest` from
+  `org.springframework.boot.test.autoconfigure.web.servlet`.
+- Never use `@DataJpaTest`, JPA test slices, or other ORM test starters (JDBC /
+  architecture contracts).
+- Never hit a real database from a `@WebMvcTest` controller slice.
+- Never mock a concrete service implementation for controller tests when a
+  service interface exists; mock the interface.
+- Never require Testcontainers in this baseline contract unless the product
+  explicitly adopts them.
+- Never delete, skip, or weaken failing tests only to obtain a green build.

@@ -1,7 +1,0 @@
-package com.example.demo.user;
-
-public record UserResponse(
-    Long id,
-    String name,
-    String email) {
-}

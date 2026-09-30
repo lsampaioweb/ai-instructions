@@ -1,79 +1,79 @@
 ---
-description: "Spring MVC and REST HTTP controllers: routes, request binding, validation, responses, views, and API documentation."
-applyTo: "**/*Controller.java, **/*Api.java, **/*PageRoutes.java"
+description: "Spring Boot REST controller contract for URL design, HTTP verbs, status codes, pagination, and OpenAPI annotations."
+applyTo: "**/*RestController.java, **/*OpenApi*.java, **/openapi/**/*.java"
 ---
 
-## Dependencies
-- Follow `spring-boot-java-style.instructions.md` for Java-wide formatting, visibility, injection, constants, JavaDoc, and helper rules.
-- Follow `spring-boot-pagination.instructions.md` when an endpoint exposes a paginated collection.
-- Follow `spring-boot-api-versioning.instructions.md` for REST route versioning.
+# Spring Boot REST Controller Contract
 
-## Naming Conventions
-- Name REST resource controllers `{Resource}Controller` (e.g., `HolidayController`, `AccountController`).
-- Use descriptive resource names in controller class identifiers (never `ApiController` or `WebController`).
-- Name server-rendered page controllers `{Feature}PageController` or `{Feature}PageRoutes`.
-- Name asynchronous HTTP command endpoints `{Feature}Api` when the endpoint represents an API command rather than a resource controller.
-- Name endpoint methods by their HTTP and domain intent, such as `findById(...)`, `create(...)`, `transfer(...)`, or `submitOrder(...)`.
+These rules apply to real applications that expose JSON HTTP APIs. Server-rendered
+page controllers and WebSocket endpoints follow the architecture naming rules;
+this file covers REST only.
 
-## Rules
+Architecture, exception handling, i18n, Lombok, and profile/Swagger YAML stay in
+their own instruction files. Do not restate those contracts here.
 
-### Controller type and routes
-- Use `@RestController` for HTTP endpoints that return response bodies.
-- Use `@Controller` for endpoints that return rendered views, view fragments, or WebSocket message mappings.
-- Declare the shared route with class-level `@RequestMapping`.
-- Use plural nouns for collection resource paths.
-- Use HTTP method annotations that match the operation: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`.
-- Keep command-style subpaths explicit when the endpoint represents an operation rather than CRUD, such as `/transfer`.
+## URL design
 
-### Request binding and validation
-- Bind JSON payloads with `@RequestBody`.
-- Apply `@Valid` to request bodies and validated MVC model attributes.
-- Validate numeric path identifiers with `@Positive` when the identifier domain is numeric and positive.
-- Use `@RequestParam` for query parameters and command-style scalar inputs.
-- Use `@ModelAttribute` for a grouped query contract such as `PageQuery`.
-- Declare optional request parameters with `required = false`.
-- Place `BindingResult` immediately after its associated validated MVC model attribute.
+- Map REST collections at `/api/v1/{plural-resource}`.
+- Do not put a trailing slash on class or method mappings.
+- Identify a stored resource with `/{id}` on GET, PUT, and DELETE.
+- Annotate numeric ids with `@Positive`.
+- Keep the version in the path (`v1`). Do not add a second versioning scheme.
 
-### REST responses
-- Keep controllers thin by delegating business operations to services.
-- Return `ResponseEntity` with a typed `*Response` DTO for all REST endpoints when the HTTP status, headers, or body must be explicit.
-- Return `200 OK` for successful reads and updates.
-- Return `200 OK` with an empty collection for GET collection endpoints that produce no results.
-- Return `201 Created` with the created resource body for successful resource creation.
-- Return `202 Accepted` when an asynchronous command, such as message publication, has been accepted.
-- Return `204 No Content` for successful deletion without a response body.
-- Return `404` when a DELETE operation targets a non-existent resource.
-- Return `404` when a single-resource GET finds no matching resource.
-- Include a `Location` response header on `201` responses pointing to the created resource URL.
-- Build the `Location` URI using `UriComponentsBuilder` injected as a method parameter in the POST handler.
-- Map `Optional<T>` service returns via `.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build())`.
-- Use `ResponseEntity.notFound()` only when the service contract represents absence as an optional result; otherwise defer domain-error translation to dedicated exception handling.
-- Keep HTTP status selection and `ResponseEntity` construction in controllers, not services.
+## HTTP verbs and payloads
 
-### MVC views and form handling
-- Return the view name or view fragment from server-rendered MVC endpoints, without the `.html` extension.
-- Populate all attributes required to re-render an invalid form before returning its view.
-- Return the same view when `BindingResult` contains errors.
-- Redirect after a successful MVC form mutation when the next response is a full page.
-- Return only the relevant fragment when the endpoint serves an AJAX page update.
+- Use `GET`, `POST`, `PUT`, and `DELETE`.
+- Use `PATCH` only when the product requires a partial update.
+- Send create and update payloads as JSON `@RequestBody` records, not as query
+  parameters.
+- Keep `@Valid` on the request body (exception and architecture contracts).
+- Use one `FeatureRequest` when create and update share the same fields. Split
+  into `CreateFeatureRequest` and `UpdateFeatureRequest` only when the bodies
+  actually differ.
 
-### API documentation and logging
-- Add `@Tag` to documented REST resources when SpringDoc is used.
-- Add `@Operation(summary = "...")` to documented REST operations when SpringDoc is used.
-- Use the project message-key pattern for controller logs when logging is required.
-- Log operational identifiers and outcome-relevant values without logging credentials, tokens, or secrets.
+## Responses
 
-### Scope boundaries
-- Keep validation, route binding, HTTP response construction, and view selection in controllers.
-- Keep business decisions, persistence orchestration, and remote integration logic in services.
-- Keep `@MessageMapping` and `@SendTo` handling in dedicated WebSocket endpoint classes, not HTTP controllers.
+- Return `ResponseEntity<T>` from every REST method. Do not return a naked body
+  or a `@ResponseStatus` void method.
+- `GET` and `PUT` success: `200 OK` with the resource body.
+- `POST` that creates a resource: `201 Created` with the body and a `Location`
+  header for the new resource, built from `UriComponentsBuilder`.
+- `DELETE` success: `204 No Content` with an empty body.
+- `POST` that only accepts work for later processing: `202 Accepted`.
+- `POST` that performs an action without creating a resource: `200 OK` with the
+  result body.
+- Domain misses are thrown as `AppException` from the service (exception
+  contract). Do not return `Optional` or an empty 404 from a real-app controller.
 
-## Safety Guards
-- Never call `Optional.get()` directly on a service-returned `Optional<T>`.
-- Never mix `@RestController` and page-rendering responsibilities in the same controller class.
-- Never mix unrelated resource routes in one controller class.
-- Never expose internal exception details in controller responses.
-- Never use `@RequestBody` on GET or DELETE methods.
+## Pagination
 
-## Reference
-- Use [samples/spring-boot-controller.tpl](samples/spring-boot-controller.tpl) for the canonical REST controller structure.
+- Unbounded collection `GET`s take Spring `Pageable` (default `page` 0,
+  `size` 20, optional `sort`) and return `ResponseEntity<Page<FeatureResponse>>`.
+- Add `spring-data-commons` when `Pageable`/`Page` are used (pom contract; do not
+  pull JPA solely for paging).
+- Bounded or non-collection endpoints may return a list or a single resource.
+- Do not add HATEOAS (`PagedModel`, `EntityModel`, `PagedResourcesAssembler`)
+  unless hypermedia is an explicit product requirement.
+
+## OpenAPI
+
+- Every REST application has an `OpenApiConfig` bean with title, version, and
+  description.
+- Annotate each REST controller with `@Tag`.
+- Annotate operations with `@Operation` when the mapping name is not enough.
+- Localize OpenAPI prose such as titles, descriptions, summaries, and operation
+  text through i18n keys. Stable technical identifiers such as tag names may
+  remain literal when they are not natural-language descriptions.
+- Enable and disable springdoc in profile YAML (configuration contract).
+
+## Forbidden
+
+- Never map REST collections outside `/api/v1/{plural-resource}`.
+- Never use a trailing slash on REST mappings.
+- Never return a naked body or `@ResponseStatus` void from a REST controller.
+- Never omit `Location` on a resource-creating `POST`.
+- Never use `PATCH` as the default update verb.
+- Never put create or update fields on query parameters when a JSON body is
+  appropriate.
+- Never add HATEOAS as the default list representation.
+- Never handle domain errors or call `RestClient` from a REST controller.

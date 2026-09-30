@@ -1,94 +1,97 @@
 ---
-description: "Spring Security filter chains, route authorization, authentication defaults, CSRF decisions, and security tests."
-applyTo: "**/*SecurityConfig.java, **/*SecurityConfiguration.java, **/*SecurityProperties.java, **/*SecurityConfigurationProperties.java, **/*Security*Test.java, **/security/**/*.java"
+description: "Spring Boot Security contract for HTTP Basic APIs, deny-by-default filter chains, credentials, and method authorization."
+applyTo: "**/pom.xml, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/*Security*.java, **/security/**/*.java"
 ---
 
-## Dependencies
-- Follow the Java style contract in `spring-boot-java-style.instructions.md` for security configuration and tests.
-- Follow `spring-boot-actuator.instructions.md` for Actuator endpoint authorization.
-- Follow `spring-boot-openapi.instructions.md` for Springdoc route allowlisting.
-- Follow `spring-boot-config.instructions.md` for security-related YAML and profile settings.
-- Follow `spring-boot-test.instructions.md` for test scope selection and Spring Boot 4.x test import paths; this file owns only the security-specific MockMvc setup.
+# Spring Boot Security Contract
 
-## Naming Conventions
-- Name Spring Security configuration classes with the `*SecurityConfig` or `*SecurityConfiguration` suffix (e.g., `ApiSecurityConfig`, `WebSecurityConfig`).
-- Name a `SecurityFilterChain` bean after the protected integration when multiple filter chains exist.
-- Role enums dedicated as a component must use the `*Role` suffix (e.g., `UserRole`, `AccountRole`); a plain `Role` or `Authority` name is acceptable only when self-contained within a security context.
-- Permission or authority component classes must use the `*Permissions` or `*Permission` suffix (e.g., `UserPermissions`, `AdminPermission`).
-- Use domain-specific security component names (never `SecurityPermission` or `CommonRole`).
-- Name tests for security behavior with the `*Security*Test` pattern.
+These rules apply when an application uses Spring Security. Actuator exposure and
+the health-anonymous / other-actuator-authenticated boundary stay in the Actuator
+contract. Secrets policy stays in the configuration contract. Do not restate
+those contracts here.
 
-## Rules
+An application that exposes private APIs or non-health Actuator endpoints must
+meet this contract.
 
-### Canonical ownership
-- Treat this file as the canonical owner for route authorization, security-chain ordering, authentication strategy, credentials, and profile-specific protection rules.
-- When another instruction file discusses security allowlists, route protection, or credential sources, defer to this file instead of copying the rule.
+The default auth model is **HTTP Basic with in-memory principals loaded from
+environment variables**. A later, more advanced pattern may introduce database-backed
+credentials; do not invent that stack unless the product explicitly requires it.
 
-### Security filter chains
-- Declare security configuration using a `@Bean SecurityFilterChain` method around explicit route ownership.
-- Give a constrained filter chain an explicit `securityMatcher`.
-- Apply `@Order` to every `SecurityFilterChain` bean when more than one filter chain is declared in the same module; order multiple filter chains deliberately when their route scopes overlap.
-- Order authorization matchers from specific public or protected routes to broader routes.
-- End every `SecurityFilterChain` with `anyRequest().denyAll()` to reject all unmatched routes by default.
-- Permit only routes with a defined public contract.
-- Keep `/error` public only when the application error-dispatch behavior requires it.
-- Follow `spring-boot-actuator.instructions.md` for which Actuator endpoints require authentication; enforce that policy through this filter chain's authorization matchers.
-- Include Springdoc routes in the public allowlist only while those endpoints are enabled.
+## Dependency
 
-### Authentication defaults
-- Use JWT stateless authentication (Bearer token) by default for REST APIs.
-- Use session-cookie authentication for server-rendered MVC applications.
-- Configure HTTP Basic only for machine or operational clients that require it.
-- Do not enable form login unless the application requires an interactive browser sign-in flow.
-- Set access token expiry to 24 hours by default.
-- Externalize JWT signing keys through environment variables or a secrets manager.
+- Add `spring-boot-starter-security` when the application has anything that must
+  not be anonymous.
+- Add `spring-security-test` with `test` scope when writing security tests.
+- Keep a one-line purpose comment above each dependency (pom contract).
 
-### Credentials and roles
-- Apply role-based authorization only when a route has a distinct client or operator role.
-- Use `ADMIN` and `USER` as the default role set unless the user explicitly defines a different set.
-- Use multiple filter chains only when routes require different authentication or session behavior.
-- Provision users in-module via `UserDetailsService` by default; ensure the configured authentication source matches the configured credential properties.
-- When the module provisions users in-process via `UserDetailsService`, every `Role` enum value must map to at least one provisioned principal in an active profile.
-- When an external identity provider manages roles, document that decision explicitly, including where role assignment is enforced.
-- Do not retain unused `spring.security.user.*` properties when a custom `UserDetailsService` owns authentication.
-- Bind in-memory usernames and passwords from external configuration; assign in-memory users only the roles required by their protected routes.
-- Use `BCryptPasswordEncoder` with default strength (10), or another adaptive password encoder, outside explicitly local or demo-only configurations.
-- Do not use `{noop}` for deployed credentials.
+## Authentication mechanism
 
-### CSRF, CORS, and headers
-- Disable CSRF protection for stateless JWT REST APIs and when using HTTP Basic authentication.
-- Enable CSRF protection for session-based MVC applications.
-- Document the reason when CSRF is disabled outside these defaults.
-- Retain Spring Security's default HTTP security headers (HSTS, X-Frame-Options, X-Content-Type-Options).
-- Configure CORS with explicit allowed-origin lists in production profiles.
+- Use HTTP Basic for REST/API and machine-to-machine callers.
+- Do not add form login unless the application is a browser form/MVC app and the
+  product explicitly needs it.
+- Do not add OAuth2/JWT resource-server or client stacks unless the product
+  explicitly requires them.
 
-### Security tests
-- Test anonymous and authenticated outcomes for every public and protected route.
-- Assert the expected status code for unavailable routes and protected resources.
-- Test the matcher boundary and role requirement of every custom security chain.
-- Use `spring-security-test` and apply Spring Security to MockMvc for MVC security tests.
-- Test profile-specific authorization allowlist changes when endpoint availability varies by profile.
+## Filter chain
 
-## Approved Exception Handling
-- When temporary open access is approved for a feature or module, document the exception with an expiration condition (e.g., "open until authentication is implemented"), recorded in code comments, configuration, or test annotations so reviewers can identify it as intentional.
+- Configure exactly the `SecurityFilterChain` beans the application needs; do not
+  rely on Spring Boot's default wide-open or default-user behavior for production
+  APIs.
+- Deny by default: after explicit public and authenticated rules, end with
+  `anyRequest().denyAll()`.
+- Permit only routes that must be anonymous (for example a documented public
+  health-check style API path, or OpenAPI/Swagger when enabled in development).
+- Require authentication or a role for every private API route.
+- For pure HTTP Basic REST APIs, set `SessionCreationPolicy.STATELESS` and disable
+  CSRF. Keep CSRF enabled for browser form/MVC apps.
+- Prefer `@EnableMethodSecurity` and put sensitive authorization checks on service
+  methods with `@PreAuthorize` (or equivalent), in addition to URL rules
+  (architecture contract: authorization that belongs to the application service).
 
-## Safety Guards
-- Never commit credentials, passwords, or tokens to source control.
-- Never use sensitive fallback values in environment placeholders for sensitive configuration.
-- Never expose mutating endpoints without explicit authorization checks.
-- Never extend `WebSecurityConfigurerAdapter`.
-- Never duplicate conflicting authorization logic across layers.
-- Never weaken security defaults without explicit approval.
-- Never leave unresolved `TODO` or `FIXME` markers inside active security route rules.
-- Never issue non-expiring tokens.
-- Never store plain-text or weakly hashed passwords.
-- Never disable Spring Security's default HTTP security headers without explicit justification.
-- Never allow wildcard origins (`*`) in production CORS configuration.
-- Never silence security findings that fall outside explicitly approved exceptions.
-- Never apply an approved exception to a wider scope than approved.
+## Credentials and user store
 
-## Reference
-- Use [samples/spring-boot-security-properties.tpl](samples/spring-boot-security-properties.tpl) for externalized security credentials.
-- Use [samples/spring-boot-integration-security-config.tpl](samples/spring-boot-integration-security-config.tpl) for a route-scoped integration security chain.
-- Use [samples/spring-boot-actuator-security-config.tpl](samples/spring-boot-actuator-security-config.tpl) for an Actuator default-deny security chain.
-- Use [samples/spring-boot-security-integration-test.tpl](samples/spring-boot-security-integration-test.tpl) for MockMvc security integration tests.
+- Bind credentials through validated `@ConfigurationProperties` (for example under
+  `app.security`), not through hardcoded strings in Java.
+- Load username and password values from environment variables or an external
+  secret source. Never commit plaintext passwords in YAML (configuration
+  contract).
+- For the default simple model, provision in-memory users with
+  `UserDetailsService` / `InMemoryUserDetailsManager`.
+- Encode stored passwords with a `PasswordEncoder` bean. Prefer BCrypt.
+- Never use `{noop}` password encoding in real applications.
+- Do not rely on Boot's `spring.security.user.name` / `spring.security.user.password`
+  defaults for real apps; use explicit application properties and a declared
+  `UserDetailsService`.
+- Do not introduce a database-backed user store unless the product explicitly
+  requires persistent accounts.
+
+## Actuator and OpenAPI
+
+- Keep Actuator access rules consistent with the Actuator contract: anonymous
+  health (and probes); authenticate every other `/actuator/**` path.
+- When Security is present in production, prefer a separate
+  `management.server.port` so management traffic is not mixed with the public API
+  port (Actuator contract).
+- Permit OpenAPI/Swagger routes only when those endpoints are enabled
+  (development). Never leave them anonymous in production.
+
+## Testing
+
+- Cover anonymous, authenticated, wrong-role, and deny-unknown paths.
+- Distinguish `401` (unauthenticated) from `403` (authenticated but forbidden).
+- Cover method-security denials for sensitive service operations when
+  `@PreAuthorize` is used.
+
+## Forbidden
+
+- Never leave a secured application on Spring Boot's default generated password
+  without an explicit, env-driven credential configuration.
+- Never use `{noop}` password encoding in real applications.
+- Never commit plaintext security passwords in `application*.yml`.
+- Never end a production API filter chain with a blanket `permitAll()`.
+- Never omit `anyRequest().denyAll()` after the explicit allow/authenticate rules
+  for a deny-by-default API.
+- Never enable form login for a pure HTTP Basic REST API by default.
+- Never leave non-health Actuator endpoints anonymous (Actuator contract).
+- Never leave OpenAPI/Swagger anonymous when those endpoints are enabled in
+  production.

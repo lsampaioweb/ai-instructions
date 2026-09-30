@@ -48,4 +48,4 @@ applyTo: "**/ansible.cfg"
 ## Safety Guards
 
 - Never set permissive defaults that expose secrets in callback output.
-- Never disable `host_key_checking` without an inline comment explaining the operational boundary.
+- Never disable `host_key_checking` without an above-key comment explaining the operational boundary.

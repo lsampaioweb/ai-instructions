@@ -1,39 +1,50 @@
 ---
-description: "Git ignore rules for Spring Boot Maven applications, IDE metadata, generated logs, certificate files, and local secret files."
+description: "Spring Boot .gitignore contract for build output, IDE files, logs, secrets, and certificate material."
 applyTo: "**/.gitignore"
 ---
 
-## Rules
+# Spring Boot Gitignore Contract
 
-### Spring Boot Maven applications
-- Every Spring Boot project must have a `.gitignore` at the repository root.
-- Ignore Maven build output with `target/`.
-- Preserve source directories named `target` with `!**/src/main/**/target/` and `!**/src/test/**/target/`.
-- Ignore Maven release-plugin artifacts: `release.properties` and `pom.xml.releaseBackup`.
+These rules apply to the root `.gitignore` of an application repository.
+Infrastructure-only folders may add extra ignores for volumes and local data.
 
-### IDE metadata
-- Ignore Spring Tool Suite / Eclipse metadata: `.apt_generated`, `.classpath`, `.factorypath`, `.project`, `.settings/`, and `.sts4-cache`.
-- Ignore IntelliJ IDEA artifacts: `.idea/`, `*.iml`, `*.iws`, `*.ipr`.
-- Ignore workspace-specific VS Code settings with `.vscode/`; allow `.vscode/extensions.json` and `.vscode/settings.json` as tracked exceptions using `!` negation patterns.
+## Required baseline
 
-### OS artifacts
-- Exclude OS artifacts: `.DS_Store`, `Thumbs.db`.
+Every real application repository ships a root `.gitignore` that ignores at least:
 
-### Generated and sensitive files
-- Ignore generated logs with `*.log` and `*.gz`; ignore log output directories with `logs/`.
-- Ignore JVM crash log files: `hs_err_pid*`.
-- Ignore certificate and key material with `*.p12`, `*.crt`, `*.key`, and `*.pfx`.
-- Add `.env`, `*.env`, `application-local.yml`, and `application-local.properties` for local secret or configuration overrides.
+1. **Build output:** `target/`
+2. **IDE / editor metadata:**
+   - Eclipse/STS: `.apt_generated`, `.classpath`, `.factorypath`, `.project`,
+     `.settings`, `.sts4-cache`
+   - IntelliJ: `.idea/`, `*.iml`
+   - VS Code / Cursor workspace junk: `.vscode/`
+3. **Logs:** `*.log`, `*.gz`, and `logs/` when the application writes logs under
+   that directory
+4. **Local secrets:** `.env`, `.env.*` (allow committing a documented
+   `.env.example` when the project uses one)
+5. **TLS / key material:** `*.p12`, `*.pfx`, `*.jks`, `*.key`, `*.crt`, `*.pem`
+6. **OS junk:** `.DS_Store`, `Thumbs.db`
+7. **Maven release leftovers:** `release.properties`, `pom.xml.releaseBackup`
 
-### File organization
-- Group exclusion rules by category with a `#` comment header above each group.
-- Keep the Maven output rules first.
-- Group IDE rules under headings such as `### STS ###` and `### VS Code ###`.
-- Place local secret rules last under `### Environment ###` when they apply.
+## Writing rules
 
-## Safety Guards
-- Never use glob patterns (`target/*`) where directory patterns (`target/`) are more precise and cover nested paths.
-- Never exclude the `.mvn/` directory when it contains the Maven wrapper; the wrapper is intentionally tracked.
+- Keep one root `.gitignore` for the application module; do not scatter
+  duplicate copies unless a nested module is a separate git root.
+- Prefer explicit, reviewable patterns over copying an enormous unrelated
+  template.
+- If the repository intentionally commits public demo certificates, document
+  that exception in the README and narrow the ignore pattern instead of
+  committing private keys.
+- Infrastructure compose projects may additionally ignore local volume data
+  (for example `volumes/*`) without removing the application baseline.
+- k6 HTML report directories are owned by the k6 contract. Add
+  `src/test/k6/output/` when that project writes k6 reports.
 
-## Reference
-- Use [samples/spring-boot-gitignore.tpl](samples/spring-boot-gitignore.tpl) for the canonical `.gitignore` structure.
+## Forbidden
+
+- Never omit a root `.gitignore` from a real application repository.
+- Never commit `target/`, `.idea/`, `.vscode/`, or `.env` with secrets.
+- Never commit private keys or keystores (`*.key`, `*.p12`, `*.pfx`, `*.jks`)
+  for real apps.
+- Never use `.gitignore` to hide failing tests or generated sources that should
+  be built locally.
