@@ -41,9 +41,9 @@ MODES = {
     "cursor": {
         "shared": [
             (".cursor/AGENTS.md", "AGENTS.md", None),
-            (".cursor/rules", ".cursor/rules", MDC_ONLY),
         ],
         "framework_dirs": [
+            (".cursor/rules", ".cursor/rules", MDC_ONLY),
             (".cursor/skills", ".cursor/skills", MARKDOWN_JSON),
         ],
     },
