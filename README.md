@@ -6,7 +6,7 @@ Centralized GitHub Copilot and Cursor customization assets for Spring Boot proje
 
 ```
 .github/        — GitHub Copilot assets: instructions, prompts, hooks, skills, and agents
-.cursor/        — Cursor assets: AGENTS.md and executable skills
+.cursor/        — Cursor assets: AGENTS.md, path-scoped rules (.mdc), and skills
 scripts/        — helper utilities for linking these assets into consumer repositories
 ```
 
@@ -49,7 +49,7 @@ cd /absolute/path/to/consumer-project
 ## Configuration reference
 
 - `github` mode links [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) into the consumer as `.github/copilot-instructions.md`, plus [.github/hooks](.github/hooks) and [.github/skills](.github/skills). When no framework is specified, all instruction files under [.github/instructions](.github/instructions) are linked. With framework filters, matching framework-prefixed instruction files and unprefixed shared files are linked. Agents and prompts are not linked by this script.
-- `cursor` mode always links [AGENTS.md](.cursor/AGENTS.md) and any `.mdc` files under [.cursor/rules](.cursor/rules) when that directory exists. [.cursor/skills](.cursor/skills) are framework-filtered: unprefixed skills always link; framework-prefixed skills link only when that framework is selected. This repository does not currently ship path-scoped Cursor rules.
+- `cursor` mode always links [AGENTS.md](.cursor/AGENTS.md). Path-scoped rules under [.cursor/rules](.cursor/rules) and skills under [.cursor/skills](.cursor/skills) are framework-filtered: unprefixed files always link; framework-prefixed files link only when that framework is selected. Copilot `*.instructions.md` contracts map to Cursor `.mdc` rules (`applyTo` → `globs`); the workspace baseline maps to `AGENTS.md`, not an always-on rule.
 - Frameworks with instruction files today: `ansible`, `spring-boot`. The linker also accepts reserved prefixes `python`, `typescript`, and `go` (no files yet).
 - Existing destination files are replaced before relinking; source files in this repository are never modified.
 - The linker does not delete leftover files. If a consumer still has old `.cursor/rules` from a previous overlay, remove that directory before re-linking.
@@ -73,6 +73,8 @@ plus skills; there is no separate Cursor agent catalog in this repository.
 
 - [AGENTS.md](.cursor/AGENTS.md): always-on behavior baseline, plus a short
   Spring Boot stack card that applies only to Spring Boot work.
+- [.cursor/rules](.cursor/rules): path-scoped `.mdc` contracts (Cursor counterparts
+  of `.github/instructions/*.instructions.md`).
 - [.cursor/skills](.cursor/skills): focused workflows.
 
 | Skill | Invoke | Purpose |
@@ -86,6 +88,57 @@ plus skills; there is no separate Cursor agent catalog in this repository.
 | [review-code-against-instructions](.cursor/skills/review-code-against-instructions/SKILL.md) | `/review-code-against-instructions` | Audit code against active instructions and flag missing coverage |
 | [review-other-ai-feedback](.cursor/skills/review-other-ai-feedback/SKILL.md) | `/review-other-ai-feedback` | Critically review external AI feedback and decide adopt/adapt/reject |
 | [root-cause-analysis](.cursor/skills/root-cause-analysis/SKILL.md) | `/root-cause-analysis` | Analyze logs/exceptions for root cause and propose permanent fixes |
+
+## Cursor rules
+
+Path-scoped Cursor rules live under [.cursor/rules](.cursor/rules). They are the Cursor counterparts of Copilot instruction contracts: same enforceable content, with `applyTo` mapped to `globs` and `alwaysApply: false`. The always-on baseline stays in [AGENTS.md](.cursor/AGENTS.md) (counterpart of `copilot-instructions.md`), not as an always-on `.mdc` rule.
+
+| File | Applies to (globs) | Purpose |
+|---|---|---|
+| [ai-customization.mdc](.cursor/rules/ai-customization.mdc) | `**/*.agent.md`, `**/*.agents.md`, `**/*.instructions.md`, `**/*.prompt.md`, `**/copilot-instructions.md`, `**/skills/**/SKILL.md`, `**/hooks/**/*.json`, `**/*.mdc`, `**/AGENTS.md`, `**/agents.md`, `**/.cursor/rules/**/*.mdc`, `**/.cursor/AGENTS.md`, `**/.cursor/skills/**/SKILL.md` | Authoring and review contract for AI customization files, including agents, instructions, prompts, skills, hooks, and workspace guidance. |
+| [ansible-architecture.mdc](.cursor/rules/ansible-architecture.mdc) | `**/ansible/**`, `**/ansible.cfg`, `**/.ansible-lint` | Global architecture baseline for Ansible automation repositories with project layout, playbook sequencing, and idempotency conventions. |
+| [ansible-config.mdc](.cursor/rules/ansible-config.mdc) | `**/ansible.cfg` | ansible.cfg governance contract for runtime defaults, connection behavior, and safe automation settings. |
+| [ansible-playbook-style.mdc](.cursor/rules/ansible-playbook-style.mdc) | `**/ansible/**/*.yml`, `**/ansible/**/*.yaml` | Playbook and task style contract for Ansible YAML files, including task naming, condition placement, and task-level import/include policy. |
+| [ansible-role.mdc](.cursor/rules/ansible-role.mdc) | `**/ansible/roles/**` | Role governance contract for Ansible roles, including directory ownership, task composition, and variable boundaries. |
+| [ansible-template.mdc](.cursor/rules/ansible-template.mdc) | `**/ansible/**/templates/**/*.j2` | Jinja2 template contract for Ansible role templates: variable safety, block formatting, and rendered-output hygiene. |
+| [spring-boot-actuator.mdc](.cursor/rules/spring-boot-actuator.mdc) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/pom.xml`, `**/*Actuator*.java`, `**/*Security*Config*.java` | Spring Boot Actuator contract for endpoint exposure, health details, probes, and management hardening. |
+| [spring-boot-architecture.mdc](.cursor/rules/spring-boot-architecture.mdc) | `**/src/**/*.java` | Spring Boot Java architecture contract for feature packaging, service boundaries, repositories, DTOs, mappers, and controller dependencies. |
+| [spring-boot-async.mdc](.cursor/rules/spring-boot-async.mdc) | `**/*Application.java`, `**/*Worker.java`, `**/*AuditListener.java`, `**/job/AsyncJob*.java` | Spring Boot @Async contract for enabling async execution, worker methods, and request/response job APIs. |
+| [spring-boot-cloud-config.mdc](.cursor/rules/spring-boot-cloud-config.mdc) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*ConfigServer*.java`, `**/cloud/config/**/*.java` | Spring Cloud Config contract for Config Server Git backends, clients, credentials, and Config Data import. |
+| [spring-boot-config.mdc](.cursor/rules/spring-boot-config.mdc) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/pom.xml` | Spring Boot application configuration contract for YAML settings, environment profiles, and DevTools. |
+| [spring-boot-container.mdc](.cursor/rules/spring-boot-container.mdc) | `**/Dockerfile`, `**/Dockerfile-*`, `**/docker-compose.yml`, `**/docker-compose*.yml`, `**/compose.yml`, `**/compose*.yml`, `**/.dockerignore`, `**/.env.example` | Container and Compose contract for build strategy, runtime hardening, profiles, networks, resources, and container operations. |
+| [spring-boot-controller.mdc](.cursor/rules/spring-boot-controller.mdc) | `**/*RestController.java`, `**/*OpenApi*.java`, `**/openapi/**/*.java` | Spring Boot REST controller contract for URL design, HTTP verbs, status codes, pagination, and OpenAPI annotations. |
+| [spring-boot-events.mdc](.cursor/rules/spring-boot-events.mdc) | `**/*EventPublisher.java`, `**/*PublishedEvent.java`, `**/*AuditListener.java`, `**/*EventsListener.java` | Spring Application Events contract for in-process event records, publishers, and @EventListener handlers. |
+| [spring-boot-exception.mdc](.cursor/rules/spring-boot-exception.mdc) | `**/src/**/*.java` | Spring Boot validation and exception-handling contract for REST error envelopes, AppException, Bean Validation, and MVC form errors. |
+| [spring-boot-gitignore.mdc](.cursor/rules/spring-boot-gitignore.mdc) | `**/.gitignore` | Spring Boot .gitignore contract for build output, IDE files, logs, secrets, and certificate material. |
+| [spring-boot-http-client.mdc](.cursor/rules/spring-boot-http-client.mdc) | `**/src/**/*.java`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml` | Spring Boot outbound HTTP contract for RestClient beans, timeouts, and repository-side remote calls. |
+| [spring-boot-i18n.mdc](.cursor/rules/spring-boot-i18n.mdc) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/src/main/resources/i18n/**`, `**/src/**/*.java` | Spring Boot i18n contract for message bundles, locale resolution, MessageSource usage, and key-parity tests. |
+| [spring-boot-java-style.mdc](.cursor/rules/spring-boot-java-style.mdc) | `**/src/**/*.java` | Java coding style contract for imports, visibility, annotations, constants, records, method structure, JavaDoc, and mandatory verification after edits. |
+| [spring-boot-jdbc.mdc](.cursor/rules/spring-boot-jdbc.mdc) | `**/*Repository*.java`, `**/db/**/*.java`, `**/sql/**`, `**/application*.yml`, `**/application*.yaml`, `**/pom.xml` | Spring Boot JDBC contract for JdbcClient, externalized SQL, transactions, generated keys, and DBA-owned DDL. |
+| [spring-boot-k6.mdc](.cursor/rules/spring-boot-k6.mdc) | `**/src/test/k6/**/*.js` | Spring Boot k6 load-testing contract for optional HTTP scripts, env-based targets, checks, and generated reports. |
+| [spring-boot-logging.mdc](.cursor/rules/spring-boot-logging.mdc) | `**/src/main/resources/**/logback-spring.xml`, `**/src/main/resources/**/application*.yml`, `**/src/main/resources/**/application*.yaml`, `**/src/main/resources/**/application*.properties`, `**/src/**/*.java` | Spring Boot logging contract for Logback configuration, i18n-backed log messages, and logger usage. |
+| [spring-boot-lombok.mdc](.cursor/rules/spring-boot-lombok.mdc) | `**/pom.xml`, `**/src/**/*.java` | Spring Boot Lombok contract for Maven setup, allowed annotations, and when to prefer Java records. |
+| [spring-boot-mapstruct.mdc](.cursor/rules/spring-boot-mapstruct.mdc) | `**/pom.xml`, `**/*Mapper.java` | Spring Boot MapStruct contract for Maven processor setup, @Mapper configuration, and generated mapping methods. |
+| [spring-boot-pom.mdc](.cursor/rules/spring-boot-pom.mdc) | `**/pom.xml` | Spring Boot Maven pom.xml contract for dependency, plugin, and coordinate governance. |
+| [spring-boot-project.mdc](.cursor/rules/spring-boot-project.mdc) | `**/pom.xml`, `**/src/**`, `**/README.md`, `**/.gitignore` | Always-on Spring Boot project contract: stack non-negotiables, topic-file index, new-app scaffold, and pre-done self-check. |
+| [spring-boot-rabbitmq.mdc](.cursor/rules/spring-boot-rabbitmq.mdc) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Rabbit*.java`, `**/rabbitmq/**/*.java`, `**/MessageProducer.java`, `**/MessageConsumer.java` | Spring Boot RabbitMQ / AMQP contract for starter, broker credentials, exchange topology, producers, listeners, and JSON conversion. |
+| [spring-boot-readme.mdc](.cursor/rules/spring-boot-readme.mdc) | `README.md`, `**/README.md` | Spring Boot README contract for required sections, actionable run/test docs, and no-filler project documentation. |
+| [spring-boot-redis.mdc](.cursor/rules/spring-boot-redis.mdc) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Redis*.java`, `**/redis/**/*.java`, `**/CacheConfiguration.java` | Spring Boot Redis contract for connection settings, RedisTemplate datastore access, Spring Cache with Redis, and Redis Pub/Sub. |
+| [spring-boot-security.mdc](.cursor/rules/spring-boot-security.mdc) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Security*.java`, `**/security/**/*.java` | Spring Boot Security contract for HTTP Basic APIs, deny-by-default filter chains, credentials, and method authorization. |
+| [spring-boot-test.mdc](.cursor/rules/spring-boot-test.mdc) | `**/src/test/java/**/*.java`, `**/pom.xml` | Spring Boot testing contract for context-load tests, WebMvc slices, service unit tests, and verification boundaries. |
+| [spring-boot-thymeleaf.mdc](.cursor/rules/spring-boot-thymeleaf.mdc) | `**/pom.xml`, `**/*PageController.java`, `**/src/main/resources/templates/**/*.html`, `**/src/main/resources/static/**` | Spring Boot Thymeleaf contract for page controllers, templates, form binding, fragments, and static assets. |
+| [spring-boot-tls.mdc](.cursor/rules/spring-boot-tls.mdc) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Ssl*.java`, `**/*Tls*.java`, `**/*Https*.java`, `**/Dockerfile`, `**/docker-compose*.yml` | Spring Boot HTTPS and TLS contract for embedded TLS, certificate material, keystores, and transport-security boundaries. |
+| [spring-boot-tracing.mdc](.cursor/rules/spring-boot-tracing.mdc) | `**/*Tracing*.java`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/logback*.xml` | Spring Boot Micrometer Tracing and OpenTelemetry OTLP contract for application tracing. |
+| [spring-boot-traefik.mdc](.cursor/rules/spring-boot-traefik.mdc) | `**/docker-compose.yml`, `**/docker-compose*.yml`, `**/compose.yml`, `**/compose*.yml` | Traefik ingress contract for app Compose labels, shared network, Host routing, and Traefik-only exposure. |
+| [spring-boot-vault.mdc](.cursor/rules/spring-boot-vault.mdc) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Vault*.java`, `**/vault/**/*.java` | Spring Cloud Vault client integration contract for dependencies, Config Data, KV secrets, runtime reads, and tests. |
+| [spring-boot-virtual-threads.mdc](.cursor/rules/spring-boot-virtual-threads.mdc) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Config*.java`, `**/*Configuration*.java` | Spring Boot virtual-threads contract for enabling Loom on servlet apps and avoiding custom executors. |
+| [spring-boot-websocket.mdc](.cursor/rules/spring-boot-websocket.mdc) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Socket*.java`, `**/*WebSocket*.java`, `**/websocket/**/*.java` | Spring Boot WebSocket/STOMP contract for endpoints, destinations, CORS origins, session tracking, and socket controllers. |
+
+To inspect current Cursor routing patterns:
+
+```bash
+rg -n "^globs:" .cursor/rules/*.mdc
+```
 
 ## Prompt files
 
@@ -134,7 +187,7 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 | [spring-boot-actuator.instructions.md](.github/instructions/spring-boot-actuator.instructions.md) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/pom.xml`, `**/*Actuator*.java`, `**/*Security*Config*.java` | Actuator exposure (`health,info,metrics`), health details by profile, probes, and management access boundary. |
 | [spring-boot-architecture.instructions.md](.github/instructions/spring-boot-architecture.instructions.md) | `**/src/**/*.java` | Feature packaging, service/repository boundaries, `<Feature>Mapper` naming, and JDBC-not-JPA baseline. |
 | [spring-boot-async.instructions.md](.github/instructions/spring-boot-async.instructions.md) | `**/*Application.java`, `**/*Worker.java`, `**/*AuditListener.java`, `**/job/AsyncJob*.java` | `@EnableAsync`, `@Async` workers, and accept-and-poll job APIs. |
-| [spring-boot-cloud-config.instructions.md](.github/instructions/spring-boot-cloud-config.instructions.md) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*ConfigServer*.java`, `**/cloud/config/**/*.java`, `**/git-config/**/*.yml` | Spring Cloud Config Server Git backends, clients, credentials, and Config Data import. |
+| [spring-boot-cloud-config.instructions.md](.github/instructions/spring-boot-cloud-config.instructions.md) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*ConfigServer*.java`, `**/cloud/config/**/*.java` | Spring Cloud Config contract for Config Server Git backends, clients, credentials, and Config Data import. |
 | [spring-boot-config.instructions.md](.github/instructions/spring-boot-config.instructions.md) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/pom.xml` | YAML config, `development`/`production` profiles, secrets, and DevTools. |
 | [spring-boot-container.instructions.md](.github/instructions/spring-boot-container.instructions.md) | `**/Dockerfile`, `**/Dockerfile-*`, `**/docker-compose.yml`, `**/docker-compose*.yml`, `**/compose.yml`, `**/compose*.yml`, `**/.dockerignore`, `**/.env.example` | Generic container image builds, runtime hardening, Compose profiles, networks, resources, healthchecks, and logging boundaries. |
 | [spring-boot-controller.instructions.md](.github/instructions/spring-boot-controller.instructions.md) | `**/*RestController.java`, `**/*OpenApi*.java`, `**/openapi/**/*.java` | REST URL design, HTTP status/`Location`, `Pageable`, and OpenAPI annotations. |
@@ -146,7 +199,7 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 | [spring-boot-java-style.instructions.md](.github/instructions/spring-boot-java-style.instructions.md) | `**/src/**/*.java` | Imports, visibility, annotation order, constants, records, JavaDoc, and compile/test verification. |
 | [spring-boot-jdbc.instructions.md](.github/instructions/spring-boot-jdbc.instructions.md) | `**/*Repository*.java`, `**/db/**/*.java`, `**/sql/**`, `**/application*.yml`, `**/application*.yaml`, `**/pom.xml` | `JdbcClient`, externalized SQL, transactions, `RETURNING`, and DBA-owned DDL. |
 | [spring-boot-k6.instructions.md](.github/instructions/spring-boot-k6.instructions.md) | `**/src/test/k6/**/*.js` | Optional k6 HTTP load scripts, env-based targets, checks, and gitignored reports. |
-| [spring-boot-logging.instructions.md](.github/instructions/spring-boot-logging.instructions.md) | `**/src/main/resources/**/logback-spring.xml`, `**/src/**/*.java` | Logback at `src/main/resources/log/logback-spring.xml`, async appenders, and i18n-backed log messages. |
+| [spring-boot-logging.instructions.md](.github/instructions/spring-boot-logging.instructions.md) | `**/src/main/resources/**/logback-spring.xml`, `**/src/main/resources/**/application*.yml`, `**/src/main/resources/**/application*.yaml`, `**/src/main/resources/**/application*.properties`, `**/src/**/*.java` | Spring Boot logging contract for Logback configuration, i18n-backed log messages, and logger usage. |
 | [spring-boot-lombok.instructions.md](.github/instructions/spring-boot-lombok.instructions.md) | `**/pom.xml`, `**/src/**/*.java` | Lombok Maven setup, allowed annotations, and records over `@Data`. |
 | [spring-boot-mapstruct.instructions.md](.github/instructions/spring-boot-mapstruct.instructions.md) | `**/pom.xml`, `**/*Mapper.java` | MapStruct Maven processor setup, `@Mapper` configuration, and generated mapping methods. |
 | [spring-boot-pom.instructions.md](.github/instructions/spring-boot-pom.instructions.md) | `**/pom.xml` | Coordinates, dependency comments/order, and JDBC-not-JPA dependency defaults. |
@@ -159,7 +212,7 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 | [spring-boot-thymeleaf.instructions.md](.github/instructions/spring-boot-thymeleaf.instructions.md) | `**/pom.xml`, `**/*PageController.java`, `**/src/main/resources/templates/**/*.html`, `**/src/main/resources/static/**` | `<Feature>PageController`, templates/static layout, forms, `#{…}` UI copy, and fragments. |
 | [spring-boot-tls.instructions.md](.github/instructions/spring-boot-tls.instructions.md) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Ssl*.java`, `**/*Tls*.java`, `**/*Https*.java`, `**/Dockerfile`, `**/docker-compose*.yml` | Embedded TLS, certificate material, keystores, and transport-security boundaries. |
 | [spring-boot-traefik.instructions.md](.github/instructions/spring-boot-traefik.instructions.md) | `**/docker-compose.yml`, `**/docker-compose*.yml`, `**/compose.yml`, `**/compose*.yml` | Traefik ingress labels, shared network, Host routing, and Traefik-only exposure. |
-| [spring-boot-tracing.instructions.md](.github/instructions/spring-boot-tracing.instructions.md) | `**/28-tracing/**`, `**/*Tracing*.java` | Micrometer Tracing with OpenTelemetry OTLP export and correlation IDs. |
+| [spring-boot-tracing.instructions.md](.github/instructions/spring-boot-tracing.instructions.md) | `**/*Tracing*.java`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/logback*.xml` | Spring Boot Micrometer Tracing and OpenTelemetry OTLP contract for application tracing. |
 | [spring-boot-vault.instructions.md](.github/instructions/spring-boot-vault.instructions.md) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Vault*.java`, `**/vault/**/*.java` | Spring Cloud Vault dependencies, Config Data, KV secrets, optional native runtime reads, and isolated tests. |
 | [spring-boot-virtual-threads.instructions.md](.github/instructions/spring-boot-virtual-threads.instructions.md) | `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Config*.java`, `**/*Configuration*.java` | `spring.threads.virtual.enabled`, blocking servlet stack, and no custom Loom executors. |
 | [spring-boot-websocket.instructions.md](.github/instructions/spring-boot-websocket.instructions.md) | `**/pom.xml`, `**/src/main/resources/application*.yml`, `**/src/main/resources/application*.yaml`, `**/*Socket*.java`, `**/*WebSocket*.java`, `**/websocket/**/*.java` | STOMP/SockJS endpoint, destinations, fail-closed origins, and `<Feature>SocketController`. |
@@ -170,23 +223,25 @@ To inspect current routing patterns directly:
 rg -n "^applyTo:" .github/instructions/*.instructions.md
 ```
 
-## How Spring Boot instructions load
+## How Spring Boot instructions and rules load
 
-- [spring-boot-project.instructions.md](.github/instructions/spring-boot-project.instructions.md) applies to `pom.xml`, `src`, `README.md`, and `.gitignore`. On an empty repository, read it first, then the topic files it names, before creating files.
-- Other `spring-boot-*.instructions.md` files route by `applyTo`. On an empty repository those globs may not match yet, so the project file tells the agent which topic files to read before creating files.
-- Cursor also gets a short stack card in [AGENTS.md](.cursor/AGENTS.md).
+- Copilot: [spring-boot-project.instructions.md](.github/instructions/spring-boot-project.instructions.md) applies to `pom.xml`, `src`, `README.md`, and `.gitignore`. On an empty repository, read it first, then the topic files it names, before creating files.
+- Copilot: other `spring-boot-*.instructions.md` files route by `applyTo`. On an empty repository those globs may not match yet, so the project file tells the agent which topic files to read before creating files.
+- Cursor: [spring-boot-project.mdc](.cursor/rules/spring-boot-project.mdc) is the empty-repo entry point; topic rules under [.cursor/rules](.cursor/rules) attach by `globs`. [AGENTS.md](.cursor/AGENTS.md) carries the always-on baseline and a short Spring Boot stack card.
 
-## Instruction format conventions
+## Instruction and rule format conventions
 
-- `spring-boot-*.instructions.md` files follow a standardized structure: YAML frontmatter, one H1 title, and deterministic H2 rule sections
+- `spring-boot-*.instructions.md` and `spring-boot-*.mdc` files follow a standardized structure: YAML frontmatter, one H1 title, and deterministic H2 rule sections
+- Copilot instructions use `description` + `applyTo`; Cursor rules use `description` + `globs` + `alwaysApply: false`
 - Keep one rule per bullet and keep sections enforceable and purpose-specific
-- Customization files follow the style contract in [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md)
+- Customization files follow the style contracts in [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md) and [ai-customization.mdc](.cursor/rules/ai-customization.mdc)
 
 ## Contributing
 
-- Keep each instruction file focused on one concern and define `applyTo` as narrowly as possible
-- For Spring Boot instruction files, follow the standardized deterministic structure already used in this repository
-- Update [README.md](README.md) whenever an instruction, prompt, or skill is added, renamed, or meaningfully updated
+- Keep each instruction or rule focused on one concern and define `applyTo` / `globs` as narrowly as possible
+- When changing a shared contract, update both the Copilot instruction and the Cursor rule counterpart
+- For Spring Boot contracts, follow the standardized deterministic structure already used in this repository
+- Update [README.md](README.md) whenever an instruction, rule, prompt, or skill is added, renamed, or meaningfully updated
 
 ## License
 
