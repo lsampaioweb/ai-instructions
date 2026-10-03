@@ -64,9 +64,13 @@ Applications that expose WebSocket/STOMP must meet this contract.
 
 ## Session lifecycle
 
-- When the product needs connection counts or cleanup, listen for
-  `SessionConnectedEvent` and `SessionDisconnectEvent` and track session IDs in
-  a dedicated component.
+- When the product needs connection counts, presence, or cleanup, listen for
+  `SessionConnectEvent` / `SessionConnectedEvent` and `SessionDisconnectEvent`
+  and track session IDs in a dedicated component.
+- To force-disconnect a client, keep the raw `WebSocketSession` (for example via
+  a transport decorator) and close it with an explicit `CloseStatus`.
+- Prefer STOMP heartbeats on the simple broker when idle/dead clients must be
+  detected without waiting for TCP timeout.
 - Do not invent vanity session metrics beyond what the product uses.
 
 ## Client applications

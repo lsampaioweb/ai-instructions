@@ -15,17 +15,17 @@ applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/main/resources/**/
 - Externalize log message text through a dedicated logging message helper component
   backed by `MessageSource`, separate from any user-facing/API message resolution path.
 - The logging message helper exposes:
-  - `get(String key, Object... args)` - resolves the message in a fixed default locale
-    (English) for developer-facing log text.
-  - `get(Locale locale, String key, Object... args)` - resolves the message in a caller
-    -supplied locale, for cases where the log message should reflect request context.
-- Prefix every logging-helper key with `log.`. Keep that key's text identical in every
-  locale bundle, using the fixed logging locale. Do not translate those values.
+  - `get(String key, Object... args)` - resolves the message in the configured default
+    locale (English by default) for events without a request locale.
+  - `get(Locale locale, String key, Object... args)` - resolves the message in the
+    caller-supplied locale; use the request locale for request-scoped log events.
+- Prefix every logging-helper key with `log.`. Include each logging key in every locale
+  bundle and translate its value for that locale, preserving placeholder arity.
 - Never hardcode log message text directly in a log call; always resolve it through the
   logging message helper and an externalized message key.
-- Never use a locale-follows-request design (e.g. resolving the current request locale
-  automatically) for developer-facing log text; log text defaults to a fixed locale so
-  operators reading logs see consistent language regardless of caller locale.
+- Use the request locale explicitly for request-scoped log events and the configured
+  default locale for startup, background, or other events without a request locale. Do
+  not rely on the JVM default locale or implicit locale state.
 
 ## Structured log fields
 
@@ -115,7 +115,7 @@ applyTo: "**/src/main/resources/**/logback-spring.xml, **/src/main/resources/**/
 
 - Never place `logback-spring.xml` anywhere except
   `src/main/resources/log/logback-spring.xml`.
-- Never translate logging-helper message values across locale bundles.
+- Never omit or leave untranslated a logging-helper message value in a locale bundle.
 - Never hardcode log message strings inline instead of resolving them through the
   logging message helper.
 - Never guard `INFO`/`WARN`/`ERROR` log calls with `isXEnabled()` checks.

@@ -20,7 +20,8 @@ message text. Projects must meet the full contract once i18n is in use.
 - Never hardcode user-facing API, UI, validation, or error text in Java. Resolve it
   through `MessageSource` (or a thin helper that wraps it) and a message key.
 - Developer-facing log text uses the dedicated logging message helper defined by the
-  logging contract, not ad-hoc request-locale resolution.
+  logging contract. Resolve request-scoped log messages with the request locale and
+  messages without a request locale with the configured default locale.
 
 ## Spring messages configuration
 
@@ -48,8 +49,9 @@ spring:
   enough.
 - MVC/page applications may also honor an explicit `lang` query parameter when the
   UI needs a language switcher. Do not use the JVM default locale as a fallback.
-- Keep user-facing resolution separate from log-message resolution: logs stay on a
-  fixed English default unless a caller deliberately asks for another locale.
+- Keep user-facing resolution separate from log-message resolution by using the
+  dedicated logging helper. Both use the applicable locale: request locale for
+  request-scoped messages and configured default locale for messages without a request.
 
 ## Consistency tests
 
@@ -57,9 +59,10 @@ spring:
   - loads every locale file under `i18n/`
   - asserts the key sets are exactly equal
   - asserts placeholder arity matches per key
-  - asserts every `log.` key has identical text in every locale file (logging contract)
 - Prefer a dedicated `I18nConsistencyTest` (or equivalent) that fails the build when
   a translation key is added to one file and omitted from another.
+- Translate `log.` values in each locale bundle; do not require their text to be identical
+  across locales.
 - Optional stronger checks (keys used in code vs keys defined in bundles) are
   encouraged when the module can enumerate used keys reliably.
 
