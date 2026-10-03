@@ -46,6 +46,15 @@ cd /absolute/path/to/consumer-project
 "$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" cursor spring-boot
 ```
 
+Optional: expose this repository’s Cursor skills globally (all workspaces) by
+symlinking `~/.cursor/skills` to this checkout’s [.cursor/skills](.cursor/skills).
+Keep [.cursor/rules](.cursor/rules) and [AGENTS.md](.cursor/AGENTS.md) per-project via
+`setup-ai-links.py`; do not symlink `~/.cursor/rules` or replace all of
+`~/.cursor`. If you already have a real `~/.cursor/skills` directory, back it up
+before replacing it with the symlink. This repository does not ship Cursor hooks
+under `.cursor/hooks` or `.cursor/hooks.json` (Copilot hooks live under
+[.github/hooks](.github/hooks) only).
+
 ## Configuration reference
 
 - `github` mode links [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) into the consumer as `.github/copilot-instructions.md`, plus [.github/hooks](.github/hooks) and [.github/skills](.github/skills). When no framework is specified, all instruction files under [.github/instructions](.github/instructions) are linked. With framework filters, matching framework-prefixed instruction files and unprefixed shared files are linked. Agents and prompts are not linked by this script.
