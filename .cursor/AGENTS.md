@@ -45,10 +45,9 @@ When a macro is present, it overrides stepwise wait-for-confirmation for that sc
 Apply this section only when the task is a Spring Boot application. Ignore it
 for Ansible and other stacks.
 
-Canonical rules live in `.github/instructions/spring-boot-*.instructions.md`
-(hardlinked as `~/.agents/instructions/` when that overlay is used). On an
-empty repo, read `spring-boot-project.instructions.md` first, then the topic
-files for files you are about to create.
+Canonical rules live in `.cursor/rules/spring-boot-*.mdc`. On an empty repo,
+read `spring-boot-project.mdc` first, then the topic rules for files you are
+about to create.
 
 Non-negotiables:
 
