@@ -19,7 +19,7 @@ description: >-
 ## 1. Define the Scope
 
 1. Resolve the target scope from the user-provided arguments when present.
-2. **Fallback Scan:** If scope is omitted, inspect uncommitted workspace changes (`git status`, `git diff`) first, then evaluate commits made after the latest commit whose subject starts with `docs:`; if no such baseline exists, evaluate the latest 10 commits.
+2. **Fallback Scan:** If scope is omitted, inspect `git status`, unstaged changes with `git diff`, staged changes with `git diff --cached`, and the contents of untracked files listed by `git status`. Then evaluate commits made after the latest commit whose subject starts with `docs:`; if no such baseline exists, evaluate the latest 10 commits.
 3. Correlate code and configuration deltas with impacted Markdown targets.
 
 ## 2. Resolution Rules

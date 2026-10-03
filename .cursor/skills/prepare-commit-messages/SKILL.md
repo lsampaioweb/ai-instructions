@@ -17,8 +17,11 @@ description: >-
 
 ## 1. Inspect the Changes
 
-1. Inspect uncommitted changes (`git status`, `git diff`).
-2. Cluster files into atomic commits.
+1. Inspect `git status`, unstaged changes with `git diff`, and staged changes with
+  `git diff --cached`.
+2. Read the contents of untracked files listed by `git status`; they are part of the
+  uncommitted work even though they do not appear in either diff.
+3. Cluster all in-scope staged, unstaged, and untracked changes into atomic commits.
 
 ## 2. Resolution Rules
 
