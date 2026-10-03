@@ -17,16 +17,15 @@ contract — this file only says when an event listener may be async.
 ## When to use
 
 - Use application events to let one feature react to another without injecting that
-  feature's service (samples: `15-events`, websocket chat audit).
+  feature's service.
 - Prefer a direct method call when both sides are the same feature and a listener
   would only add indirection.
 
 ## Event type
 
-- Model payloads as immutable records in the feature package (samples:
-  `MessagePublishedEvent`, `ChatMessagePublishedEvent`).
+- Model payloads as immutable records in the feature package.
 - Put in the event only what listeners need. Prefer metadata (ids, lengths, locale
-  tags, timestamps) over copying large or sensitive bodies (websocket sample).
+  tags, timestamps) over copying large or sensitive bodies.
 - Capture thread-local values before publish and pass them in the event (for example
   `LocaleContextHolder`); do not rely on request thread-locals inside `@Async`
   listeners.
@@ -34,20 +33,18 @@ contract — this file only says when an event listener may be async.
 ## Publishing
 
 - Publish through a dedicated feature component that wraps
-  `ApplicationEventPublisher` (samples: `MessageEventPublisher`,
-  `ChatMessageEventPublisher`).
+  `ApplicationEventPublisher`.
 - Call the publisher from the service (or equivalent application component), not
   from the REST controller.
 
 ## Listening
 
 - Handle events with `@EventListener` on a dedicated component in the feature
-  package (samples: `MessageAuditListener`, `ChatMessageAuditListener`).
+  package.
 - Keep listener methods focused on one reaction (audit, metrics, side effect).
 - Prefer synchronous listeners for simple in-memory work. Add `@Async` on a
   listener only when that reaction is blocking or latency-sensitive, and enable
-  async per the async contract (`@EnableAsync` on the application as in
-  `15-events`).
+  async per the async contract (`@EnableAsync` on the application).
 
 ## Forbidden
 

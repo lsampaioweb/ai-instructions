@@ -1,6 +1,6 @@
 ---
-description: "Spring Boot Micrometer Tracing and OpenTelemetry OTLP contract for tutorial and application tracing samples."
-applyTo: "**/28-tracing/**, **/*Tracing*.java"
+description: "Spring Boot Micrometer Tracing and OpenTelemetry OTLP contract for application tracing."
+applyTo: "**/*Tracing*.java, **/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/logback*.xml"
 ---
 
 # Spring Boot Tracing Contract
@@ -19,11 +19,12 @@ contracts.
 
 ## Configuration
 
-- Set `management.tracing.sampling.probability` to `1.0` for tutorial and local demos
-  so every request produces spans.
+- Set `management.tracing.sampling.probability` to `1.0` for local demos so every
+  request produces spans. Use a lower probability in production when volume or cost
+  requires it, and document why.
 - Configure OTLP with `management.opentelemetry.tracing.export.otlp.endpoint` (HTTP
-  protobuf default), pointing at the Collector (for the tutorial infrastructure that
-  is `http://localhost:4318/v1/traces`).
+  protobuf default), pointing at the Collector (for example
+  `http://localhost:4318/v1/traces`).
 - Disable OTLP metrics export (`management.otlp.metrics.export.enabled=false`) when the
   Collector pipeline is traces-only, so demos do not spam failed `/v1/metrics` posts.
 - Disable OTLP export in `application-test.yml` so context tests do not require a
@@ -42,13 +43,12 @@ contracts.
 
 - When a module enables Micrometer Tracing, include MDC `traceId` and `spanId` in
   that module's Logback console and file patterns.
-- Do not add correlation IDs to unrelated samples that do not depend on tracing.
+- Do not add correlation IDs to modules that do not depend on tracing.
 
 ## Forbidden
 
 - Never use Brave as the default tracing bridge when OpenTelemetry was requested.
-- Never require a trace UI (Jaeger, Tempo, Grafana) for a Collector-only tutorial
-  sample.
-- Never hardcode sampling below `1.0` in tutorial samples without documenting why.
+- Never require a trace UI (Jaeger, Tempo, Grafana) for a Collector-only setup.
+- Never hardcode sampling below `1.0` in local demos without documenting why.
 - Never create a custom `RestClient.builder()` for traced calls when the observed
   auto-configured `RestClient.Builder` bean is available.

@@ -36,6 +36,9 @@ applyTo: "**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, *
 - Split compound rules when they contain independent decisions or conditions.
 - Keep each section focused on one purpose, with a heading that matches its contents.
 - Put rules in the order the governed workflow encounters them.
+- Keep instruction contracts product-agnostic and reusable across real projects.
+  Never reference tutorial repos, sample module paths, learning-catalog numbers,
+  or project-specific folders/networks from teaching material.
 - Remove filler only when doing so preserves the rule's meaning and enforceability.
 - Preserve existing behavior when improving wording unless the user explicitly approves a behavior change.
 - Do not turn a style preference or optional rewrite into a defect, requirement, or safety rule.

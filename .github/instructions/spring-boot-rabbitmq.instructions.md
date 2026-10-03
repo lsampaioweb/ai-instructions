@@ -6,8 +6,7 @@ applyTo: "**/pom.xml, **/src/main/resources/application*.yml, **/src/main/resour
 # Spring Boot RabbitMQ Contract
 
 Apply this contract only when a Spring Boot application integrates with RabbitMQ
-through Spring AMQP. It governs the client application, not broker provisioning
-(`samples/infrastructure/rabbitmq/README.md` in this tutorial).
+through Spring AMQP. It governs the client application, not broker provisioning.
 
 Pom owns dependency comments and ordering. Configuration owns profiles and
 secrets. Architecture owns feature packages, services, and constructor injection.
@@ -23,16 +22,13 @@ Controller owns `*RestController` boundaries. Logging and i18n own log keys.
 ## Broker connection
 
 - Configure `spring.rabbitmq.host`, `port`, `username`, and `password` from
-  environment variables (samples: `RABBITMQ_HOST` / `RABBITMQ_PORT` with localhost
-  defaults; `RABBITMQ_DEFAULT_USER` / `RABBITMQ_DEFAULT_PASS` with **no** password
-  default).
+  environment variables (for example `RABBITMQ_HOST` / `RABBITMQ_PORT` with
+  localhost defaults; user/password from env with **no** password default).
 
 ## Topology
 
-- Declare exchange, queue, and binding beans in a dedicated `@Configuration`
-  (samples: `RabbitMQConfiguration`).
-- Externalize names under `app.rabbitmq.*` `@ConfigurationProperties` (samples:
-  `RabbitMQConfigurationProperties`).
+- Declare exchange, queue, and binding beans in a dedicated `@Configuration`.
+- Externalize names under `app.rabbitmq.*` `@ConfigurationProperties`.
 - Match the exchange type to the feature: `DirectExchange`, `FanoutExchange`,
   `TopicExchange`, or `HeadersExchange`.
 - Declare durable exchanges and durable queues (`durable=true`, `autoDelete=false`).
@@ -40,17 +36,16 @@ Controller owns `*RestController` boundaries. Logging and i18n own log keys.
 
 ## Publishing
 
-- Publish through `RabbitTemplate` from a dedicated producer (samples:
-  `MessageProducer`), called from the service — not the REST controller.
-- On `AmqpException`, log and throw a feature-specific publish exception (samples:
-  `OrderPublishException`).
-- For headers exchanges, set required headers on the outbound message (samples use
+- Publish through `RabbitTemplate` from a dedicated producer, called from the
+  service — not the REST controller.
+- On `AmqpException`, log and throw a feature-specific publish exception.
+- For headers exchanges, set required headers on the outbound message (for example
   a `convertAndSend` message post-processor).
 
 ## Consuming
 
-- Consume with `@RabbitListener` on a dedicated consumer (samples:
-  `MessageConsumer`), using queue names from `app.rabbitmq.*` placeholders.
+- Consume with `@RabbitListener` on a dedicated consumer, using queue names from
+  `app.rabbitmq.*` placeholders.
 - Keep listener methods focused on one message type.
 
 ## Forbidden

@@ -17,34 +17,33 @@ mapping.
 ## Enablement
 
 - Add `@EnableAsync` on the Spring Boot application class when any `@Async`
-  method or async `@EventListener` exists (samples: `27-async/basics`,
-  `15-events`).
+  method or async `@EventListener` exists.
 - Do not add a custom `TaskExecutor` bean unless the product needs a named
   executor beyond Boot's default (virtual-threads contract).
 
 ## @Async methods
 
 - Put `@Async` on Spring-managed beans called through the container proxy
-  (samples: dedicated `AsyncJobWorker`). Self-invocation on the same class does
+  (for example a dedicated worker bean). Self-invocation on the same class does
   not run asynchronously.
-- Prefer `@Async` for work that should leave the request thread (samples: job
-  processing; events sample: blocking/latency-sensitive listeners). Keep trivial
-  in-memory reactions synchronous (events contract).
+- Prefer `@Async` for work that should leave the request thread (for example job
+  processing or blocking/latency-sensitive listeners). Keep trivial in-memory
+  reactions synchronous (events contract).
 - Return `CompletableFuture` (or another `CompletionStage`) when the caller must
-  observe completion (samples: `AsyncJobWorker.process` →
-  `whenComplete` in the service).
+  observe completion (for example a worker method completed via `whenComplete`
+  in the service).
 - Do not put `@Async` on REST controller methods.
 
-## Request-scoped async jobs (sample shape)
+## Request-scoped async jobs
 
-When HTTP clients submit work that finishes later (samples: `27-async/basics`):
+When HTTP clients submit work that finishes later:
 
 - Accept the job in the service, start the `@Async` worker, and return quickly
-  (sample uses `202 Accepted` with a `Location` to a status resource).
-- Track lifecycle in a feature store (sample: in-memory `AsyncJobStore` with
-  queued → running → succeeded/failed).
-- Surface executor rejection as a feature exception (sample:
-  `TaskRejectedException` → `AsyncJobSubmissionRejectedException`).
+  (for example `202 Accepted` with a `Location` to a status resource).
+- Track lifecycle in a feature store (for example queued → running →
+  succeeded/failed).
+- Surface executor rejection as a feature exception (for example
+  `TaskRejectedException` mapped to a domain submission-rejected exception).
 - Record failures from the completion callback; do not leave jobs stuck in
   running forever after worker errors.
 
@@ -53,6 +52,6 @@ When HTTP clients submit work that finishes later (samples: `27-async/basics`):
 - Never call an `@Async` method via `this` on the same class and expect a new
   thread.
 - Never block the HTTP thread waiting on the full async job when the API is
-  meant to accept-and-poll (sample pattern).
+  meant to accept-and-poll.
 - Never treat `@Async` as durable cross-process messaging (use RabbitMQ when
   work must survive process restart or run on another node).
