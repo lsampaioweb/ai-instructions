@@ -1,8 +1,9 @@
 ---
+name: clean-slate-workspace
 description: "Remove only artifacts created by this chat from the active workspace for a clean restart."
+disable-model-invocation: true
 argument-hint: "Optional: scope notes or exclusions. Omit them to clean all artifacts created by this chat."
 ---
-
 # Clean Slate Workspace
 
 ## 1. Inspect the Workspace
