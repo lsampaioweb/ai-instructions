@@ -66,10 +66,10 @@ Applications must meet this contract for every feature they ship.
 - When generated documentation exposes JSON or YAML routes, use full-context
   MockMvc with filters to check each enabled format and denial of disabled routes
   according to the Security contract; do not require formats the app does not enable.
-- Use `@ActiveProfiles("test")` and an optional `application-test.yml` only when
-  the test needs dedicated overrides; do not replace `development` /
-  `production` application profiles with `test` in main config (configuration
-  contract).
+- Activate only real application profiles in tests (`development` or
+  `production`). Put test-only overrides in `@SpringBootTest(properties = { ... })`
+  (or equivalent test property sources). Never invent a `test` Spring profile or
+  ship `application-test.yml`.
 
 ## Naming and style
 
