@@ -7,7 +7,7 @@ Centralized GitHub Copilot and Cursor customization assets for Spring Boot proje
 ```
 .github/        — GitHub Copilot assets: instructions, prompts, hooks, skills, and agents
 .cursor/        — Cursor assets: AGENTS.md, path-scoped rules (.mdc), and skills
-scripts/        — helper utilities for linking these assets into consumer repositories
+scripts/        — maintenance utilities for local editor and session repair tasks
 ```
 
 ## Prerequisites
@@ -18,57 +18,60 @@ scripts/        — helper utilities for linking these assets into consumer repo
 
 ## Getting started
 
-Run the linker from the target repository root. The script creates hardlinks to the shared assets and can be re-run safely.
-
-```bash
-export AI_INSTRUCTIONS_REPO=/absolute/path/to/ai-instructions
-cd /absolute/path/to/consumer-project
-
-# Link all frameworks
-"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github
-
-# Link only Spring Boot assets
-"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github spring-boot
-
-# Link only Ansible assets
-"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github ansible
-
-# Link multiple frameworks
-"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" github spring-boot ansible
-```
-
-To install the Cursor overlays into the same consumer repository:
-
-```bash
-export AI_INSTRUCTIONS_REPO=/absolute/path/to/ai-instructions
-cd /absolute/path/to/consumer-project
-"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" cursor
-"$AI_INSTRUCTIONS_REPO/scripts/setup-ai-links.py" cursor spring-boot
-```
+This repository contains reusable Copilot/Cursor assets, but it does not ship a repo-wide installer script. Consume the files you need by hardlinking or copying them into a target repository with your own tooling.
 
 Optional: expose this repository’s Cursor skills globally (all workspaces) by
 symlinking `~/.cursor/skills` to this checkout’s [.cursor/skills](.cursor/skills).
-Keep [.cursor/rules](.cursor/rules) and [AGENTS.md](.cursor/AGENTS.md) per-project via
-`setup-ai-links.py`; do not symlink `~/.cursor/rules` or replace all of
-`~/.cursor`. If you already have a real `~/.cursor/skills` directory, back it up
-before replacing it with the symlink. This repository does not ship Cursor hooks
-under `.cursor/hooks` or `.cursor/hooks.json` (Copilot hooks live under
-[.github/hooks](.github/hooks) only).
+Keep [.cursor/rules](.cursor/rules) and [AGENTS.md](.cursor/AGENTS.md) per-project instead of replacing the whole `~/.cursor` directory. If you already have a real `~/.cursor/skills` directory, back it up before replacing it with the symlink. This repository does not ship Cursor hooks under `.cursor/hooks` or `.cursor/hooks.json` (Copilot hooks live under [.github/hooks](.github/hooks) only).
+
+## Utility scripts
+
+- [scripts/fix-vscode-chat-sessions.py](scripts/fix-vscode-chat-sessions.py): scans VS Code chat session JSONL files under `workspaceStorage`, flags malformed sessions, and optionally repairs them with `--apply`.
+
+## Skill catalog
+
+GitHub Copilot skills live under [.github/skills](.github/skills). The current catalog is:
+
+| Skill | Purpose |
+|---|---|
+| [add-content-to-file](.github/skills/add-content-to-file/SKILL.md) | Add, update, or deduplicate content in Markdown/plain-text files |
+| [clean-slate-workspace](.github/skills/clean-slate-workspace/SKILL.md) | Remove only artifacts created in the current chat for a clean workspace restart |
+| [grill-me](.github/skills/grill-me/SKILL.md) | Interview-first requirements discovery for non-trivial work |
+| [handoff](.github/skills/handoff/SKILL.md) | Create a structured handoff for continuing work elsewhere |
+| [humanizer](.github/skills/humanizer/SKILL.md) | Rewrite writing to sound more natural and less formulaic |
+| [prepare-commit-messages](.github/skills/prepare-commit-messages/SKILL.md) | Cluster uncommitted changes into feature-scoped Conventional Commits |
+| [review-ai-customization-files](.github/skills/review-ai-customization-files/SKILL.md) | Audit AI customization files for duplicates, conflicts, and enforceability |
+| [review-and-sync-docs](.github/skills/review-and-sync-docs/SKILL.md) | Correlate workspace deltas with documentation and sync stale docs |
+| [review-code-against-instructions](.github/skills/review-code-against-instructions/SKILL.md) | Audit code against active instruction contracts |
+| [review-other-ai-feedback](.github/skills/review-other-ai-feedback/SKILL.md) | Critically review external AI feedback and decide what to adopt |
+| [root-cause-analysis](.github/skills/root-cause-analysis/SKILL.md) | Analyze logs and exceptions to find the root cause and propose a durable fix |
+
+Cursor mirrors the editor-focused subset under [.cursor/skills](.cursor/skills); its current set is:
+
+- [grill-me](.cursor/skills/grill-me/SKILL.md)
+- [handoff](.cursor/skills/handoff/SKILL.md)
+- [humanizer](.cursor/skills/humanizer/SKILL.md)
+- [prepare-commit-messages](.cursor/skills/prepare-commit-messages/SKILL.md)
+- [review-ai-customization-files](.cursor/skills/review-ai-customization-files/SKILL.md)
+- [review-and-sync-docs](.cursor/skills/review-and-sync-docs/SKILL.md)
+- [review-code-against-instructions](.cursor/skills/review-code-against-instructions/SKILL.md)
+- [review-other-ai-feedback](.cursor/skills/review-other-ai-feedback/SKILL.md)
+- [root-cause-analysis](.cursor/skills/root-cause-analysis/SKILL.md)
 
 ## Configuration reference
 
-- `github` mode links [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) into the consumer as `.github/copilot-instructions.md`, plus [.github/hooks](.github/hooks) and [.github/skills](.github/skills). When no framework is specified, all instruction files under [.github/instructions](.github/instructions) are linked. With framework filters, matching framework-prefixed instruction files and unprefixed shared files are linked. Agents and prompts are not linked by this script.
-- `cursor` mode always links [AGENTS.md](.cursor/AGENTS.md). Path-scoped rules under [.cursor/rules](.cursor/rules) and skills under [.cursor/skills](.cursor/skills) are framework-filtered: unprefixed files always link; framework-prefixed files link only when that framework is selected. Copilot `*.instructions.md` contracts map to Cursor `.mdc` rules (`applyTo` → `globs`); the workspace baseline maps to `AGENTS.md`, not an always-on rule.
-- Frameworks with instruction files today: `ansible`, `spring-boot`. The linker also accepts reserved prefixes `python`, `typescript`, and `go` (no files yet).
-- Existing destination files are replaced before relinking; source files in this repository are never modified.
-- The linker does not delete leftover files. If a consumer still has old `.cursor/rules` from a previous overlay, remove that directory before re-linking.
+- GitHub Copilot instruction files under [.github/instructions](.github/instructions) are the source of reusable contracts; the consumer repository copies only the files it needs.
+- Cursor rules under [.cursor/rules](.cursor/rules) mirror the applicable Copilot contracts with `applyTo` mapped to `globs` and `alwaysApply: false`; the workspace baseline remains in [AGENTS.md](.cursor/AGENTS.md), not as an always-on rule.
+- Frameworks with instruction files today: `ansible`, `spring-boot`. The repository also reserves `python`, `typescript`, and `go` prefixes for future contract sets.
+- Source files in this repository are never modified by consumer linking steps; any target repo copies or hardlinks should treat the source as read-only.
+- If a consumer still has old `.cursor/rules` from a previous overlay, remove that directory before re-linking or re-mirroring the assets.
 
 ## Agent Catalog
 
-Spring Boot custom agents live under [.github/agents](.github/agents). They are
-not linked by `setup-ai-links.py`; copy or wire them separately when a consumer
-needs the workgroup. Cursor behavior still uses [AGENTS.md](.cursor/AGENTS.md)
-plus skills; there is no separate Cursor agent catalog in this repository.
+Spring Boot custom agents live under [.github/agents](.github/agents). Consume
+them by copying or wiring them into a target repository when the workgroup is
+needed. Cursor behavior still uses [AGENTS.md](.cursor/AGENTS.md) plus skills;
+there is no separate Cursor agent catalog in this repository.
 
 | Agent | Responsibility |
 |---|---|
@@ -152,9 +155,9 @@ rg -n "^globs:" .cursor/rules/*.mdc
 ## Prompt files
 
 Prompt files under [.github/prompts](.github/prompts) are kept in this repository
-for Copilot Chat (`/prompt-name`). They are not linked by `setup-ai-links.py`.
-Keep prompts for thin, manual-only workflows; multi-step reusable procedures live
-under Skills.
+for Copilot Chat (`/prompt-name`). Copy or hardlink them into a target workspace
+only when you want to provide the workflow there; keep prompts for thin,
+manual-only workflows, while multi-step reusable procedures live under Skills.
 
 | File | Invoke with | Purpose |
 |---|---|---|
@@ -186,7 +189,7 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 
 | File | Applies to | Purpose |
 |---|---|---|
-| [copilot-instructions.md](.github/instructions/copilot-instructions.md) | `**` | Always-on behavioral baseline for directness, scope control, workflow macros (`#DMS`, `#OTS`, `#FIX`), and safe execution across workspace tasks. The linker installs this file at `.github/copilot-instructions.md` in a consumer repository. |
+| [copilot-instructions.md](.github/instructions/copilot-instructions.md) | `**` | Always-on behavioral baseline for directness, scope control, workflow macros (`#DMS`, `#OTS`, `#FIX`), and safe execution across workspace tasks. This file is the source baseline for the consumer repository’s `.github/copilot-instructions.md` copy. |
 | [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md) | `**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, **/copilot-instructions.md, **/skills/**/SKILL.md, **/hooks/**/*.json` | Style contract for AI customization files: structure, wording, conflict handling, and scoring rubric for consistent, enforceable guidance. |
 | [ansible-architecture.instructions.md](.github/instructions/ansible-architecture.instructions.md) | `**/ansible/**, **/ansible.cfg, **/.ansible-lint` | Ansible architecture baseline for project layout, playbook sequencing, and idempotency conventions. |
 | [ansible-config.instructions.md](.github/instructions/ansible-config.instructions.md) | `**/ansible.cfg` | ansible.cfg governance contract for runtime defaults, connection behavior, and safe automation settings. |
