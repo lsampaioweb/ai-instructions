@@ -35,7 +35,7 @@ spring:
     basename: "i18n/messages"
     encoding: "UTF-8"
     default-locale: "en"
-    fallback-to-system-locale: false
+    fallback-to-system-locale: true
 ```
 
 - Quote string values consistently (configuration contract).
@@ -74,5 +74,5 @@ spring:
 - Never ship only one locale file when the project claims i18n support.
 - Never omit `encoding`, `default-locale`, or `fallback-to-system-locale` once
   `spring.messages.basename` is declared.
-- Never set `fallback-to-system-locale` to `true` for real applications.
+- Never set `fallback-to-system-locale` to `false`.
 - Never treat English and `pt-BR` key sets as best-effort; they must stay identical.
