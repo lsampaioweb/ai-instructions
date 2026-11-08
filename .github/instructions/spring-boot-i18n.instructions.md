@@ -11,9 +11,12 @@ message text. Projects must meet the full contract once i18n is in use.
 ## Message bundles
 
 - Store bundles under `src/main/resources/i18n/`.
-- Ship at least:
+- A deployable application ships at least:
   - `messages.properties` as the English default bundle
   - `messages_pt_BR.properties` for Brazilian Portuguese
+- A reusable library exposes stable message keys but does not package its own
+  locale bundles. The consuming application owns translations for those keys in
+  its standard `messages.properties` and `messages_pt_BR.properties` bundles.
 - Every key present in one locale file must exist in every other locale file.
 - Placeholder arity must match across locales for the same key (for example `{0}`
   and `{1}` counts must be identical).
@@ -34,11 +37,19 @@ spring:
     basename: "i18n/messages"
     encoding: "UTF-8"
     default-locale: "en"
-    fallback-to-system-locale: true
+    fallback-to-system-locale: false
 ```
 
 - Quote string values consistently (configuration contract).
-- Do not let the JVM/OS locale become the fallback for missing translations.
+- Have the application read `default-locale` for its own default-locale consumers;
+  do not assume Spring Boot applies that key to the auto-configured `MessageSource`.
+- Keep `fallback-to-system-locale: false`. With `true`, an English request can pick
+  the JVM/OS locale bundle (for example `messages_pt_BR`) before the base bundle.
+- Keep exactly two bundles: `messages.properties` (English, base) and
+  `messages_pt_BR.properties`. Never add `messages_en.properties`.
+- A missing key in an existing locale bundle follows its ResourceBundle parent
+  chain, ultimately reaching the base bundle; `fallback-to-system-locale` is not
+  a per-key translation fallback.
 
 ## Locale resolution
 
@@ -48,7 +59,8 @@ spring:
   `AcceptHeaderLocaleResolver` configured with that default and supported list is
   enough.
 - MVC/page applications may also honor an explicit `lang` query parameter when the
-  UI needs a language switcher. Do not use the JVM default locale as a fallback.
+  UI needs a language switcher. Keep the application locale resolver's default
+  as English.
 - Keep user-facing resolution separate from log-message resolution by using the
   dedicated logging helper. Both use the applicable locale: request locale for
   request-scoped messages and configured default locale for messages without a request.
@@ -61,6 +73,8 @@ spring:
   - asserts placeholder arity matches per key
 - Prefer a dedicated `I18nConsistencyTest` (or equivalent) that fails the build when
   a translation key is added to one file and omitted from another.
+- Verify that each supported request locale resolves correctly when the JVM default
+  is a different supported locale.
 - Translate `log.` values in each locale bundle; do not require their text to be identical
   across locales.
 - Optional stronger checks (keys used in code vs keys defined in bundles) are
@@ -73,5 +87,5 @@ spring:
 - Never ship only one locale file when the project claims i18n support.
 - Never omit `encoding`, `default-locale`, or `fallback-to-system-locale` once
   `spring.messages.basename` is declared.
-- Never set `fallback-to-system-locale` to `false`.
+- Never set `fallback-to-system-locale` to `true` or add `messages_en.properties`.
 - Never treat English and `pt-BR` key sets as best-effort; they must stay identical.

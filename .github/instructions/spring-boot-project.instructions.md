@@ -107,6 +107,21 @@ When creating a new Spring Boot application, produce at least:
 11. `*ApplicationTests` plus `I18nConsistencyTest`; `@WebMvcTest` and
     `spring-boot-starter-webmvc-test` for each REST feature (test contract).
 
+## Source and resource paths
+
+- Derive Java file paths from the module's actual source root and declared package.
+  For example, package `br.com.example.feature` belongs under
+  `src/main/java/br/com/example/feature/` within that Maven module.
+- Never append a workspace/repository absolute path below `src/main/java/` or
+  repeat `src/main/java/` inside a package directory.
+- Before creating a file, inspect a neighboring source file to confirm the module
+  root and package root. After creating files, verify their paths with the workspace
+  file listing before continuing.
+- Keep runtime-loadable resources inside `src/main/resources/`. DBA-applied DDL
+  belongs under `src/main/resources/sql/db/`; DML property files belong under
+  `src/main/resources/sql/`. Do not place classpath resources at the Maven module
+  root.
+
 Ask before adding OAuth2/JWT, JPA, Flyway/Liquibase, `spring.sql.init`,
 Testcontainers, k6 load scripts, or an external message broker.
 

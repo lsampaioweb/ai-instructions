@@ -79,9 +79,10 @@ instruction files. Do not restate those contracts here.
 
 - The application database user has **DML only**. It must not create, alter, or
   drop schema objects.
-- Keep DDL scripts in the repository under `sql/db/` (or an equivalent folder)
-  so they are versioned in git for DBAs. DBAs apply those scripts through the
-  PostgreSQL client or their change process.
+- Keep DDL scripts in the Maven module under `src/main/resources/sql/db/` so
+  they are versioned in git and available as classpath resources for DBAs to
+  inspect. DBAs apply those scripts through the PostgreSQL client or their
+  change process; the application must not execute them at startup.
 - Never run DDL from the application at startup or runtime.
 - Never use `spring.sql.init`, Flyway, Liquibase, or any in-app migration runner.
 

@@ -28,8 +28,7 @@ applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/applicat
 - Put environment-specific overrides only in the matching profile file (for example
   server port, stack-trace exposure, or Swagger enablement). Actuator health-detail
   overrides are owned by the Actuator contract.
-- An optional `application-test.yml` is allowed when automated tests need a dedicated
-  profile; do not replace `development` or `production` with `test`.
+- Test-profile and test-only override policy is owned by the testing contract.
 - Declare the active profile in `application.yml` using list form, with `production` as
   the committed default and `development` available as a commented alternative:
 
