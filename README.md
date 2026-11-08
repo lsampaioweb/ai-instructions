@@ -1,11 +1,11 @@
 # ai-instructions
 
-Centralized GitHub Copilot and Cursor customization assets for Spring Boot projects. This repository packages reusable instruction files, prompts, and skills that can be hardlinked into consumer repositories.
+Centralized GitHub Copilot and Cursor customization assets for Spring Boot projects. This repository packages reusable instruction files, agents, and skills that can be hardlinked into consumer repositories.
 
 ## Repository structure
 
 ```
-.github/        — GitHub Copilot assets: instructions, prompts, hooks, skills, and agents
+.github/        — GitHub Copilot assets: instructions, hooks, skills, and agents
 .cursor/        — Cursor assets: AGENTS.md, path-scoped rules (.mdc), and skills
 scripts/        — maintenance utilities for local editor and session repair tasks
 ```
@@ -152,27 +152,18 @@ To inspect current Cursor routing patterns:
 rg -n "^globs:" .cursor/rules/*.mdc
 ```
 
-## Prompt files
-
-Prompt files under [.github/prompts](.github/prompts) are kept in this repository
-for Copilot Chat (`/prompt-name`). Copy or hardlink them into a target workspace
-only when you want to provide the workflow there; keep prompts for thin,
-manual-only workflows, while multi-step reusable procedures live under Skills.
-
-| File | Invoke with | Purpose |
-|---|---|---|
-| [add-content-to-file.prompt.md](.github/prompts/add-content-to-file.prompt.md) | `/add-content-to-file` | Add, update, or deduplicate content in markdown or plain text files while preserving document structure and style |
-| [clean-slate-workspace.prompt.md](.github/prompts/clean-slate-workspace.prompt.md) | `/clean-slate-workspace` | Remove only this chat's created artifacts from the active workspace after explicit confirmation for a clean restart |
-
 ## Skills
 
-Skills are reusable, on-demand workflows. Invoke them with `/skill-name` or let
-the agent discover them when the skill description matches the request.
+Skills are reusable, on-demand workflows. Invoke them with `/skill-name`; agents
+may also discover skills that allow model invocation when their descriptions match
+the request.
 Copilot skills live under [.github/skills](.github/skills); Cursor skills live
-under [.cursor/skills](.cursor/skills). Bodies are shared.
+under [.cursor/skills](.cursor/skills). Versions for both editors are maintained separately.
 
 | Skill | Invoke | Purpose |
 |---|---|---|
+| [add-content-to-file](.github/skills/add-content-to-file/SKILL.md) | `/add-content-to-file` | Manually add, update, or deduplicate content in Markdown or plain-text files |
+| [clean-slate-workspace](.github/skills/clean-slate-workspace/SKILL.md) | `/clean-slate-workspace` | Manually remove only artifacts created in the current chat after explicit confirmation |
 | [grill-me](.github/skills/grill-me/SKILL.md) | `/grill-me` | Interview-first requirements discovery for non-trivial build requests, unless a project agent or instruction contract already owns that interview |
 | [handoff](.github/skills/handoff/SKILL.md) | `/handoff` | Create a structured handoff for continuing work in another session |
 | [humanizer](.github/skills/humanizer/SKILL.md) | `/humanizer` | Rewrite prose to sound natural, specific, and appropriate to its intended voice |
@@ -183,6 +174,10 @@ under [.cursor/skills](.cursor/skills). Bodies are shared.
 | [review-other-ai-feedback](.github/skills/review-other-ai-feedback/SKILL.md) | `/review-other-ai-feedback` | Critically review external AI feedback and decide adopt/adapt/reject |
 | [root-cause-analysis](.github/skills/root-cause-analysis/SKILL.md) | `/root-cause-analysis` | Analyze logs/exceptions for root cause and propose permanent fixes |
 
+The `/prepare-commit-messages` skills instruct agents not to add
+`Co-authored-by: Copilot` trailers or pass options that add them. Editor
+integrations and Git hooks may still add trailers independently.
+
 ## Instruction files
 
 Instruction contracts live under [.github/instructions](.github/instructions). They are auto-routed by each file's `applyTo` pattern.
@@ -190,7 +185,7 @@ Instruction contracts live under [.github/instructions](.github/instructions). T
 | File | Applies to | Purpose |
 |---|---|---|
 | [copilot-instructions.md](.github/instructions/copilot-instructions.md) | `**` | Always-on behavioral baseline for directness, scope control, workflow macros (`#DMS`, `#OTS`, `#FIX`), and safe execution across workspace tasks. This file is the source baseline for the consumer repository’s `.github/copilot-instructions.md` copy. |
-| [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md) | `**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, **/copilot-instructions.md, **/skills/**/SKILL.md, **/hooks/**/*.json` | Style contract for AI customization files: structure, wording, conflict handling, and scoring rubric for consistent, enforceable guidance. |
+| [ai-customization.instructions.md](.github/instructions/ai-customization.instructions.md) | `**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, **/copilot-instructions.md, **/skills/**/SKILL.md, **/hooks/**/*.json` | Authoring and review contract for AI customization files: structure, routing, conflict handling, and review safety. |
 | [ansible-architecture.instructions.md](.github/instructions/ansible-architecture.instructions.md) | `**/ansible/**, **/ansible.cfg, **/.ansible-lint` | Ansible architecture baseline for project layout, playbook sequencing, and idempotency conventions. |
 | [ansible-config.instructions.md](.github/instructions/ansible-config.instructions.md) | `**/ansible.cfg` | ansible.cfg governance contract for runtime defaults, connection behavior, and safe automation settings. |
 | [ansible-playbook-style.instructions.md](.github/instructions/ansible-playbook-style.instructions.md) | `**/ansible/**/*.yml, **/ansible/**/*.yaml` | Playbook and task style contract for task naming, condition placement, and include/import policy. |
