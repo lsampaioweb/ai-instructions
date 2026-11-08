@@ -33,6 +33,7 @@ description: >-
 - **Description:** Write it in the imperative present tense, keep it to 50 characters or fewer, and do not end it with a period.
 - **Body Rule:** Document the *why* and the *impact* only.
 - **Footer Rule:** Append `Closes #123` or tracking IDs if detected in branch or context.
+- **Attribution:** NEVER add `Co-authored-by: Copilot` to commit messages or pass options that add that trailer.
 - **Post-approval:** Run `git add` and `git commit` sequentially for each cluster.
 
 ## 3. Safety Guards
