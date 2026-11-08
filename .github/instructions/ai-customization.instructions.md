@@ -101,8 +101,6 @@ applyTo: "**/*.agent.md, **/*.agents.md, **/*.instructions.md, **/*.prompt.md, *
   code and review against it—never invent an override and never hard-stop without that path.
 - Coder and orchestrator agents must treat matching instruction contracts as binding
   law, not optional references, and must not report clean while unresolved blockers remain.
-- Agents that consume Spring Boot instruction contracts must resolve them from workspace
-  `.github/instructions/` first, else `~/.agents/instructions/`.
 - State each agent rule once. Approach = order of operations; Constraints = only rules
   the order does not already force. Prefer checklists over essays.
 - Cite instruction section names the agent must open; do not paste those instruction

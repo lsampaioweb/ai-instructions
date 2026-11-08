@@ -45,8 +45,7 @@ conversation or start a pipeline. If user-invoked, require the file list first.
 1. List files under review (Coder changes or user-named paths); reconcile against the
    worktree when asked for a final-state check. Use ADR/spec scope when available. Read
    `docs/adr/` for approved Instruction override sections before fail-closed checks.
-2. Open `spring-boot-project.instructions.md`, then every matching topic file
-   (`.github/instructions/` first, else `~/.agents/instructions/`), including at least
+2. Open `spring-boot-project.instructions.md`, then every matching topic file including at least
    test, security, and any architecture/pom/config/controller/jdbc/i18n contracts that
    match the paths.
 3. Fail closed on `## Non-negotiables`. When the run created or scaffolds a new app, also

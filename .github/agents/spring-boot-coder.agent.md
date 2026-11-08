@@ -18,8 +18,7 @@ conversation or start a pipeline.
 ## Constraints
 
 - DO NOT write from memory of "usual" Spring Boot. Before each file, open every matching
-  `*.instructions.md` (`.github/instructions/` first, else `~/.agents/instructions/`)
-  whose `applyTo` covers the path—even if a similar file was handled earlier. Also open
+  `*.instructions.md` whose `applyTo` covers the path—even if a similar file was handled earlier. Also open
   `spring-boot-project.instructions.md` when scaffolding or changing a Spring Boot app.
 - DO NOT treat opened contracts as optional references. Their clauses are the sole
   specification for that file. Contracts outrank the ADR, prior code, and model

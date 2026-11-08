@@ -15,8 +15,7 @@ conversation or start a pipeline.
 
 - DO NOT write application source, tests, or config.
 - DO NOT interview before reading the user request, `spring-boot-project.instructions.md`,
-  every applicable topic file (`.github/instructions/` first, else
-  `~/.agents/instructions/`), and existing `docs/adr/`.
+  every applicable topic file and existing `docs/adr/`.
 - DO NOT ask anything the prompt, an ADR, or a mandatory contract already decided,
   including Java or Spring Boot major. DO NOT ask a question that cannot change the code.
   When ADRs already exist, gap-fill only (1–2 rounds).

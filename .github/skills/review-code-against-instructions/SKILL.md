@@ -19,8 +19,6 @@ description: >-
 ## 1. Define the Scope
 
 1. Load all instruction files applicable to the target scope from both:
-	- the workspace directory `.github/instructions/`
-	- the configured user-level directory `~/.agents/instructions/`
 2. Check each instruction file's `applyTo` pattern against the target files.
 3. Treat both locations as active instruction sources. Do not ignore an applicable user-level instruction because it is outside the workspace.
 4. If applicable instructions conflict, report the conflict and identify both sources. Stop rather than choosing a winner silently.
@@ -69,9 +67,7 @@ description: >-
 
 - Identify recurring code patterns that no active instruction governs.
 - Propose one new instruction rule per uncovered pattern.
-- Identify the appropriate owner for each proposed rule:
-	- `.github/instructions/` for project-specific rules.
-	- `~/.agents/instructions/` for reusable cross-project rules.
+- Identify the appropriate owner for each proposed rule.
 
 ### Approved exceptions
 
