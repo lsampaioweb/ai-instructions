@@ -19,6 +19,8 @@ description: >-
 ## 1. Define the Scope
 
 1. Load all instruction files applicable to the target scope from both:
+	- the workspace directory `.github/instructions/`
+	- the configured user-level directory `~/.copilot/personal/instructions/`
 2. Check each instruction file's `applyTo` pattern against the target files.
 3. Treat both locations as active instruction sources. Do not ignore an applicable user-level instruction because it is outside the workspace.
 4. If applicable instructions conflict, report the conflict and identify both sources. Stop rather than choosing a winner silently.
