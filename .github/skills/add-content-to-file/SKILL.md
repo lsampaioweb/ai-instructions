@@ -1,6 +1,6 @@
 ---
 name: add-content-to-file
-description: "Add, update, or deduplicate content in Markdown or plain-text files."
+description: "Add or update content in files."
 disable-model-invocation: true
 argument-hint: "Required: #file:path/to/file and the content to add"
 ---
