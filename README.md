@@ -5,7 +5,7 @@ Centralized GitHub Copilot and Cursor customization assets for Spring Boot proje
 ## Repository structure
 
 ```
-.github/        — GitHub Copilot assets: instructions, hooks, skills, and agents
+.github/        — GitHub Copilot assets: instructions, hooks, and skills
 .cursor/        — Cursor assets: AGENTS.md, path-scoped rules (.mdc), and skills
 scripts/        — maintenance utilities for local editor and session repair tasks
 ```
@@ -65,21 +65,6 @@ Cursor mirrors the editor-focused subset under [.cursor/skills](.cursor/skills);
 - Frameworks with instruction files today: `ansible`, `spring-boot`. The repository also reserves `python`, `typescript`, and `go` prefixes for future contract sets.
 - Source files in this repository are never modified by consumer linking steps; any target repo copies or hardlinks should treat the source as read-only.
 - If a consumer still has old `.cursor/rules` from a previous overlay, remove that directory before re-linking or re-mirroring the assets.
-
-## Agent Catalog
-
-Spring Boot custom agents live under [.github/agents](.github/agents). Consume
-them by copying or wiring them into a target repository when the workgroup is
-needed. Cursor behavior still uses [AGENTS.md](.cursor/AGENTS.md) plus skills;
-there is no separate Cursor agent catalog in this repository.
-
-| Agent | Responsibility |
-|---|---|
-| [spring-boot-orchestrator](.github/agents/spring-boot-orchestrator.agent.md) | Owns the user conversation, classifies the mode, and delegates Architect, Coder, and Reviewer. Does not write code. |
-| [spring-boot-architect](.github/agents/spring-boot-architect.agent.md) | Turns the request into one ADR, records user Instruction overrides, and classifies findings |
-| [spring-boot-coder](.github/agents/spring-boot-coder.agent.md) | Implements the approved ADR under the instruction contracts |
-| [spring-boot-reviewer](.github/agents/spring-boot-reviewer.agent.md) | Sole read-only review of instruction compliance, security, tests, and docs |
-| [spring-boot-agent-improver](.github/agents/spring-boot-agent-improver.agent.md) | Optional after a failed or two-pass run. Proposes governance fixes. Never a finalize gate. |
 
 ## Cursor overlays
 
