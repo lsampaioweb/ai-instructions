@@ -3,6 +3,11 @@ description: "Workspace behavior baseline for safe execution, scope control, dir
 applyTo: "**"
 ---
 
+## Available AI customization
+- Consult the relevant instructions and skills available in the current session before proposing or making changes.
+- Do not assume customization file locations or lookup precedence.
+- Do not change editor customization settings or publish files into another customization set without explicit approval.
+
 ## Language and communication
 - Use clear, direct technical English.
 - Keep responses brief and focused on what is needed.
@@ -22,6 +27,21 @@ applyTo: "**"
 - Format modified source files with the editor tools instead of ad hoc manual formatting.
 - Use command-line tools only when they are necessary for the task.
 - Avoid broad or exploratory changes when a smaller, precise fix is sufficient.
+
+## Default stack
+Apply these choices when the corresponding capability is needed.
+Do not introduce tools merely because they appear in this list.
+
+- Use Packer to build reusable machine images and VM templates.
+- Use Terraform to provision infrastructure and manage its lifecycle.
+- Use Ansible to configure operating systems, install services, and manage their configuration.
+- Use Java with Spring Boot for all application development.
+- Do not propose another application language or framework unless explicitly requested.
+- Use Podman for container builds and execution.
+- Use Grafana for visualization, Prometheus for metrics, Loki for logs, Alloy for collection, and Tempo for traces.
+- Consult the available topic instructions for implementation details.
+- Request approval before departing from these defaults.
+- Do not migrate existing implementations solely to enforce these defaults.
 
 ## Workflow macros
 - Interpret the following prompt modifiers when present:
