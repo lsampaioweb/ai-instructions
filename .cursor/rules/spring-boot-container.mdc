@@ -1,14 +1,18 @@
 ---
-description: "Container and Compose contract for build strategy, runtime hardening, profiles, networks, resources, and container operations."
-globs: "**/Dockerfile,**/Dockerfile-*,**/docker-compose.yml,**/docker-compose*.yml,**/compose.yml,**/compose*.yml,**/.dockerignore,**/.env.example"
+description: "Use when building or deploying containerized Spring Boot applications with Podman and Quadlet, or maintaining legacy container manifests. Covers image builds, runtime hardening, systemd lifecycle, networking, and persistence."
+globs: "**/Containerfile,**/Containerfile.*,**/Dockerfile,**/Dockerfile-*,**/*.container,**/*.image,**/*.network,**/*.volume,**/*.pod,**/*.build,**/*.kube,**/docker-compose.yml,**/docker-compose*.yml,**/compose.yml,**/compose*.yml,**/.containerignore,**/.dockerignore,**/.env.example"
 alwaysApply: false
 ---
 
-# Spring Boot Container Contract
+# Spring Boot Podman and Quadlet Contract
 
-These rules govern container images and Compose-based orchestration for Spring Boot
-projects. They are generic container rules. Service-specific contracts own the
-configuration and behavior of databases, brokers, caches, secret stores, and proxies.
+These rules govern container images and Podman deployments for Spring Boot
+projects. Use Podman and Quadlet with systemd for persistent container services.
+Do not introduce Docker Engine or Docker Compose in new deployments. Treat existing
+Docker/Compose files as legacy input when the user explicitly asks to work on them;
+do not migrate an existing project solely to enforce this default. Service-specific
+contracts own the configuration and behavior of databases, brokers, caches, secret
+stores, and proxies.
 
 ## Ownership
 
@@ -23,6 +27,8 @@ configuration and behavior of databases, brokers, caches, secret stores, and pro
 
 ## Image builds
 
+- Use Podman to build and run container images.
+- Name new image build files `Containerfile` and new ignore files `.containerignore`.
 - Use a multi-stage build for deployable application images.
 - Keep compilation and dependency resolution in the builder stage; keep the runtime
   stage limited to the application artifact and runtime requirements.
@@ -33,81 +39,100 @@ configuration and behavior of databases, brokers, caches, secret stores, and pro
   Java version, user, filesystem layout, and update process must be documented.
 - Pin image references to explicit versions. Use immutable digests for production
   deployments when the deployment platform supports them.
-- Keep build context small with a focused `.dockerignore`.
+- Keep build context small with a focused `.containerignore`.
 - Do not copy source-controlled secrets, local environment files, build caches, or
   unrelated workspace files into an image.
 
 ## Runtime identity and hardening
 
-- Run application containers as a non-root user.
-- Declare or verify the runtime user explicitly; do not rely on undocumented base-image
-  behavior.
-- Drop Linux capabilities with `cap_drop: ALL` unless a documented runtime requirement
-  needs a specific capability.
-- Set `no-new-privileges:true` for application and infrastructure services by default.
-- Use a read-only root filesystem with a narrowly scoped `tmpfs` for writable temporary
-  paths when the process supports it.
-- Mount certificates, configuration, and persistent data read-only unless the process
-  must write them.
-- Do not grant privileged mode or host namespaces without an explicit operational need.
+- Run application processes as a non-root user inside the container.
+- Declare or verify the image's runtime user explicitly; do not rely on undocumented
+  base-image behavior.
+- Select rootless user Quadlet or rootful system Quadlet deliberately and document the
+  reason. Do not select system units only for convenience.
+- Use Quadlet `[Container]` settings such as `DropCapability=ALL` and
+  `NoNewPrivileges=true` unless a documented runtime requirement needs an exception.
+- Use `ReadOnly=true` with the supported temporary mounts when the process allows it.
+- Mount certificates and configuration read-only; make only required persistent data
+  paths writable.
+- Do not grant privileged mode, host networking, or extra capabilities without an
+  explicit operational requirement.
 
-## Compose profiles and resources
+## Quadlet and systemd lifecycle
 
-- Default Compose configurations to the `production` application profile.
-- Select `development` explicitly for local development; do not hardcode it as the
-  shared or production-like default.
-- Keep CPU and memory limits in production-like Compose deployments.
-- Local-only Compose files may omit resource limits when their purpose is interactive
-  development, but the omission must be intentional.
-- Load credentials, ports, profile overrides, and environment-specific values from
-  environment variables or an ignored `.env` file. Keep `.env.example` free of secrets.
-- Use required variable substitution for values that must exist before startup.
+- Define persistent containers with Quadlet source files rather than handwritten
+  generated unit files or detached container startup commands.
+- Pin fully qualified image references in each Quadlet definition.
+- Put boot activation in the Quadlet `[Install]` section using the correct target for
+  the selected user or system unit scope.
+- Do not run `systemctl enable` on generated Quadlet service units.
+- Use the matching `systemctl` scope for reload, startup, status, logs, restart, and
+  shutdown operations.
+- For rootless user services that must start without an interactive login, configure
+  and document user lingering.
+- Validate Quadlet syntax with the generator shipped with the target Podman version
+  before starting the service.
+- Verify reboot startup separately from unit syntax and initial startup checks.
 
-## Health, networks, and persistence
+## Profiles, resources, and configuration
 
-- Add a healthcheck for every long-running service when a reliable health command or
-  health endpoint exists.
-- Use the application's Actuator liveness or readiness endpoint for orchestration
-  healthchecks when Actuator is enabled; keep the scheme and port aligned with the TLS
-  termination boundary.
-- Create project-local Compose networks by default. Use an external network only when
-  deployment infrastructure owns that network and the dependency is documented.
-- Give persistent data explicit named volumes or host paths with documented ownership.
+- Select Spring profiles explicitly through the Quadlet environment configuration.
+- Use `production` for production deployments and select `development` explicitly for
+  local development; follow the Spring Boot configuration contract for profile files.
+- Set CPU and memory limits for production-like services using supported Quadlet
+  resource options.
+- Keep credentials out of tracked Quadlet units and environment files. Use Podman
+  secrets or a separately protected environment file from an approved secret source.
+- Keep `.env.example` free of secrets and label local-only values clearly.
+- Use required environment substitutions for values that must be supplied before
+  service startup.
+
+## Health, networking, and persistence
+
+- Add a container health check when the image or application has a reliable check.
+- Use the application's Actuator liveness or readiness endpoint when Actuator is
+  enabled; align its scheme and port with the TLS termination boundary.
+- Use Podman networks for containers communicating on the same host. For services on
+  different VMs, use stable host addresses and explicit firewall rules; container DNS
+  names do not span VM boundaries by default.
+- Give persistent data explicit host paths or Podman volumes with documented ownership
+  and runtime UID/GID mapping.
 - Do not treat container replacement as a data backup strategy.
-- Expose host ports only when local access or an explicit deployment boundary requires it.
+- Publish host ports only when an explicit client or deployment boundary requires them.
 
 ## Logging and TLS boundaries
 
-- Write container logs to stdout/stderr so the container runtime can collect them.
+- Write application container logs to stdout/stderr so Podman and the selected host log
+  driver can collect them.
 - Keep rolling file logging only when the deployment explicitly requires local files;
   use a documented writable mount for those files.
-- Do not assume that a file-only application logger is visible through container logs.
+- Do not assume a file-only application logger is visible through container logs.
 - Default application containers to HTTP when a trusted reverse proxy terminates TLS.
   Use embedded HTTPS only when the TLS contract and deployment boundary require it.
 - Document whether TLS terminates in the application, a proxy, or another ingress layer.
 
 ## Local-only services
 
-- Mark unauthenticated services, insecure dashboards, public infrastructure ports,
-  disabled transport encryption, and development certificates as local-development
-  choices.
-- Do not carry local-only insecure defaults into production-like Compose files.
-- Keep service credentials in environment variables or an approved secret source.
-- Use explicit healthchecks and persistence settings for local infrastructure services,
-  but defer their service-specific authentication and topology rules to their own
-  contracts.
+- Mark unauthenticated services, insecure dashboards, broadly published infrastructure
+  ports, disabled transport encryption, and development certificates as local-only.
+- Do not carry local-only insecure defaults into production deployments.
+- Keep service credentials in Podman secrets or an approved protected secret source.
+- Use explicit health checks and persistence settings for local infrastructure services,
+  but defer service-specific authentication and topology rules to their own contracts.
 
 ## Forbidden
 
+- Never introduce Docker Engine or Docker Compose for a new deployment.
 - Never build a production image from a runtime that uses a different Java major
   version than the application requires.
-- Never run a deployable application container as root without a documented exception.
-- Never use privileged containers or host-network mode as a convenience workaround.
-- Never commit `.env` files, private keys, keystores, or real credentials.
-- Never use `development` as the default profile in a production-like Compose file.
+- Never run a deployable application process as root without a documented exception.
+- Never use privileged containers, host namespaces, or broad capabilities as a
+  convenience workaround.
+- Never commit environment files containing secrets, private keys, keystores, or real
+  credentials.
 - Never publish databases, brokers, caches, secret stores, or administration dashboards
-  publicly without an explicit local-only or deployment requirement.
+  beyond their explicit trust boundary.
 - Never claim a service is ready based only on a running container; use a meaningful
-  healthcheck.
+  health check and application-level validation.
 - Never assume stdout and rolling-file logging are equivalent without documenting the
   chosen collection path.

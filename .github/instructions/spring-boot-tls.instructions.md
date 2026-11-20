@@ -1,6 +1,6 @@
 ---
-description: "Spring Boot HTTPS and TLS contract for embedded TLS, certificate material, keystores, and transport-security boundaries."
-applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/*Ssl*.java, **/*Tls*.java, **/*Https*.java, **/Dockerfile, **/docker-compose*.yml"
+description: "Spring Boot HTTPS and TLS contract for embedded TLS, certificates, keystores, and container runtime boundaries."
+applyTo: "**/src/main/resources/application*.yml, **/src/main/resources/application*.yaml, **/*Ssl*.java, **/*Tls*.java, **/*Https*.java, **/Containerfile, **/Containerfile.*, **/Dockerfile, **/docker-compose*.yml, **/*.container"
 ---
 
 # Spring Boot HTTPS and TLS Contract
@@ -51,7 +51,7 @@ ingress terminates TLS before traffic reaches the application.
   production material.
 - Document the required certificate, keystore, and truststore inputs without including
   private material or real passwords.
-- Do not copy certificate material into Docker images or committed application
+- Do not copy certificate material into container images or committed application
   resources.
 
 ## Validation and operations

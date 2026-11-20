@@ -1,14 +1,16 @@
 ---
-description: "Traefik ingress contract for app Compose labels, shared network, Host routing, and Traefik-only exposure."
-globs: "**/docker-compose.yml,**/docker-compose*.yml,**/compose.yml,**/compose*.yml"
+description: "Traefik ingress contract for Compose and Podman/Quadlet apps, shared networks, Host routing, and Traefik-only exposure."
+globs: "**/docker-compose.yml,**/docker-compose*.yml,**/compose.yml,**/compose*.yml,**/*.container,**/*.network"
 alwaysApply: false
 ---
 
 # Spring Boot Traefik Contract
 
 Apply this contract when a Spring Boot app (or HTTP sidecar UI) is routed through
-Traefik. Traefik proxy Compose, dashboard, sockets, and cert files stay in the
-infrastructure runbook for the environment.
+Traefik. Traefik proxy, dashboard, sockets, and cert files stay in the
+infrastructure runbook for the environment. Apply the Compose guidance only to
+existing deployments when the user explicitly asks to work on them. Use the
+Podman/Quadlet guidance below for new container deployments.
 
 Container owns image build, resources, healthchecks, profiles, and generic
 networks. TLS owns application keystores when the app terminates TLS itself.
@@ -29,6 +31,18 @@ Actuator and security own health exposure and actuator credentials.
   Traefik at an HTTPS-only app listener unless the deployment explicitly
   terminates TLS in the app (container TLS-boundary rule).
 
+## App Podman/Quadlet routing
+
+- Attach the app container to a shared Podman network that Traefik can access.
+- Configure Traefik's provider to discover Podman-managed containers on that
+  network; do not assume Compose or Docker discovery is configured for Podman.
+- Set the app's routing labels in the Quadlet `[Container]` section with
+  `Label=key=value` entries, following the Host, entrypoint, TLS, and
+  loadbalancer-port rules above.
+- Set the Quadlet `Network=` entry to the shared Podman network.
+- Keep Traefik-to-app traffic **HTTP** on the app's container listen port unless
+  the deployment explicitly terminates TLS in the app.
+
 ## Traefik-only ingress
 
 When Compose intends Traefik as the only ingress:
@@ -36,6 +50,12 @@ When Compose intends Traefik as the only ingress:
 - Do not publish app `ports:` on the host; Traefik is the entrypath.
 - Keep the Host rule, enable flag, loadbalancer port, and shared-network
   declarations present and consistent.
+
+When a Quadlet app uses Traefik as the only ingress:
+
+- Do not set `PublishPort=` on the app container; Traefik is the entrypath.
+- Keep the Host rule, enable label, loadbalancer port, and shared-network
+  attachment present and consistent.
 
 ## Optional service labels
 

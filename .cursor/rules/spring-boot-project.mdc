@@ -60,7 +60,7 @@ Do not rely only on `globs` auto-loading, especially on an empty repository.
 | Application events and `@EventListener` | `spring-boot-events.mdc` |
 | `@Async` workers and enablement | `spring-boot-async.mdc` |
 | Embedded HTTPS / TLS | `spring-boot-tls.mdc` |
-| Containers and Compose | `spring-boot-container.mdc` |
+| Container builds and Podman/Quadlet runtime | `spring-boot-container.mdc` |
 | Spring Cloud Config server/client | `spring-boot-cloud-config.mdc` |
 | Spring Cloud Vault client | `spring-boot-vault.mdc` |
 | RabbitMQ / AMQP | `spring-boot-rabbitmq.mdc` |

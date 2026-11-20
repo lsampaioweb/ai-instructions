@@ -59,7 +59,7 @@ Do not rely only on `applyTo` auto-loading, especially on an empty repository.
 | Application events and `@EventListener` | `spring-boot-events.instructions.md` |
 | `@Async` workers and enablement | `spring-boot-async.instructions.md` |
 | Embedded HTTPS / TLS | `spring-boot-tls.instructions.md` |
-| Containers and Compose | `spring-boot-container.instructions.md` |
+| Container builds and Podman/Quadlet runtime | `spring-boot-container.instructions.md` |
 | Spring Cloud Config server/client | `spring-boot-cloud-config.instructions.md` |
 | Spring Cloud Vault client | `spring-boot-vault.instructions.md` |
 | RabbitMQ / AMQP | `spring-boot-rabbitmq.instructions.md` |
